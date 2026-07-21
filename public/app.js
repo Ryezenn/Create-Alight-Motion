@@ -806,4 +806,47 @@ document.addEventListener('DOMContentLoaded', () => {
         dashboardWrapper.classList.add('dashboard-hidden');
         authContainer.classList.remove('auth-hidden');
     }
+
+    // --- ADVANCED SECURITY: ANTI-DEVTOOLS & INSPECT PROTECT ---
+    (function() {
+        // Disable Right-Click Context Menu
+        document.addEventListener('contextmenu', e => e.preventDefault());
+
+        // Disable Common Developer Shortcuts
+        document.addEventListener('keydown', e => {
+            // Disable F12
+            if (e.key === 'F12' || e.keyCode === 123) {
+                e.preventDefault();
+                return false;
+            }
+            // Disable Ctrl+Shift+I (Inspect), Ctrl+Shift+J (Console), Ctrl+Shift+C (Inspect Element)
+            if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) {
+                e.preventDefault();
+                return false;
+            }
+            // Disable Ctrl+U (View Source)
+            if (e.ctrlKey && (e.key === 'u' || e.keyCode === 85)) {
+                e.preventDefault();
+                return false;
+            }
+            // Disable Ctrl+S (Save Page)
+            if (e.ctrlKey && (e.key === 's' || e.keyCode === 83)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Anti-Debugger Loop: Pauses execution if DevTools is open
+        const preventDevTools = () => {
+            function check() {
+                try {
+                    (function() {
+                        return function(a) {}
+                    })().constructor("debugger")();
+                } catch (e) {}
+            }
+            setInterval(check, 100);
+        };
+        preventDevTools();
+    })();
 });
