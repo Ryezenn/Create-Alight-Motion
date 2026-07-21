@@ -331,12 +331,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    let adInterval = null;
+
     // --- ACTIVATOR ENGINE SYSTEM ---
     function goToStep(step) {
         viewStep1.classList.remove('active');
         if (viewStepAds) viewStepAds.classList.remove('active');
         viewStep2.classList.remove('active');
         viewStep3.classList.remove('active');
+
+        // Always clear active ad interval when navigating away
+        if (adInterval) {
+            clearInterval(adInterval);
+            adInterval = null;
+        }
 
         indicatorStep1.className = 'step-dot';
         indicatorStep2.className = 'step-dot';
@@ -352,6 +360,9 @@ document.addEventListener('DOMContentLoaded', () => {
             indicatorStep1.classList.add('completed');
             indicatorStep2.classList.add('active');
             if (stepLineProgress) stepLineProgress.style.width = '33.3%';
+            
+            // Start automatic ad viewing
+            startAutoAdVerification();
         } else if (step === 3) {
             viewStep2.classList.add('active');
             indicatorStep1.classList.add('completed');
@@ -484,65 +495,96 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- STEP ADS: SPONSOR WALL CONTROLLER ---
+    function startAutoAdVerification() {
+        // Clear any previous interval first
+        if (adInterval) {
+            clearInterval(adInterval);
+        }
+
+        if (adViewCount >= REQUIRED_ADS) {
+            if (btnWatchAd) {
+                btnWatchAd.disabled = true;
+                btnWatchAd.classList.add('disabled');
+                btnWatchAd.querySelector('span').textContent = 'Validasi Iklan Selesai!';
+            }
+            if (btnNextToStep2) {
+                btnNextToStep2.disabled = false;
+                btnNextToStep2.classList.remove('disabled');
+            }
+            return;
+        }
+
+        addLog('⏳ Memulai verifikasi penayangan iklan otomatis. Harap tetap di halaman ini...', 'info');
+        
+        if (btnNextToStep2) {
+            btnNextToStep2.disabled = true;
+            btnNextToStep2.classList.add('disabled');
+        }
+        if (btnBackToStep1) btnBackToStep1.disabled = true;
+
+        let countdown = 8; // 8 seconds per ad
+        const updateText = () => {
+            if (btnWatchAd) {
+                btnWatchAd.querySelector('span').textContent = `Menonton Iklan... (${countdown}s) [${adViewCount + 1}/${REQUIRED_ADS}]`;
+            }
+        };
+
+        updateText();
+
+        adInterval = setInterval(() => {
+            countdown--;
+            if (countdown > 0) {
+                updateText();
+            } else {
+                // Confirm 1 ad view
+                adViewCount++;
+                if (adViewCountEl) adViewCountEl.textContent = adViewCount;
+                if (adsProgressFill) {
+                    const percent = (adViewCount / REQUIRED_ADS) * 100;
+                    adsProgressFill.style.width = `${percent}%`;
+                }
+
+                addLog(`📺 Iklan ke-${adViewCount} otomatis terverifikasi.`, 'success');
+
+                if (adViewCount < REQUIRED_ADS) {
+                    countdown = 8; // Reset countdown for next ad
+                    updateText();
+                } else {
+                    // Complete
+                    clearInterval(adInterval);
+                    adInterval = null;
+
+                    if (btnWatchAd) {
+                        btnWatchAd.disabled = true;
+                        btnWatchAd.classList.add('disabled');
+                        btnWatchAd.querySelector('span').textContent = 'Validasi Iklan Selesai!';
+                    }
+                    if (btnNextToStep2) {
+                        btnNextToStep2.disabled = false;
+                        btnNextToStep2.classList.remove('disabled');
+                    }
+                    if (btnBackToStep1) btnBackToStep1.disabled = false;
+                    addLog('✅ Semua sponsor iklan telah ditonton (5/5). Silakan klik Lanjutkan!', 'success');
+                }
+            }
+        }, 1000);
+    }
+
+    // Click on Buka Iklan Sponsor to open sponsor link manually
     if (btnWatchAd) {
         btnWatchAd.addEventListener('click', () => {
-            if (adViewCount >= REQUIRED_ADS) return;
-
-            // Open ad sponsor link in a new tab
             window.open(AD_SPONSOR_URL, '_blank');
-            addLog('🔗 Iklan sponsor dibuka di tab baru. Menghitung waktu tampilan...', 'info');
-
-            // Disable buttons during countdown
-            btnWatchAd.disabled = true;
-            btnWatchAd.classList.add('loading');
-            if (btnBackToStep1) btnBackToStep1.disabled = true;
-
-            let countdown = 8; // 8 Seconds timer
-            btnWatchAd.querySelector('span').textContent = `Menganalisis Sponsor... (${countdown}s)`;
-
-            const timer = setInterval(() => {
-                countdown--;
-                if (countdown > 0) {
-                    btnWatchAd.querySelector('span').textContent = `Menganalisis Sponsor... (${countdown}s)`;
-                } else {
-                    clearInterval(timer);
-                    
-                    // Increment and update view
-                    adViewCount++;
-                    if (adViewCountEl) adViewCountEl.textContent = adViewCount;
-                    if (adsProgressFill) {
-                        const percent = (adViewCount / REQUIRED_ADS) * 100;
-                        adsProgressFill.style.width = `${percent}%`;
-                    }
-
-                    // Enable buttons
-                    btnWatchAd.disabled = false;
-                    btnWatchAd.classList.remove('loading');
-                    btnWatchAd.querySelector('span').textContent = 'Buka Iklan Sponsor';
-                    if (btnBackToStep1) btnBackToStep1.disabled = false;
-
-                    addLog(`📺 Sponsor iklan ${adViewCount} dari ${REQUIRED_ADS} berhasil diverifikasi.`, 'success');
-
-                    // Check if complete
-                    if (adViewCount >= REQUIRED_ADS) {
-                        btnWatchAd.disabled = true;
-                        btnWatchAd.querySelector('span').textContent = 'Validasi Iklan Selesai!';
-                        btnWatchAd.classList.add('disabled');
-                        
-                        if (btnNextToStep2) {
-                            btnNextToStep2.disabled = false;
-                            btnNextToStep2.classList.remove('disabled');
-                        }
-                        addLog('✅ Semua sponsor iklan telah diverifikasi (5/5). Silakan klik tombol Lanjutkan!', 'success');
-                    }
-                }
-            }, 1000);
+            addLog('🔗 Link sponsor dibuka di tab baru. Terima kasih atas dukungan Anda!', 'info');
         });
     }
 
     if (btnBackToStep1) {
         btnBackToStep1.addEventListener('click', () => {
             addLog('Kembali ke langkah pengisian email.', 'muted');
+            if (adInterval) {
+                clearInterval(adInterval);
+                adInterval = null;
+            }
             goToStep(1);
             inputEmail.disabled = false;
             
@@ -552,8 +594,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (adsProgressFill) adsProgressFill.style.width = '0%';
             if (btnWatchAd) {
                 btnWatchAd.disabled = false;
-                btnWatchAd.querySelector('span').textContent = 'Buka Iklan Sponsor';
                 btnWatchAd.classList.remove('disabled');
+                btnWatchAd.querySelector('span').textContent = 'Buka Iklan Sponsor';
             }
             if (btnNextToStep2) {
                 btnNextToStep2.disabled = true;
@@ -578,6 +620,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btnRestart.addEventListener('click', () => {
         addLog('Memulai sesi aktivasi akun baru.', 'muted');
+        if (adInterval) {
+            clearInterval(adInterval);
+            adInterval = null;
+        }
         formStep1.reset();
         formStep2.reset();
         
@@ -591,8 +637,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (adsProgressFill) adsProgressFill.style.width = '0%';
         if (btnWatchAd) {
             btnWatchAd.disabled = false;
-            btnWatchAd.querySelector('span').textContent = 'Buka Iklan Sponsor';
             btnWatchAd.classList.remove('disabled');
+            btnWatchAd.querySelector('span').textContent = 'Buka Iklan Sponsor';
         }
         if (btnNextToStep2) {
             btnNextToStep2.disabled = true;
