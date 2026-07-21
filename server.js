@@ -11,9 +11,51 @@ const PORT = process.env.PORT || 3000;
 // Connect to MongoDB Atlas
 const MONGODB_URI = "mongodb+srv://ryuzo:Hanzz7308@cluster0.j0jxvhq.mongodb.net/alight-motion?retryWrites=true&w=majority&appName=Cluster0";
 
+// Local Database Fallback Variables & Helper Functions
+let isMongoConnected = false;
+let fallbackUsers = [];
+let fallbackActivations = [];
+
+const fs = require('fs');
+const FALLBACK_USERS_FILE = path.join(__dirname, 'fallback_users.json');
+const FALLBACK_ACTIVATIONS_FILE = path.join(__dirname, 'fallback_activations.json');
+
+function loadFallbackData() {
+    try {
+        if (fs.existsSync(FALLBACK_USERS_FILE)) {
+            fallbackUsers = JSON.parse(fs.readFileSync(FALLBACK_USERS_FILE, 'utf-8'));
+        }
+        if (fs.existsSync(FALLBACK_ACTIVATIONS_FILE)) {
+            fallbackActivations = JSON.parse(fs.readFileSync(FALLBACK_ACTIVATIONS_FILE, 'utf-8'));
+        }
+        console.log(`[Backup DB] Fallback JSON loaded. Users: ${fallbackUsers.length}, Activations: ${fallbackActivations.length}`);
+    } catch (e) {
+        console.error('[Backup DB] Failed to load fallback JSON database:', e.message);
+    }
+}
+
+function saveFallbackData() {
+    try {
+        fs.writeFileSync(FALLBACK_USERS_FILE, JSON.stringify(fallbackUsers, null, 2));
+        fs.writeFileSync(FALLBACK_ACTIVATIONS_FILE, JSON.stringify(fallbackActivations, null, 2));
+    } catch (e) {
+        console.error('[Backup DB] Failed to save fallback JSON database:', e.message);
+    }
+}
+
+// Load fallback database on startup
+loadFallbackData();
+
 mongoose.connect(MONGODB_URI)
-    .then(() => console.log('==================================================\n✅ Connected successfully to MongoDB.\n=================================================='))
-    .catch(err => console.error('==================================================\n❌ Failed to connect to MongoDB:', err.message, '\n=================================================='));
+    .then(() => {
+        isMongoConnected = true;
+        console.log('==================================================\n✅ Connected successfully to MongoDB.\n==================================================');
+    })
+    .catch(err => {
+        isMongoConnected = false;
+        console.error('==================================================\n❌ Failed to connect to MongoDB:', err.message);
+        console.log('⚠️  System will fallback to Local JSON Database for login, register, and history.\n==================================================');
+    });
 
 // Define Mongoose Schema
 const ActivationSchema = new mongoose.Schema({
@@ -58,20 +100,37 @@ app.post('/api/auth/register', async (req, res) => {
 
     try {
         const cleanedUsername = username.trim().toLowerCase();
-        // Check if user already exists
-        const existingUser = await WebUser.findOne({ username: cleanedUsername });
-        if (existingUser) {
-            return res.status(400).json({ success: false, error: 'Username sudah digunakan.' });
+        
+        if (isMongoConnected) {
+            // Check if user already exists in MongoDB
+            const existingUser = await WebUser.findOne({ username: cleanedUsername });
+            if (existingUser) {
+                return res.status(400).json({ success: false, error: 'Username sudah digunakan.' });
+            }
+
+            const hashedPassword = hashPassword(password);
+            const newUser = new WebUser({
+                username: cleanedUsername,
+                password: hashedPassword
+            });
+            await newUser.save();
+        } else {
+            // Local JSON Fallback
+            const existingUser = fallbackUsers.find(u => u.username === cleanedUsername);
+            if (existingUser) {
+                return res.status(400).json({ success: false, error: 'Username sudah digunakan.' });
+            }
+
+            const hashedPassword = hashPassword(password);
+            fallbackUsers.push({
+                username: cleanedUsername,
+                password: hashedPassword,
+                createdAt: new Date()
+            });
+            saveFallbackData();
         }
 
-        const hashedPassword = hashPassword(password);
-        const newUser = new WebUser({
-            username: cleanedUsername,
-            password: hashedPassword
-        });
-        await newUser.save();
-
-        console.log(`[Auth] User baru terdaftar: ${cleanedUsername}`);
+        console.log(`[Auth] User baru terdaftar: ${cleanedUsername} (${isMongoConnected ? 'MongoDB' : 'Local DB'})`);
         return res.json({ success: true, message: 'Registrasi berhasil. Silakan login.' });
     } catch (error) {
         console.error('[Auth] Error registrasi:', error);
@@ -88,7 +147,14 @@ app.post('/api/auth/login', async (req, res) => {
 
     try {
         const cleanedUsername = username.trim().toLowerCase();
-        const user = await WebUser.findOne({ username: cleanedUsername });
+        let user = null;
+
+        if (isMongoConnected) {
+            user = await WebUser.findOne({ username: cleanedUsername });
+        } else {
+            user = fallbackUsers.find(u => u.username === cleanedUsername);
+        }
+
         if (!user) {
             return res.status(400).json({ success: false, error: 'Username atau password salah.' });
         }
@@ -98,7 +164,7 @@ app.post('/api/auth/login', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Username atau password salah.' });
         }
 
-        console.log(`[Auth] User login sukses: ${cleanedUsername}`);
+        console.log(`[Auth] User login sukses: ${cleanedUsername} (${isMongoConnected ? 'MongoDB' : 'Local DB'})`);
         return res.json({ success: true, message: 'Login berhasil.', user: { username: user.username } });
     } catch (error) {
         console.error('[Auth] Error login:', error);
@@ -151,14 +217,27 @@ app.post('/api/activate', async (req, res) => {
         
         const finalOrderId = `Ryezenn.6767-${codeorder}`;
         
-        // Save activation record to MongoDB
+        // Save activation record to Database
         try {
-            const newActivation = new Activation({
-                email: user.email,
-                orderId: finalOrderId
-            });
-            await newActivation.save();
-            console.log(`[Server] Saved database record successfully for: ${user.email}`);
+            if (isMongoConnected) {
+                const newActivation = new Activation({
+                    email: user.email,
+                    orderId: finalOrderId
+                });
+                await newActivation.save();
+            } else {
+                fallbackActivations.unshift({
+                    email: user.email,
+                    orderId: finalOrderId,
+                    timestamp: new Date()
+                });
+                // Limit to last 100 entries
+                if (fallbackActivations.length > 100) {
+                    fallbackActivations = fallbackActivations.slice(0, 100);
+                }
+                saveFallbackData();
+            }
+            console.log(`[Server] Saved database record successfully for: ${user.email} (${isMongoConnected ? 'MongoDB' : 'Local DB'})`);
         } catch (dbErr) {
             console.error(`[Server] Database save failed: ${dbErr.message}`);
         }
@@ -184,14 +263,21 @@ app.post('/api/activate', async (req, res) => {
     }
 });
 
-// Endpoint: Fetch Activation History from MongoDB
+// Endpoint: Fetch Activation History
 app.get('/api/history', async (req, res) => {
     try {
-        const history = await Activation.find({}).sort({ timestamp: -1 }).limit(50);
-        const totalCount = await Activation.countDocuments();
-        return res.json({ success: true, history, totalCount });
+        if (isMongoConnected) {
+            const history = await Activation.find({}).sort({ timestamp: -1 }).limit(50);
+            const totalCount = await Activation.countDocuments();
+            return res.json({ success: true, history, totalCount });
+        } else {
+            // Local JSON Fallback
+            const history = fallbackActivations.slice(0, 50);
+            const totalCount = fallbackActivations.length;
+            return res.json({ success: true, history, totalCount });
+        }
     } catch (error) {
-        console.error('[Server] Gagal mengambil riwayat dari MongoDB:', error.message);
+        console.error('[Server] Gagal mengambil riwayat:', error.message);
         return res.status(500).json({ success: false, error: 'Gagal mengambil riwayat database.' });
     }
 });
