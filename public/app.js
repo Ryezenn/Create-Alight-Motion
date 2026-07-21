@@ -333,6 +333,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let adInterval = null;
 
+    // Helper to check if Google AdSense is loaded and active
+    function isAdSenseActive() {
+        if (!window.adsbygoogle) {
+            return false;
+        }
+        const insTag = document.querySelector('.adsbygoogle');
+        if (!insTag) return false;
+        
+        // Check if AdSense has loaded an iframe inside or is marked as filled
+        const hasIframe = insTag.getElementsByTagName('iframe').length > 0;
+        const isFilled = insTag.getAttribute('data-ad-status') === 'filled';
+        return hasIframe || isFilled;
+    }
+
     // --- ACTIVATOR ENGINE SYSTEM ---
     function goToStep(step) {
         viewStep1.classList.remove('active');
@@ -412,8 +426,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 addLog(`Silakan periksa kotak masuk (inbox) atau folder spam pada email Anda.`, 'muted');
                 
                 setTimeout(() => {
-                    goToStep(2);
-                    addLog(`ℹ️ Silakan verifikasi sponsor dengan membuka iklan di bawah ini terlebih dahulu.`, 'info');
+                    if (isAdSenseActive()) {
+                        goToStep(2);
+                        addLog(`ℹ️ Silakan verifikasi sponsor dengan menonton iklan di bawah ini terlebih dahulu.`, 'info');
+                    } else {
+                        goToStep(3);
+                        addLog(`Menunggu verifikasi... Silakan tempelkan tautan verifikasi dari email Anda.`, 'info');
+                        addLog(`⚠️ Langkah iklan sponsor dilewati otomatis karena iklan belum aktif/diblokir.`, 'muted');
+                    }
                 }, 1000);
             } else {
                 const errMsg = data.error || 'Terjadi kesalahan sistem.';
