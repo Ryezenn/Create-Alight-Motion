@@ -9,7 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Connect to MongoDB Atlas
-const MONGODB_URI = "mongodb+srv://ryuzo:Hanzz7308@cluster0.j0jxvhq.mongodb.net/alight-motion?retryWrites=true&w=majority&appName=Cluster0";
+const MONGODB_URI = "mongodb+srv://ryuzo:Hanzz73088@cluster0.j0jxvhq.mongodb.net/alight-motion?retryWrites=true&w=majority&appName=Cluster0";
 
 // Local Database Fallback Variables & Helper Functions
 let isMongoConnected = false;
