@@ -1,6 +1,43 @@
 // app.js
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initial Loader Elements
+    const initialLoader = document.getElementById('initial-loader');
+    const loaderProgressBar = document.getElementById('loader-progress');
+    const loaderStatusText = document.getElementById('loader-status-text');
+
+    // Run Initial Loader Sequence
+    if (initialLoader) {
+        // Step 1: Start load
+        setTimeout(() => {
+            if (loaderProgressBar) loaderProgressBar.style.width = '25%';
+            if (loaderStatusText) loaderStatusText.textContent = 'Menghubungkan ke Node Jaringan...';
+        }, 200);
+
+        // Step 2
+        setTimeout(() => {
+            if (loaderProgressBar) loaderProgressBar.style.width = '60%';
+            if (loaderStatusText) loaderStatusText.textContent = 'Memuat Modul Enkripsi & Keamanan...';
+        }, 600);
+
+        // Step 3
+        setTimeout(() => {
+            if (loaderProgressBar) loaderProgressBar.style.width = '90%';
+            if (loaderStatusText) loaderStatusText.textContent = 'Menyinkronkan Sesi Selesai...';
+        }, 1100);
+
+        // Step 4: Finalize and fade out
+        setTimeout(() => {
+            if (loaderProgressBar) loaderProgressBar.style.width = '100%';
+            if (loaderStatusText) loaderStatusText.textContent = 'Sistem Siap!';
+        }, 1400);
+
+        // Hide overlay
+        setTimeout(() => {
+            initialLoader.classList.add('loader-hidden');
+        }, 1700);
+    }
+
     // DOM Elements - Dashboard Layout
     const sidebar = document.getElementById('sidebar');
     const btnHamburger = document.getElementById('btn-hamburger');
@@ -99,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <tr class="empty-state-row">
                     <td colspan="5" class="text-center text-muted py-8">
                         <i class="fa-regular fa-folder-open empty-icon" style="display:block; font-size:24px; margin-bottom:8px; opacity:0.5;"></i>
-                        <p>Belum ada riwayat aktivasi. Silakan aktifkan akun pertama Anda.</p>
+                        <p>Belum ada data riwayat aktivasi. Silakan lakukan aktivasi akun pertama Anda.</p>
                     </td>
                 </tr>
             `;
@@ -123,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="accent-text">${item.orderId}</td>
                 <td>${dateStr}</td>
                 <td>1 Tahun</td>
-                <td><span class="badge badge-success"><i class="fa-solid fa-crown" style="font-size:10px; margin-right:4px;"></i> PRO Sukses</span></td>
+                <td><span class="badge badge-success"><i class="fa-solid fa-crown" style="font-size:10px; margin-right:4px;"></i> Premium Aktif</span></td>
             `;
             historyTbody.appendChild(tr);
         });
@@ -162,10 +199,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Update header title
-        let title = 'Overview';
-        if (tabId === 'activator') title = 'Activator Wizard';
-        else if (tabId === 'history') title = 'Activation History';
-        else if (tabId === 'status') title = 'Server Status Details';
+        let title = 'Ikhtisar Utama';
+        if (tabId === 'activator') title = 'Alat Aktivasi Akun';
+        else if (tabId === 'history') title = 'Riwayat Aktivasi';
+        else if (tabId === 'status') title = 'Status Server & API';
         if (headerTitleText) headerTitleText.textContent = title;
 
         // Toggle active views
@@ -264,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .join('\n');
             navigator.clipboard.writeText(logsText)
                 .then(() => {
-                    addLog('📋 Log berhasil disalin ke clipboard!', 'success');
+                    addLog('📋 Log berhasil disalin ke papan klip.', 'success');
                 })
                 .catch(err => {
                     addLog('❌ Gagal menyalin log: ' + err.message, 'error');
@@ -276,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnClearLog.addEventListener('click', () => {
             if (!consoleLog) return;
             consoleLog.innerHTML = '';
-            addLog('[System] Log dibersihkan.', 'muted');
+            addLog('[Sistem] Log aktivitas dibersihkan.', 'muted');
         });
     }
 
@@ -314,12 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = inputEmail.value.trim();
         
         if (!email) {
-            addLog('Email tidak boleh kosong.', 'error');
+            addLog('Alamat email tidak boleh kosong.', 'error');
             return;
         }
 
         userEmail = email;
-        addLog(`Memulai pengiriman Magic Link ke: ${email}...`, 'info');
+        addLog(`Memulai proses pengiriman tautan masuk ke: ${email}...`, 'info');
         
         btnSendLink.classList.add('loading');
         btnSendLink.disabled = true;
@@ -337,20 +374,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             
             if (response.ok && data.success) {
-                addLog(`✅ Magic link berhasil dikirim ke: ${email}`, 'success');
-                addLog(`Silakan cek kotak masuk (inbox) atau folder spam email Anda.`, 'muted');
+                addLog(`✅ Tautan masuk berhasil dikirim ke: ${email}`, 'success');
+                addLog(`Silakan periksa kotak masuk (inbox) atau folder spam pada email Anda.`, 'muted');
                 
                 setTimeout(() => {
                     goToStep(2);
-                    addLog(`Menunggu verifikasi... Silakan tempelkan link dari email Anda.`, 'info');
+                    addLog(`Menunggu verifikasi... Silakan tempelkan tautan verifikasi dari email Anda.`, 'info');
                 }, 1000);
             } else {
                 const errMsg = data.error || 'Terjadi kesalahan sistem.';
-                addLog(`❌ Gagal kirim magic link: ${errMsg}`, 'error');
+                addLog(`❌ Gagal mengirimkan tautan masuk: ${errMsg}`, 'error');
                 inputEmail.disabled = false;
             }
         } catch (error) {
-            addLog(`❌ Koneksi gagal: ${error.message}`, 'error');
+            addLog(`❌ Kegagalan koneksi: ${error.message}`, 'error');
             inputEmail.disabled = false;
         } finally {
             btnSendLink.classList.remove('loading');
@@ -364,11 +401,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = inputMagicLink.value.trim();
 
         if (!link) {
-            addLog('Harap masukkan link verifikasi.', 'error');
+            addLog('Harap masukkan tautan verifikasi.', 'error');
             return;
         }
 
-        addLog(`Memproses verifikasi untuk email: ${userEmail}...`, 'info');
+        addLog(`Memproses verifikasi untuk alamat email: ${userEmail}...`, 'info');
         
         btnActivate.classList.add('loading');
         btnActivate.disabled = true;
@@ -388,9 +425,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok && data.success) {
-                addLog(`✅ Akun berhasil diverifikasi & login sukses.`, 'success');
-                addLog(`Mengajukan permintaan aktivasi premium 1 tahun...`, 'info');
-                addLog(`✅ Premium berhasil diaktifkan! Order ID: ${data.orderId}`, 'success');
+                addLog(`✅ Akun berhasil diverifikasi. Proses masuk berhasil.`, 'success');
+                addLog(`Mengajukan permintaan penerapan lisensi tahunan...`, 'info');
+                addLog(`✅ Lisensi premium berhasil diaktifkan. ID Transaksi: ${data.orderId}`, 'success');
 
                 // Fill details on success screen
                 valEmail.textContent = data.user.email;
@@ -408,12 +445,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 800);
             } else {
                 const errMsg = data.error || 'Gagal memproses verifikasi.';
-                addLog(`❌ Gagal aktivasi premium: ${errMsg}`, 'error');
+                addLog(`❌ Gagal mengaktifkan lisensi premium: ${errMsg}`, 'error');
                 appCard.classList.remove('processing');
                 inputMagicLink.disabled = false;
             }
         } catch (error) {
-            addLog(`❌ Koneksi gagal saat aktivasi: ${error.message}`, 'error');
+            addLog(`❌ Kegagalan koneksi saat aktivasi: ${error.message}`, 'error');
             appCard.classList.remove('processing');
             inputMagicLink.disabled = false;
         } finally {
@@ -425,14 +462,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Navigation and Restart Buttons
     btnBackStep1.addEventListener('click', () => {
-        addLog('Kembali ke penginputan email.', 'muted');
+        addLog('Kembali ke langkah pengisian email.', 'muted');
         goToStep(1);
         inputEmail.disabled = false;
         inputMagicLink.value = '';
     });
 
     btnRestart.addEventListener('click', () => {
-        addLog('Memulai sesi aktivasi baru.', 'muted');
+        addLog('Memulai sesi aktivasi akun baru.', 'muted');
         formStep1.reset();
         formStep2.reset();
         
@@ -443,6 +480,142 @@ document.addEventListener('DOMContentLoaded', () => {
         goToStep(1);
     });
 
-    // --- RUN INITIALIZATION ---
-    loadHistory();
+    // --- AUTH PORTAL CONTROLLER ---
+    const authContainer = document.getElementById('auth-container');
+    const dashboardWrapper = document.getElementById('dashboard-wrapper');
+    
+    const tabLoginBtn = document.getElementById('tab-login-btn');
+    const tabRegisterBtn = document.getElementById('tab-register-btn');
+    
+    const formLogin = document.getElementById('form-login');
+    const formRegister = document.getElementById('form-register');
+    
+    const authErrorMsg = document.getElementById('auth-error-msg');
+    const btnLogout = document.getElementById('btn-logout');
+    
+    const sidebarUsername = document.getElementById('sidebar-username');
+    const sidebarProfileImg = document.getElementById('sidebar-profile-img');
+
+    // Toggle tab: Login
+    tabLoginBtn.addEventListener('click', () => {
+        tabLoginBtn.classList.add('active');
+        tabRegisterBtn.classList.remove('active');
+        formLogin.classList.add('active');
+        formRegister.classList.remove('active');
+        authErrorMsg.classList.remove('active');
+    });
+
+    // Toggle tab: Register
+    tabRegisterBtn.addEventListener('click', () => {
+        tabRegisterBtn.classList.add('active');
+        tabLoginBtn.classList.remove('active');
+        formRegister.classList.add('active');
+        formLogin.classList.remove('active');
+        authErrorMsg.classList.remove('active');
+    });
+
+    // Handle Login Form Submit
+    formLogin.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value;
+
+        authErrorMsg.classList.remove('active');
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                sessionStorage.setItem('am_admin_logged_in', data.user.username);
+                authContainer.classList.add('auth-hidden');
+                dashboardWrapper.classList.remove('dashboard-hidden');
+                
+                // Setup Profile UI
+                sidebarUsername.textContent = data.user.username;
+                sidebarProfileImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.user.username)}&background=7c3aed&color=fff&bold=true`;
+
+                // Start loading metrics
+                await loadHistory();
+                addLog(`🔓 Administrator ${data.user.username} berhasil masuk sistem.`, 'success');
+            } else {
+                authErrorMsg.textContent = data.error || 'Autentikasi gagal.';
+                authErrorMsg.classList.add('active');
+            }
+        } catch (err) {
+            authErrorMsg.textContent = 'Gagal menghubungi server auth.';
+            authErrorMsg.classList.add('active');
+        }
+    });
+
+    // Handle Register Form Submit
+    formRegister.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('register-username').value.trim();
+        const password = document.getElementById('register-password').value;
+
+        authErrorMsg.classList.remove('active');
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                authErrorMsg.textContent = 'Registrasi berhasil. Silakan masuk.';
+                authErrorMsg.style.color = 'var(--accent-green)';
+                authErrorMsg.style.borderColor = 'rgba(124, 58, 237, 0.2)';
+                authErrorMsg.style.background = 'rgba(124, 58, 237, 0.08)';
+                authErrorMsg.classList.add('active');
+                
+                // Reset form register
+                formRegister.reset();
+
+                // Auto switch to login tab after 1.5s
+                setTimeout(() => {
+                    tabLoginBtn.click();
+                    authErrorMsg.classList.remove('active');
+                    authErrorMsg.style.color = '';
+                    authErrorMsg.style.borderColor = '';
+                    authErrorMsg.style.background = '';
+                }, 1500);
+            } else {
+                authErrorMsg.textContent = data.error || 'Registrasi gagal.';
+                authErrorMsg.classList.add('active');
+            }
+        } catch (err) {
+            authErrorMsg.textContent = 'Gagal menghubungi server auth.';
+            authErrorMsg.classList.add('active');
+        }
+    });
+
+    // Handle Logout
+    if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+            sessionStorage.removeItem('am_admin_logged_in');
+            window.location.reload();
+        });
+    }
+
+    // Check Session on startup
+    const loggedInUser = sessionStorage.getItem('am_admin_logged_in');
+    if (loggedInUser) {
+        authContainer.classList.add('auth-hidden');
+        dashboardWrapper.classList.remove('dashboard-hidden');
+        
+        sidebarUsername.textContent = loggedInUser;
+        sidebarProfileImg.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(loggedInUser)}&background=7c3aed&color=fff&bold=true`;
+
+        loadHistory();
+    } else {
+        dashboardWrapper.classList.add('dashboard-hidden');
+        authContainer.classList.remove('auth-hidden');
+    }
 });

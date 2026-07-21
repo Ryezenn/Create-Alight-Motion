@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const amAuth = require('./am');
 
 const app = express();
@@ -23,6 +24,19 @@ const ActivationSchema = new mongoose.Schema({
 
 const Activation = mongoose.model('Activation', ActivationSchema);
 
+const WebUserSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const WebUser = mongoose.model('WebUser', WebUserSchema);
+
+// Password Hashing Helper
+function hashPassword(password) {
+    return crypto.createHash('sha256').update(password).digest('hex');
+}
+
 // Enable CORS and JSON parsing
 app.use(cors());
 app.use(express.json());
@@ -34,6 +48,63 @@ app.use(express.static(path.join(__dirname, 'public')));
 function generateOrderCode() {
     return Math.floor(10000000 + Math.random() * 90000000).toString(); // 8 random digits
 }
+
+// Endpoint: Auth Register
+app.post('/api/auth/register', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ success: false, error: 'Username dan password wajib diisi.' });
+    }
+
+    try {
+        const cleanedUsername = username.trim().toLowerCase();
+        // Check if user already exists
+        const existingUser = await WebUser.findOne({ username: cleanedUsername });
+        if (existingUser) {
+            return res.status(400).json({ success: false, error: 'Username sudah digunakan.' });
+        }
+
+        const hashedPassword = hashPassword(password);
+        const newUser = new WebUser({
+            username: cleanedUsername,
+            password: hashedPassword
+        });
+        await newUser.save();
+
+        console.log(`[Auth] User baru terdaftar: ${cleanedUsername}`);
+        return res.json({ success: true, message: 'Registrasi berhasil. Silakan login.' });
+    } catch (error) {
+        console.error('[Auth] Error registrasi:', error);
+        return res.status(500).json({ success: false, error: 'Gagal melakukan registrasi.' });
+    }
+});
+
+// Endpoint: Auth Login
+app.post('/api/auth/login', async (req, res) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+        return res.status(400).json({ success: false, error: 'Username dan password wajib diisi.' });
+    }
+
+    try {
+        const cleanedUsername = username.trim().toLowerCase();
+        const user = await WebUser.findOne({ username: cleanedUsername });
+        if (!user) {
+            return res.status(400).json({ success: false, error: 'Username atau password salah.' });
+        }
+
+        const hashedPassword = hashPassword(password);
+        if (user.password !== hashedPassword) {
+            return res.status(400).json({ success: false, error: 'Username atau password salah.' });
+        }
+
+        console.log(`[Auth] User login sukses: ${cleanedUsername}`);
+        return res.json({ success: true, message: 'Login berhasil.', user: { username: user.username } });
+    } catch (error) {
+        console.error('[Auth] Error login:', error);
+        return res.status(500).json({ success: false, error: 'Gagal melakukan login.' });
+    }
+});
 
 // Endpoint: Send Magic Link
 app.post('/api/send-link', async (req, res) => {
@@ -130,9 +201,14 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(`🚀 Alight Motion Activator Server running on port ${PORT}`);
-    console.log(`   Akses website di: http://localhost:${PORT}`);
-    console.log(`==================================================`);
-});
+// Export app for serverless environment, only listen if run directly or not on Vercel
+if (require.main === module || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`==================================================`);
+        console.log(`🚀 Alight Motion Activator Server running on port ${PORT}`);
+        console.log(`   Akses website di: http://localhost:${PORT}`);
+        console.log(`==================================================`);
+    });
+}
+
+module.exports = app;
