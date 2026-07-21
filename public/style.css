@@ -2056,3 +2056,58 @@ body::after {
     min-height: 18px;
     letter-spacing: 0.2px;
 }
+
+/* =====================================================
+   SPONSOR AD WALL STYLES
+   ===================================================== */
+.ads-counter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(124, 58, 237, 0.08);
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-text-light);
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.1);
+    letter-spacing: 0.3px;
+}
+
+.ads-counter-badge i {
+    font-size: 16px;
+}
+
+.adsense-placeholder-box {
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.01), 
+                0 10px 30px rgba(0, 0, 0, 0.15);
+    transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.adsense-placeholder-box:hover {
+    border-color: rgba(124, 58, 237, 0.25) !important;
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+.ad-mock-icon-wrap i {
+    animation: adIconPulse 2s infinite alternate ease-in-out;
+}
+
+@keyframes adIconPulse {
+    from { transform: scale(1); filter: drop-shadow(0 0 2px rgba(167, 139, 250, 0.4)); }
+    to { transform: scale(1.15); filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.8)); }
+}
+
+#btn-watch-ad {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#btn-watch-ad.loading {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    box-shadow: none;
+}
+

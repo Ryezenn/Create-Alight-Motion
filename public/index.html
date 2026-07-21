@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-adsense-account" content="ca-pub-2199063141174258">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2199063141174258" crossorigin="anonymous"></script>
     <title>Alight Motion Premium - Developer Dashboard</title>
     <meta name="description" content="Dashboard aktivasi Alight Motion Premium 1 tahun dengan panel analitik, live logs, dan riwayat aktivasi lisensi.">
     <!-- Google Fonts: Outfit & Space Grotesk -->
@@ -257,9 +258,13 @@
                             </div>
                             <div class="step-dot" id="indicator-step-2" data-step="2">
                                 <span class="step-num">2</span>
-                                <span class="step-text">Verifikasi Akun</span>
+                                <span class="step-text">Sponsor Iklan</span>
                             </div>
                             <div class="step-dot" id="indicator-step-3" data-step="3">
+                                <span class="step-num">3</span>
+                                <span class="step-text">Verifikasi Akun</span>
+                            </div>
+                            <div class="step-dot" id="indicator-step-4" data-step="4">
                                 <span class="step-num"><i class="fa-solid fa-check"></i></span>
                                 <span class="step-text">Proses Selesai</span>
                             </div>
@@ -319,6 +324,69 @@
                                         <div class="feature-desc">
                                             <h4>Dukungan Preset Cloud & XML</h4>
                                             <p>Unduh preset proyek berkapasitas besar dari server cloud.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- STEP ADS: Watch 5 Ads (Langkah 2) -->
+                            <div class="card-view" id="view-step-ads">
+                                <div class="view-header">
+                                    <h2>Langkah 2: Verifikasi Sponsor Iklan</h2>
+                                    <p>Untuk melanjutkan ke proses verifikasi lisensi, Anda wajib menonton 5x sponsor iklan di bawah ini.</p>
+                                </div>
+                                <div class="ads-validation-container text-center py-4">
+                                    <!-- Ad Counter Display -->
+                                    <div class="ads-counter-badge mb-4">
+                                        <i class="fa-solid fa-rectangle-ad text-gradient mr-2"></i>
+                                        Iklan Ditonton: <span id="ad-view-count" class="accent-text" style="font-weight: 700; font-size: 22px;">0</span> / 5
+                                    </div>
+                                    
+                                    <!-- Ad Progress Bar -->
+                                    <div class="ads-progress-container mb-6" style="max-width: 320px; margin: 0 auto 24px auto;">
+                                        <div class="ads-progress-bar" style="background: rgba(255,255,255,0.06); border-radius: 20px; height: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); padding: 2px;">
+                                            <div id="ads-progress-fill" style="background: linear-gradient(90deg, #7c3aed, #06b6d4); width: 0%; height: 100%; border-radius: 20px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Google AdSense Container -->
+                                    <div class="adsense-placeholder-box glassmorphism-sub" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 16px; margin: 0 auto 26px auto; max-width: 400px; padding: 20px; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.02);">
+                                        <!-- Script untuk memicu Adsense Ad Slot -->
+                                        <ins class="adsbygoogle"
+                                             style="display:block"
+                                             data-ad-client="ca-pub-2199063141174258"
+                                             data-ad-slot="1234567890"
+                                             data-ad-format="auto"
+                                             data-full-width-responsive="true"></ins>
+                                        <script>
+                                             (adsbygoogle = window.adsbygoogle || []).push({});
+                                        </script>
+                                        
+                                        <!-- Mock Ad UI (Akan tertutup jika iklan asli terisi) -->
+                                        <div class="ad-mock-content" style="color: rgba(255,255,255,0.65); text-align: center; z-index: 1;">
+                                            <div class="ad-mock-icon-wrap" style="background: rgba(124, 58, 237, 0.1); width: 50px; height: 50px; border-radius: 50px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px auto; border: 1px solid rgba(124, 58, 237, 0.2);">
+                                                <i class="fa-solid fa-rectangle-ad" style="font-size: 24px; color: #a78bfa;"></i>
+                                            </div>
+                                            <h4 style="font-size: 14px; margin-bottom: 4px; color: #fff;">Sponsor Google AdSense</h4>
+                                            <p style="font-size: 12px; max-width: 250px; margin: 0 auto; opacity: 0.8; line-height: 1.5;">Klik tombol di bawah untuk membuka iklan sponsor, lalu tunggu hitung mundur selesai.</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Navigation Action Buttons -->
+                                    <div class="button-row justify-center" style="flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto;">
+                                        <button type="button" class="btn btn-primary btn-glow" id="btn-watch-ad" style="width: 100%;">
+                                            <span>Buka Iklan Sponsor</span>
+                                            <i class="fa-solid fa-square-arrow-up-right"></i>
+                                        </button>
+                                        <div class="button-row" style="width: 100%; gap: 12px;">
+                                            <button type="button" class="btn btn-secondary" id="btn-back-to-step1" style="flex: 1;">
+                                                <i class="fa-solid fa-arrow-left"></i>
+                                                <span>Kembali</span>
+                                            </button>
+                                            <button type="button" class="btn btn-primary disabled" id="btn-next-to-step2" style="flex: 1.2;" disabled>
+                                                <span>Lanjutkan</span>
+                                                <i class="fa-solid fa-arrow-right"></i>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
