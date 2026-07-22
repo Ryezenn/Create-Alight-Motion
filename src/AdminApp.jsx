@@ -8,6 +8,7 @@ export default function AdminApp() {
     // Auth States
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState('');
+    const [authTab, setAuthTab] = useState('login'); // login / register
     const [authError, setAuthError] = useState('');
     const [authErrorActive, setAuthErrorActive] = useState(false);
 
@@ -43,8 +44,11 @@ export default function AdminApp() {
     ]);
 
     const turnstileLoginRef = useRef(null);
+    const turnstileRegisterRef = useRef(null);
     const consoleEndRef = useRef(null);
+    
     const [loginTurnstileToken, setLoginTurnstileToken] = useState('');
+    const [registerTurnstileToken, setRegisterTurnstileToken] = useState('');
 
     // Loader animation sequence
     useEffect(() => {
@@ -74,17 +78,30 @@ export default function AdminApp() {
         }
     }, []);
 
-    // Render Cloudflare Turnstile
+    // Render Cloudflare Turnstile CAPTCHA for Login/Register dynamically in React
     useEffect(() => {
-        if (!loading && !isLoggedIn && window.turnstile && turnstileLoginRef.current) {
-            turnstileLoginRef.current.innerHTML = '';
-            window.turnstile.render(turnstileLoginRef.current, {
-                sitekey: '0x4AAAAAAD7RpjTPThhr5v1Q',
-                theme: 'dark',
-                callback: (token) => setLoginTurnstileToken(token)
-            });
+        if (!loading && !isLoggedIn) {
+            if (authTab === 'login' && window.turnstile && turnstileLoginRef.current) {
+                turnstileLoginRef.current.innerHTML = '';
+                window.turnstile.render(turnstileLoginRef.current, {
+                    sitekey: '0x4AAAAAAD7RpjTPThhr5v1Q',
+                    theme: 'dark',
+                    callback: (token) => {
+                        setLoginTurnstileToken(token);
+                    }
+                });
+            } else if (authTab === 'register' && window.turnstile && turnstileRegisterRef.current) {
+                turnstileRegisterRef.current.innerHTML = '';
+                window.turnstile.render(turnstileRegisterRef.current, {
+                    sitekey: '0x4AAAAAAD7RpjTPThhr5v1Q',
+                    theme: 'dark',
+                    callback: (token) => {
+                        setRegisterTurnstileToken(token);
+                    }
+                });
+            }
         }
-    }, [loading, isLoggedIn]);
+    }, [loading, isLoggedIn, authTab]);
 
     // Anti-DevTools Protection
     useEffect(() => {
@@ -167,6 +184,37 @@ export default function AdminApp() {
         }
     };
 
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setAuthErrorActive(false);
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, token: registerTurnstileToken })
+            });
+            const data = await response.json();
+            if (response.ok && data.success) {
+                setAuthError('Registrasi berhasil. Silakan masuk.');
+                setAuthErrorActive(true);
+                setUsername(''); setPassword(''); setRegisterTurnstileToken('');
+                setTimeout(() => {
+                    setAuthTab('login');
+                    setAuthErrorActive(false);
+                }, 1500);
+            } else {
+                setAuthError(data.error || 'Registrasi gagal.');
+                setAuthErrorActive(true);
+            }
+        } catch (err) {
+            setAuthError('Gagal menghubungi server auth.');
+            setAuthErrorActive(true);
+        } finally {
+            if (window.turnstile) window.turnstile.reset();
+            setRegisterTurnstileToken('');
+        }
+    };
+
     const handleManualActivate = async (e) => {
         e.preventDefault();
         if (!manualEmail || !manualLink) return;
@@ -187,7 +235,7 @@ export default function AdminApp() {
                 setManualEmail(''); setManualLink('');
             } else {
                 setManualResult({ success: false, error: data.error });
-                addLog(`❌ Aktivasi manual gagal: ${data.error}`, 'error');
+                addLog('❌ Aktivasi manual gagal.', 'error');
             }
         } catch (err) {
             setManualResult({ success: false, error: err.message });
@@ -254,7 +302,7 @@ export default function AdminApp() {
             <div className="bg-glow bg-glow-2"></div>
             <div className="bg-glow bg-glow-3"></div>
 
-            {/* Login Portal */}
+            {/* Login/Register Portal */}
             {!isLoggedIn && !loading && (
                 <div className="auth-wrapper">
                     <div className="auth-card glassmorphism animate-scale-up" style={{ maxWidth: '420px' }}>
@@ -271,66 +319,130 @@ export default function AdminApp() {
                             <span>Akses Terbatas • Sistem Terproteksi</span>
                         </div>
 
+                        {/* Tabs for Login and Register */}
+                        <div className="auth-tabs">
+                            <button
+                                className={`auth-tab ${authTab === 'login' ? 'active' : ''}`}
+                                onClick={() => { setAuthTab('login'); setAuthErrorActive(false); }}
+                            >
+                                Masuk
+                            </button>
+                            <button
+                                className={`auth-tab ${authTab === 'register' ? 'active' : ''}`}
+                                onClick={() => { setAuthTab('register'); setAuthErrorActive(false); }}
+                            >
+                                Daftar
+                            </button>
+                        </div>
+
                         {authErrorActive && (
                             <div className="auth-error-box active" style={{
-                                color: 'var(--accent-red)',
-                                background: 'rgba(255, 0, 60, 0.08)',
-                                borderColor: 'rgba(255, 0, 60, 0.2)'
+                                color: authError.includes('berhasil') || authError.includes('Sukses') ? 'var(--accent-green)' : 'var(--accent-red)',
+                                background: authError.includes('berhasil') || authError.includes('Sukses') ? 'rgba(0, 255, 102, 0.08)' : 'rgba(255, 0, 60, 0.08)',
+                                borderColor: authError.includes('berhasil') || authError.includes('Sukses') ? 'rgba(0, 255, 102, 0.2)' : 'rgba(255, 0, 60, 0.2)'
                             }}>
                                 <i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '8px' }}></i>
                                 {authError}
                             </div>
                         )}
 
-                        <form onSubmit={handleLogin} className="auth-form active">
-                            <div className="input-group">
-                                <i className="fa-regular fa-user input-icon"></i>
-                                <input
-                                    type="text"
-                                    placeholder="Nama Administrator"
-                                    required
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    autoComplete="username"
-                                />
-                            </div>
-                            <div className="input-group" style={{ position: 'relative' }}>
-                                <i className="fa-solid fa-lock input-icon"></i>
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    placeholder="Kata Sandi"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    autoComplete="current-password"
-                                    style={{ paddingRight: '44px' }}
-                                />
+                        {authTab === 'login' ? (
+                            <form onSubmit={handleLogin} className="auth-form active">
+                                <div className="input-group">
+                                    <i className="fa-regular fa-user input-icon"></i>
+                                    <input
+                                        type="text"
+                                        placeholder="Nama Administrator"
+                                        required
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        autoComplete="username"
+                                    />
+                                </div>
+                                <div className="input-group" style={{ position: 'relative' }}>
+                                    <i className="fa-solid fa-lock input-icon"></i>
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder="Kata Sandi"
+                                        required
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        autoComplete="current-password"
+                                        style={{ paddingRight: '44px' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                                            background: 'transparent', border: 'none', color: 'var(--color-text-muted)',
+                                            cursor: 'pointer', fontSize: '14px', padding: '4px'
+                                        }}
+                                    >
+                                        <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                    </button>
+                                </div>
+                                <div ref={turnstileLoginRef} className="cf-turnstile" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}></div>
                                 <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    style={{
-                                        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                                        background: 'transparent', border: 'none', color: 'var(--color-text-muted)',
-                                        cursor: 'pointer', fontSize: '14px', padding: '4px'
-                                    }}
+                                    type="submit"
+                                    className="btn btn-primary btn-glow w-full"
+                                    disabled={!loginTurnstileToken}
                                 >
-                                    <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                    <span>Masuk ke Panel</span>
+                                    <i className="fa-solid fa-right-to-bracket"></i>
                                 </button>
-                            </div>
-                            <div ref={turnstileLoginRef} className="cf-turnstile" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}></div>
-                            <button
-                                type="submit"
-                                className="btn btn-primary btn-glow w-full"
-                                disabled={!loginTurnstileToken}
-                            >
-                                <span>Masuk ke Panel</span>
-                                <i className="fa-solid fa-right-to-bracket"></i>
-                            </button>
-                        </form>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleRegister} className="auth-form active">
+                                <div className="input-group">
+                                    <i className="fa-regular fa-user input-icon"></i>
+                                    <input
+                                        type="text"
+                                        placeholder="Nama Administrator Baru"
+                                        required
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        autoComplete="username"
+                                    />
+                                </div>
+                                <div className="input-group" style={{ position: 'relative' }}>
+                                    <i className="fa-solid fa-lock input-icon"></i>
+                                    <input
+                                        type={showPassword ? 'text' : 'password'}
+                                        placeholder="Kata Sandi Baru"
+                                        required
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        autoComplete="new-password"
+                                        style={{ paddingRight: '44px' }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        style={{
+                                            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                                            background: 'transparent', border: 'none', color: 'var(--color-text-muted)',
+                                            cursor: 'pointer', fontSize: '14px', padding: '4px'
+                                        }}
+                                    >
+                                        <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                                    </button>
+                                </div>
+                                <div ref={turnstileRegisterRef} className="cf-turnstile" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}></div>
+                                <button
+                                    type="submit"
+                                    className="btn btn-primary btn-glow w-full"
+                                    disabled={!registerTurnstileToken}
+                                >
+                                    <span>Daftar Akun Baru</span>
+                                    <i className="fa-solid fa-user-plus"></i>
+                                </button>
+                            </form>
+                        )}
 
                         <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '16px' }}>
                             <i className="fa-solid fa-circle-info" style={{ marginRight: '5px' }}></i>
-                            Hanya pengguna yang terdaftar dapat mengakses panel ini.
+                            Gunakan tombol tab di atas untuk berganti form Masuk/Daftar.
                         </p>
                     </div>
                 </div>
@@ -587,7 +699,6 @@ export default function AdminApp() {
                                                 <span>PROSES AKTIVASI</span>
                                                 <i className="fa-solid fa-circle-arrow-right" style={{ fontSize: '13px' }}></i>
                                             </button>
-                                            {/* Faint Key Watermark in the background */}
                                             <i className="fa-solid fa-key" style={{
                                                 position: 'absolute',
                                                 bottom: '-12px',
