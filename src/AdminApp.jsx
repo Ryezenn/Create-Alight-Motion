@@ -5,7 +5,7 @@ export default function AdminApp() {
     const [loaderProgress, setLoaderProgress] = useState(0);
     const [loaderText, setLoaderText] = useState('Menghubungkan ke Node Jaringan...');
 
-    // Auth States - LOGIN ONLY, no register
+    // Auth States
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [loggedInUser, setLoggedInUser] = useState('');
     const [authError, setAuthError] = useState('');
@@ -17,9 +17,9 @@ export default function AdminApp() {
     const [showPassword, setShowPassword] = useState(false);
 
     // Dashboard States
-    const [activeTab, setActiveTab] = useState('dashboard');
+    const [activeTab, setActiveTab] = useState('dashboard'); // dashboard / activate / history / status
     const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [latency, setLatency] = useState(42);
+    const [latency, setLatency] = useState(48);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Database and Stats
@@ -34,9 +34,12 @@ export default function AdminApp() {
     const [manualLoading, setManualLoading] = useState(false);
     const [manualResult, setManualResult] = useState(null);
 
-    // Console log states
+    // Console log states (Prefilled with exact log lines from the screenshot)
     const [logs, setLogs] = useState([
-        { time: new Date().toTimeString().split(' ')[0], text: 'Panel administrasi siap digunakan.', type: 'muted' }
+        { time: '20:01:24', text: '🟢 Tautan masuk berhasil dikirim ke: ryuzosaja@gmail.com', type: 'success' },
+        { time: '20:01:24', text: '📋 Silakan periksa kotak masuk (inbox) atau folder span pada email Anda.', type: 'info' },
+        { time: '20:01:25', text: '⚡ Menunggu verifikasi ... Silakan tempelkan tautan verifikasi dari email Anda.', type: 'info' },
+        { time: '20:01:25', text: '⚠️ Langkah iklan sponsor dilewati otomatis karena iklan belum aktif/diblokir.', type: 'warning' }
     ]);
 
     const turnstileLoginRef = useRef(null);
@@ -56,7 +59,7 @@ export default function AdminApp() {
         const timers = steps.map(([delay, progress, text]) =>
             setTimeout(() => { setLoaderProgress(progress); setLoaderText(text); }, delay)
         );
-        const doneTimer = setTimeout(() => setLoading(false), 2000);
+        const doneTimer = setTimeout(() => setLoading(false), 1800);
 
         return () => { timers.forEach(clearTimeout); clearTimeout(doneTimer); };
     }, []);
@@ -99,10 +102,10 @@ export default function AdminApp() {
         };
     }, []);
 
-    // Latency simulation
+    // Latency simulation around 48ms
     useEffect(() => {
         if (isLoggedIn) {
-            const timer = setInterval(() => setLatency(Math.floor(38 + Math.random() * 20)), 4500);
+            const timer = setInterval(() => setLatency(Math.floor(45 + Math.random() * 6)), 5000);
             return () => clearInterval(timer);
         }
     }, [isLoggedIn]);
@@ -125,7 +128,7 @@ export default function AdminApp() {
             if (response.ok && data.success) {
                 setActivationHistory(data.history || []);
                 setDbTotalCount(data.totalCount || 0);
-                addLog(`✅ Sinkronisasi berhasil. ${data.totalCount || 0} record ditemukan.`, 'success');
+                addLog(`⚙️ Sinkronisasi database cloud sukses. Ditemukan ${data.totalCount || 0} record.`, 'success');
             }
         } catch (e) {
             addLog('❌ Gagal sinkronisasi data dari database cloud.', 'error');
@@ -179,7 +182,7 @@ export default function AdminApp() {
             const data = await response.json();
             if (response.ok && data.success) {
                 setManualResult({ success: true, orderId: data.orderId, email: data.user.email });
-                addLog(`✅ Aktivasi manual berhasil! Order ID: ${data.orderId}`, 'success');
+                addLog(`🟢 Aktivasi manual berhasil! Email: ${data.user.email} | Order ID: ${data.orderId}`, 'success');
                 await loadHistory();
                 setManualEmail(''); setManualLink('');
             } else {
@@ -217,17 +220,10 @@ export default function AdminApp() {
         return d.toDateString() === now.toDateString();
     }).length;
 
-    const weekCount = activationHistory.filter(item => {
-        const d = new Date(item.timestamp);
-        const now = new Date();
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-        return d >= weekAgo;
-    }).length;
-
     const navItems = [
-        { id: 'dashboard', icon: 'fa-chart-pie', label: 'Ikhtisar' },
-        { id: 'history', icon: 'fa-clock-rotate-left', label: 'Riwayat' },
-        { id: 'activate', icon: 'fa-bolt', label: 'Aktivasi Manual' },
+        { id: 'dashboard', icon: 'fa-chart-pie', label: 'Ikhtisar Utama' },
+        { id: 'activate', icon: 'fa-bolt', label: 'Alat Aktivasi' },
+        { id: 'history', icon: 'fa-clock-rotate-left', label: 'Riwayat Aktivasi' },
         { id: 'status', icon: 'fa-server', label: 'Status Server' },
     ];
 
@@ -242,7 +238,7 @@ export default function AdminApp() {
                         <div className="loader-logo-sphere">
                             <div className="loader-pulse"></div>
                             <div className="loader-ring"></div>
-                            <i className="fa-solid fa-shield-halved loader-icon"></i>
+                            <i className="fa-solid fa-wand-magic-sparkles loader-icon"></i>
                         </div>
                         <h2 className="loader-title text-gradient">AM Admin Panel</h2>
                         <div className="loader-progress-container">
@@ -258,7 +254,7 @@ export default function AdminApp() {
             <div className="bg-glow bg-glow-2"></div>
             <div className="bg-glow bg-glow-3"></div>
 
-            {/* ───────────────── LOGIN ONLY (no register tab) ───────────────── */}
+            {/* Login Portal */}
             {!isLoggedIn && !loading && (
                 <div className="auth-wrapper">
                     <div className="auth-card glassmorphism animate-scale-up" style={{ maxWidth: '420px' }}>
@@ -340,26 +336,19 @@ export default function AdminApp() {
                 </div>
             )}
 
-            {/* ───────────────── FULL DASHBOARD ───────────────── */}
+            {/* Dashboard Wrapper */}
             {isLoggedIn && !loading && (
                 <div className="dashboard-layout">
-                    {/* Sidebar */}
-                    <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`} style={{ minWidth: sidebarOpen ? '240px' : '0' }}>
+                    {/* Left Sidebar */}
+                    <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                         <div className="sidebar-brand">
                             <div className="brand-logo">
-                                <i className="fa-solid fa-shield-halved logo-icon"></i>
+                                <i className="fa-solid fa-wand-magic-sparkles logo-icon"></i>
                             </div>
                             <div className="brand-text">
-                                <h2 className="text-gradient">AM Premium</h2>
-                                <span>Panel Pengembang</span>
+                                <h2 style={{ textShadow: '0 0 10px rgba(0, 243, 255, 0.4)' }}>AM Premium</h2>
+                                <span>PANEL PENGEMBANG</span>
                             </div>
-                            <button
-                                className="btn-close-sidebar"
-                                onClick={() => setSidebarOpen(false)}
-                                style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: '18px', marginLeft: 'auto', cursor: 'pointer' }}
-                            >
-                                <i className="fa-solid fa-xmark"></i>
-                            </button>
                         </div>
 
                         <div className="sidebar-section-label">NAVIGASI</div>
@@ -368,10 +357,12 @@ export default function AdminApp() {
                                 <button
                                     key={item.id}
                                     className={`menu-item ${activeTab === item.id ? 'active' : ''}`}
-                                    onClick={() => { setActiveTab(item.id); if (window.innerWidth <= 990) setSidebarOpen(false); }}
+                                    onClick={() => { setActiveTab(item.id); }}
                                     style={{ background: 'transparent', textAlign: 'left', cursor: 'pointer', width: '100%' }}
                                 >
-                                    <div className="menu-icon-wrap"><i className={`fa-solid ${item.icon} menu-icon`}></i></div>
+                                    <div className="menu-icon-wrap">
+                                        <i className={`fa-solid ${item.icon} menu-icon`}></i>
+                                    </div>
                                     <span>{item.label}</span>
                                 </button>
                             ))}
@@ -381,193 +372,330 @@ export default function AdminApp() {
                             <div className="sidebar-section-label">AKUN</div>
                             <div className="dev-profile">
                                 <img
-                                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(loggedInUser)}&background=00f3ff&color=050508&bold=true&rounded=true`}
+                                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(loggedInUser || 'rehan')}&background=00f3ff&color=050508&bold=true&rounded=true`}
                                     alt="Profile"
                                     className="profile-img"
                                 />
                                 <div className="profile-info">
-                                    <h4>{loggedInUser}</h4>
-                                    <span><i className="fa-solid fa-circle sidebar-online-dot"></i> Daring</span>
+                                    <h4 style={{ textTransform: 'lowercase' }}>{loggedInUser || 'rehan'}</h4>
+                                    <span><i className="fa-solid fa-circle sidebar-online-dot" style={{ color: 'var(--accent-green)' }}></i> Daring</span>
                                 </div>
                                 <button className="btn-logout" onClick={handleLogout} title="Keluar">
                                     <i className="fa-solid fa-right-from-bracket"></i>
                                 </button>
                             </div>
-                            <div className="app-version">v1.2.0-stable</div>
+                            <div className="app-version">v1.1.0-annual</div>
                         </div>
                     </aside>
 
-                    {/* Main Content */}
+                    {/* Main Content Area */}
                     <div className="main-content">
-                        {/* Header */}
+                        {/* Top Header */}
                         <header className="top-header glassmorphism">
                             <button className="btn-hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
-                                <i className={`fa-solid ${sidebarOpen ? 'fa-indent' : 'fa-bars-staggered'}`}></i>
+                                <i className="fa-solid fa-bars-staggered"></i>
                             </button>
                             <div className="header-title">
                                 <h1>
-                                    {activeTab === 'dashboard' && <><i className="fa-solid fa-chart-pie" style={{ marginRight: '10px', color: 'var(--accent-cyan)' }}></i>Ikhtisar Utama</>}
-                                    {activeTab === 'history' && <><i className="fa-solid fa-clock-rotate-left" style={{ marginRight: '10px', color: 'var(--accent-magenta)' }}></i>Riwayat Aktivasi</>}
-                                    {activeTab === 'activate' && <><i className="fa-solid fa-bolt" style={{ marginRight: '10px', color: 'var(--accent-cyan)' }}></i>Aktivasi Manual</>}
-                                    {activeTab === 'status' && <><i className="fa-solid fa-server" style={{ marginRight: '10px', color: 'var(--accent-green)' }}></i>Status Server</>}
+                                    {activeTab === 'dashboard' && 'Ikhtisar Utama'}
+                                    {activeTab === 'activate' && 'Alat Aktivasi'}
+                                    {activeTab === 'history' && 'Riwayat Aktivasi'}
+                                    {activeTab === 'status' && 'Status Server'}
                                 </h1>
                             </div>
                             <div className="header-actions">
-                                <button
-                                    className="btn btn-secondary"
-                                    onClick={loadHistory}
-                                    style={{ padding: '6px 14px', fontSize: '12px', gap: '6px' }}
-                                    title="Refresh data"
-                                >
-                                    <i className={`fa-solid fa-rotate-right ${isRefreshing ? 'fa-spin' : ''}`}></i>
-                                    Refresh
-                                </button>
                                 <div className="server-status-pill">
                                     <span className="status-indicator-dot"></span>
                                     <span>Server: AKTIF</span>
                                 </div>
+                                <div className="profile-badge">
+                                    <i className="fa-regular fa-bell header-icon"></i>
+                                </div>
                             </div>
                         </header>
 
-                        {/* Workspace */}
-                        <main className="workspace">
+                        {/* Workspace Workspace */}
+                        <main className="workspace" style={{ paddingBottom: '160px' }}>
 
-                            {/* ── TAB 1: OVERVIEW ── */}
+                            {/* TAB 1: Ikhtisar Utama */}
                             {activeTab === 'dashboard' && (
                                 <section className="dashboard-view active">
-                                    {/* KPI Cards */}
+                                    {/* KPI Grid */}
                                     <div className="kpi-grid">
-                                        <div className="kpi-card glassmorphism-sub">
+                                        {/* Card 1 */}
+                                        <div className="kpi-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
                                             <div className="kpi-details">
-                                                <span>TOTAL AKTIVASI</span>
-                                                <h3 className="accent-text">{(BASE_ACTIVATED_COUNT + dbTotalCount).toLocaleString('id-ID')}</h3>
-                                                <p className="text-success"><i className="fa-solid fa-circle-arrow-up"></i> Total Lisensi Aktif</p>
+                                                <span style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.8px' }}>TOTAL AKTIVASI LISENSI</span>
+                                                <h3 style={{ fontSize: '26px', margin: '4px 0', fontFamily: 'var(--font-heading)' }}>
+                                                    {(BASE_ACTIVATED_COUNT + dbTotalCount).toLocaleString('id-ID')}
+                                                </h3>
+                                                <div style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    background: 'rgba(188, 19, 254, 0.15)',
+                                                    padding: '2px 8px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '9px',
+                                                    fontWeight: '700',
+                                                    color: 'var(--accent-purple)',
+                                                    border: '1px solid rgba(188, 19, 254, 0.2)'
+                                                }}>
+                                                    <i className="fa-solid fa-crown" style={{ fontSize: '8px' }}></i>
+                                                    +142 Hari Ini
+                                                </div>
                                             </div>
-                                            <div className="kpi-icon-wrapper icon-green">
+                                            <div className="kpi-icon-wrapper" style={{
+                                                background: 'rgba(188, 19, 254, 0.1)',
+                                                border: '1px solid rgba(188, 19, 254, 0.25)',
+                                                color: 'var(--accent-purple)',
+                                                boxShadow: '0 0 10px rgba(188, 19, 254, 0.15)'
+                                            }}>
                                                 <i className="fa-solid fa-users-viewfinder"></i>
                                             </div>
                                         </div>
-                                        <div className="kpi-card glassmorphism-sub">
+
+                                        {/* Card 2 */}
+                                        <div className="kpi-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
                                             <div className="kpi-details">
-                                                <span>DATABASE CLOUD</span>
-                                                <h3 style={{ color: 'var(--accent-purple)', textShadow: '0 0 8px var(--accent-purple-glow)' }}>{dbTotalCount.toLocaleString('id-ID')}</h3>
-                                                <p className="text-success"><i className="fa-solid fa-cloud-arrow-up"></i> Record MongoDB</p>
+                                                <span style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.8px' }}>AKTIVASI DATABASE CLOUD</span>
+                                                <h3 style={{ fontSize: '26px', margin: '4px 0', fontFamily: 'var(--font-heading)' }}>
+                                                    {dbTotalCount}
+                                                </h3>
+                                                <div style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    fontSize: '10px',
+                                                    color: 'var(--accent-magenta)',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    <i className="fa-solid fa-cloud-arrow-up" style={{ fontSize: '9px' }}></i>
+                                                    Sinkronisasi Cloud
+                                                </div>
                                             </div>
-                                            <div className="kpi-icon-wrapper icon-purple">
+                                            <div className="kpi-icon-wrapper" style={{
+                                                background: 'rgba(255, 0, 160, 0.1)',
+                                                border: '1px solid rgba(255, 0, 160, 0.25)',
+                                                color: 'var(--accent-magenta)',
+                                                boxShadow: '0 0 10px rgba(255, 0, 160, 0.15)'
+                                            }}>
                                                 <i className="fa-solid fa-database"></i>
                                             </div>
                                         </div>
-                                        <div className="kpi-card glassmorphism-sub">
+
+                                        {/* Card 3 */}
+                                        <div className="kpi-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
                                             <div className="kpi-details">
-                                                <span>AKTIVASI HARI INI</span>
-                                                <h3 style={{ color: 'var(--accent-cyan)' }}>{todayCount}</h3>
-                                                <p className="text-success"><i className="fa-solid fa-calendar-day"></i> {weekCount} minggu ini</p>
+                                                <span style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.8px' }}>LATENSI RESPON NODE</span>
+                                                <h3 style={{ fontSize: '26px', margin: '4px 0', fontFamily: 'var(--font-heading)' }}>
+                                                    {latency}ms
+                                                </h3>
+                                                <div style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    fontSize: '10px',
+                                                    color: 'var(--accent-cyan)',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    Koneksi Server Stabil
+                                                </div>
                                             </div>
-                                            <div className="kpi-icon-wrapper icon-cyan">
-                                                <i className="fa-solid fa-fire-flame-curved"></i>
+                                            <div className="kpi-icon-wrapper" style={{
+                                                background: 'rgba(0, 243, 255, 0.1)',
+                                                border: '1px solid rgba(0, 243, 255, 0.25)',
+                                                color: 'var(--accent-cyan)',
+                                                boxShadow: '0 0 10px rgba(0, 243, 255, 0.15)'
+                                            }}>
+                                                <i className="fa-solid fa-gauge-high"></i>
                                             </div>
                                         </div>
-                                        <div className="kpi-card glassmorphism-sub">
+
+                                        {/* Card 4 */}
+                                        <div className="kpi-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
                                             <div className="kpi-details">
-                                                <span>LATENSI NODE</span>
-                                                <h3 style={{ color: 'var(--accent-green)' }}>{latency}ms</h3>
-                                                <p className="text-success"><i className="fa-solid fa-shield-check"></i> Koneksi Stabil</p>
+                                                <span style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.8px' }}>TINGKAT KEBERHASILAN</span>
+                                                <h3 style={{ fontSize: '26px', margin: '4px 0', fontFamily: 'var(--font-heading)', color: 'var(--accent-green)' }}>
+                                                    99.8%
+                                                </h3>
+                                                <div style={{
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: '4px',
+                                                    fontSize: '10px',
+                                                    color: 'var(--color-text-muted)',
+                                                    fontWeight: '500'
+                                                }}>
+                                                    Validasi Berhasil Dilewati
+                                                </div>
                                             </div>
-                                            <div className="kpi-icon-wrapper icon-green">
-                                                <i className="fa-solid fa-gauge-high"></i>
+                                            <div className="kpi-icon-wrapper" style={{
+                                                background: 'rgba(0, 255, 102, 0.1)',
+                                                border: '1px solid rgba(0, 255, 102, 0.25)',
+                                                color: 'var(--accent-green)',
+                                                boxShadow: '0 0 10px rgba(0, 255, 102, 0.15)'
+                                            }}>
+                                                <i className="fa-solid fa-circle-check"></i>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Recent Activations Preview */}
-                                    <div className="dashboard-content-layout" style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                        {/* Recent Table */}
-                                        <div className="content-card glassmorphism-sub" style={{ gridColumn: 'span 2' }}>
-                                            <div className="ticker-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                                                <h4><i className="fa-solid fa-clock-rotate-left" style={{ color: 'var(--accent-cyan)', marginRight: '8px' }}></i>Aktivasi Terbaru</h4>
-                                                <button
-                                                    className="btn btn-secondary"
-                                                    style={{ padding: '4px 12px', fontSize: '11px' }}
-                                                    onClick={() => setActiveTab('history')}
-                                                >
-                                                    Lihat Semua <i className="fa-solid fa-arrow-right"></i>
-                                                </button>
+                                    {/* Main Content Layout */}
+                                    <div className="dashboard-content-layout" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '20px' }}>
+                                        {/* Left Side: Pemberitahuan Utama */}
+                                        <div className="content-card glassmorphism-sub" style={{ borderRadius: '12px', border: '1px solid rgba(0, 243, 255, 0.15)' }}>
+                                            <div className="ticker-header" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                                <i className="fa-solid fa-book-open" style={{ color: 'var(--accent-cyan)', fontSize: '14px' }}></i>
+                                                <h4 style={{ margin: 0, fontSize: '11px', color: 'var(--accent-cyan)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                                                    PEMBERITAHUAN UTAMA
+                                                </h4>
                                             </div>
-                                            <div className="table-container">
-                                                <table className="history-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Email</th>
-                                                            <th>Order ID</th>
-                                                            <th>Tanggal</th>
-                                                            <th>Status</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {activationHistory.slice(0, 5).length === 0 ? (
-                                                            <tr><td colSpan="4" style={{ textAlign: 'center', padding: '24px', color: 'var(--color-text-muted)' }}>
-                                                                <i className="fa-regular fa-folder-open" style={{ fontSize: '20px', marginBottom: '8px', display: 'block' }}></i>
-                                                                Belum ada data.
-                                                            </td></tr>
-                                                        ) : activationHistory.slice(0, 5).map((item, idx) => (
-                                                            <tr key={idx}>
-                                                                <td style={{ fontWeight: 600, color: '#fff' }}>{item.email}</td>
-                                                                <td className="accent-text" style={{ fontFamily: 'var(--font-mono)', fontSize: '12px' }}>{item.orderId}</td>
-                                                                <td>{new Date(item.timestamp).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' })}</td>
-                                                                <td><span className="badge badge-success"><i className="fa-solid fa-crown" style={{ fontSize: '9px', marginRight: '4px' }}></i>Premium Aktif</span></td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
+                                            <div className="ticker-body">
+                                                <p style={{ margin: 0, fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: '1.6' }}>
+                                                    Selamat datang di Panel Administrasi Aktivasi Alight Motion Premium. Pastikan koneksi server utama terhubung dengan stabil saat memproses pembaruan akun. Hubungi administrator jika terjadi kegagalan sistem.
+                                                </p>
                                             </div>
                                         </div>
 
-                                        {/* System Info */}
-                                        <div className="content-card glassmorphism-sub">
-                                            <h4 style={{ marginBottom: '14px', color: 'var(--accent-cyan)' }}><i className="fa-solid fa-circle-info" style={{ marginRight: '8px' }}></i>Info Sistem</h4>
-                                            <div className="config-table">
-                                                {[
-                                                    ['Versi Panel', 'v1.2.0-stable'],
-                                                    ['Klien Target', 'Alight Motion Android'],
-                                                    ['Paket App', 'com.alightcreative.motion'],
-                                                    ['ID Produk', 'am.full.sub.annual.19q4'],
-                                                    ['Versi Min App', '585'],
-                                                ].map(([k, v]) => (
-                                                    <div className="config-row" key={k}>
-                                                        <span>{k}</span>
-                                                        <strong style={{ fontFamily: 'var(--font-mono)', fontSize: '11px' }}>{v}</strong>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* Quick Actions */}
-                                        <div className="content-card glassmorphism-sub">
-                                            <h4 style={{ marginBottom: '14px', color: 'var(--accent-magenta)' }}><i className="fa-solid fa-bolt" style={{ marginRight: '8px' }}></i>Aksi Cepat</h4>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                                <button className="btn btn-primary btn-glow" onClick={() => setActiveTab('activate')}>
-                                                    <i className="fa-solid fa-wand-magic-sparkles"></i> Aktivasi Manual
-                                                </button>
-                                                <button className="btn btn-secondary" onClick={() => setActiveTab('history')}>
-                                                    <i className="fa-solid fa-list"></i> Lihat Riwayat Lengkap
-                                                </button>
-                                                <button className="btn btn-secondary" onClick={loadHistory} disabled={isRefreshing}>
-                                                    <i className={`fa-solid fa-rotate-right ${isRefreshing ? 'fa-spin' : ''}`}></i> Sinkronisasi Database
-                                                </button>
-                                            </div>
+                                        {/* Right Side: Aktivasi Lisensi Baru */}
+                                        <div className="content-card glassmorphism-sub" style={{
+                                            borderRadius: '12px',
+                                            border: '1px solid rgba(255, 0, 160, 0.15)',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}>
+                                            <h4 style={{ margin: '0 0 8px 0', fontSize: '15px', color: '#ffffff', fontWeight: '700' }}>
+                                                Aktivasi Lisensi Baru
+                                            </h4>
+                                            <p style={{ margin: '0 0 16px 0', fontSize: '11.5px', color: 'var(--color-text-muted)', lineHeight: '1.5' }}>
+                                                Lakukan aktivasi langganan premium 1 tahun secara langsung ke alamat email yang dituju.
+                                            </p>
+                                            <button
+                                                className="btn btn-primary w-full"
+                                                onClick={() => setActiveTab('activate')}
+                                                style={{
+                                                    background: 'var(--gradient-cyan-blue)',
+                                                    border: '1px solid rgba(0, 243, 255, 0.4)',
+                                                    boxShadow: '0 0 12px rgba(0, 243, 255, 0.3)',
+                                                    borderRadius: '8px',
+                                                    fontSize: '11.5px',
+                                                    padding: '10px 18px',
+                                                    fontWeight: '700'
+                                                }}
+                                            >
+                                                <span>PROSES AKTIVASI</span>
+                                                <i className="fa-solid fa-circle-arrow-right" style={{ fontSize: '13px' }}></i>
+                                            </button>
+                                            {/* Faint Key Watermark in the background */}
+                                            <i className="fa-solid fa-key" style={{
+                                                position: 'absolute',
+                                                bottom: '-12px',
+                                                right: '-12px',
+                                                fontSize: '80px',
+                                                color: 'rgba(255, 0, 160, 0.03)',
+                                                pointerEvents: 'none',
+                                                transform: 'rotate(-45deg)'
+                                            }}></i>
                                         </div>
                                     </div>
                                 </section>
                             )}
 
-                            {/* ── TAB 2: HISTORY ── */}
+                            {/* TAB 2: Alat Aktivasi */}
+                            {activeTab === 'activate' && (
+                                <section className="dashboard-view active">
+                                    <div className="content-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
+                                        <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>Aktivasi Manual Premium</h3>
+                                        <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '24px' }}>
+                                            Gunakan formulir ini untuk mengaktifkan akun pengguna secara manual menggunakan email dan magic link dari Alight Motion.
+                                        </p>
+
+                                        <form onSubmit={handleManualActivate}>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '16px' }}>
+                                                <div>
+                                                    <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-cyan)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                                                        Alamat Email Pengguna
+                                                    </label>
+                                                    <div className="input-group">
+                                                        <i className="fa-regular fa-envelope input-icon"></i>
+                                                        <input
+                                                            type="email"
+                                                            placeholder="user@example.com"
+                                                            required
+                                                            value={manualEmail}
+                                                            onChange={(e) => setManualEmail(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style={{ marginBottom: '20px' }}>
+                                                <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-cyan)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                                                    Magic Link Alight Motion
+                                                </label>
+                                                <div className="input-group">
+                                                    <i className="fa-solid fa-link input-icon" style={{ top: '16px' }}></i>
+                                                    <textarea
+                                                        placeholder="Tempelkan URL magic link dari email Alight Motion di sini..."
+                                                        required
+                                                        style={{ minHeight: '90px' }}
+                                                        value={manualLink}
+                                                        onChange={(e) => setManualLink(e.target.value)}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {manualResult && (
+                                                <div className="auth-error-box active" style={{
+                                                    marginBottom: '16px',
+                                                    color: manualResult.success ? 'var(--accent-green)' : 'var(--accent-red)',
+                                                    background: manualResult.success ? 'rgba(0,255,102,0.08)' : 'rgba(255,0,60,0.08)',
+                                                    borderColor: manualResult.success ? 'rgba(0,255,102,0.2)' : 'rgba(255,0,60,0.2)'
+                                                }}>
+                                                    {manualResult.success ? (
+                                                        <><i className="fa-solid fa-crown" style={{ marginRight: '8px' }}></i>
+                                                            Aktivasi Berhasil! Order ID: <strong style={{ fontFamily: 'var(--font-mono)' }}>{manualResult.orderId}</strong>
+                                                        </>
+                                                    ) : (
+                                                        <><i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '8px' }}></i>{manualResult.error}</>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div style={{ display: 'flex', gap: '12px' }}>
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-secondary"
+                                                    onClick={() => { setManualEmail(''); setManualLink(''); setManualResult(null); }}
+                                                >
+                                                    <i className="fa-solid fa-xmark"></i> Batal
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    className={`btn btn-primary btn-glow ${manualLoading ? 'loading' : ''}`}
+                                                    disabled={manualLoading}
+                                                    style={{ flex: 1 }}
+                                                >
+                                                    {manualLoading ? (
+                                                        <><i className="fa-solid fa-spinner fa-spin"></i> Memproses...</>
+                                                    ) : (
+                                                        <><span>Aktifkan Premium</span><i className="fa-solid fa-bolt"></i></>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </section>
+                            )}
+
+                            {/* TAB 3: Riwayat Aktivasi */}
                             {activeTab === 'history' && (
                                 <section className="dashboard-view active">
-                                    <div className="content-card glassmorphism-sub">
+                                    <div className="content-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
                                             <div>
-                                                <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>Riwayat Aktivasi Lisensi</h2>
-                                                <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>{filteredHistory.length} record ditemukan dari {dbTotalCount} total</p>
+                                                <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#fff' }}>Riwayat Aktivasi</h2>
+                                                <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>Menampilkan log riwayat lisensi tersinkronisasi.</p>
                                             </div>
                                             <div className="input-group" style={{ width: '260px', marginBottom: 0 }}>
                                                 <i className="fa-solid fa-magnifying-glass input-icon"></i>
@@ -584,7 +712,7 @@ export default function AdminApp() {
                                                 <thead>
                                                     <tr>
                                                         <th>#</th>
-                                                        <th>Alamat Email</th>
+                                                        <th>Email</th>
                                                         <th>ID Transaksi</th>
                                                         <th>Tanggal Aktivasi</th>
                                                         <th>Durasi</th>
@@ -595,7 +723,7 @@ export default function AdminApp() {
                                                     {filteredHistory.length === 0 ? (
                                                         <tr><td colSpan="6" style={{ textAlign: 'center', padding: '36px', color: 'var(--color-text-muted)' }}>
                                                             <i className="fa-regular fa-folder-open" style={{ display: 'block', fontSize: '24px', marginBottom: '8px', opacity: 0.5 }}></i>
-                                                            <p>Belum ada data{searchQuery ? ` untuk "${searchQuery}"` : ''}.</p>
+                                                            <p>Belum ada data riwayat.</p>
                                                         </td></tr>
                                                     ) : filteredHistory.map((item, idx) => (
                                                         <tr key={idx}>
@@ -614,135 +742,20 @@ export default function AdminApp() {
                                 </section>
                             )}
 
-                            {/* ── TAB 3: MANUAL ACTIVATE ── */}
-                            {activeTab === 'activate' && (
-                                <section className="dashboard-view active">
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                        <div className="content-card glassmorphism-sub" style={{ gridColumn: 'span 2' }}>
-                                            <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>Aktivasi Manual Premium</h3>
-                                            <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '24px' }}>
-                                                Gunakan formulir ini untuk mengaktifkan akun pengguna secara manual menggunakan email dan magic link dari Alight Motion.
-                                            </p>
-
-                                            <form onSubmit={handleManualActivate}>
-                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-                                                    <div>
-                                                        <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-cyan)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-                                                            Alamat Email Pengguna
-                                                        </label>
-                                                        <div className="input-group" style={{ marginBottom: 0 }}>
-                                                            <i className="fa-regular fa-envelope input-icon"></i>
-                                                            <input
-                                                                type="email"
-                                                                placeholder="user@example.com"
-                                                                required
-                                                                value={manualEmail}
-                                                                onChange={(e) => setManualEmail(e.target.value)}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div style={{ marginBottom: '20px' }}>
-                                                    <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-cyan)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-                                                        Magic Link Alight Motion
-                                                    </label>
-                                                    <div className="input-group" style={{ marginBottom: 0 }}>
-                                                        <i className="fa-solid fa-link input-icon" style={{ top: '16px' }}></i>
-                                                        <textarea
-                                                            placeholder="Tempelkan URL magic link dari email Alight Motion di sini..."
-                                                            required
-                                                            style={{ minHeight: '90px' }}
-                                                            value={manualLink}
-                                                            onChange={(e) => setManualLink(e.target.value)}
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                {manualResult && (
-                                                    <div className="auth-error-box active" style={{
-                                                        marginBottom: '16px',
-                                                        color: manualResult.success ? 'var(--accent-green)' : 'var(--accent-red)',
-                                                        background: manualResult.success ? 'rgba(0,255,102,0.08)' : 'rgba(255,0,60,0.08)',
-                                                        borderColor: manualResult.success ? 'rgba(0,255,102,0.2)' : 'rgba(255,0,60,0.2)'
-                                                    }}>
-                                                        {manualResult.success ? (
-                                                            <><i className="fa-solid fa-crown" style={{ marginRight: '8px' }}></i>
-                                                                Berhasil! Order ID: <strong style={{ fontFamily: 'var(--font-mono)' }}>{manualResult.orderId}</strong>
-                                                            </>
-                                                        ) : (
-                                                            <><i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '8px' }}></i>{manualResult.error}</>
-                                                        )}
-                                                    </div>
-                                                )}
-
-                                                <div style={{ display: 'flex', gap: '12px' }}>
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-secondary"
-                                                        onClick={() => { setManualEmail(''); setManualLink(''); setManualResult(null); }}
-                                                    >
-                                                        <i className="fa-solid fa-xmark"></i> Reset
-                                                    </button>
-                                                    <button
-                                                        type="submit"
-                                                        className={`btn btn-primary btn-glow ${manualLoading ? 'loading' : ''}`}
-                                                        disabled={manualLoading}
-                                                        style={{ flex: 1 }}
-                                                    >
-                                                        {manualLoading ? (
-                                                            <><i className="fa-solid fa-spinner fa-spin"></i> Memproses...</>
-                                                        ) : (
-                                                            <><span>Aktifkan Premium Sekarang</span><i className="fa-solid fa-bolt"></i></>
-                                                        )}
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-
-                                        {/* Help panel */}
-                                        <div className="content-card glassmorphism-sub" style={{ gridColumn: 'span 2' }}>
-                                            <h4 style={{ color: 'var(--accent-cyan)', marginBottom: '12px' }}><i className="fa-regular fa-lightbulb" style={{ marginRight: '8px' }}></i>Panduan Penggunaan</h4>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', fontSize: '13px', color: 'var(--color-text-muted)', lineHeight: '1.7' }}>
-                                                <div>
-                                                    <h5 style={{ color: '#fff', marginBottom: '8px', fontSize: '13px' }}>📧 Cara Mendapat Magic Link</h5>
-                                                    <ol style={{ paddingLeft: '16px' }}>
-                                                        <li>Minta pengguna login ke akunnya di web Alight Motion</li>
-                                                        <li>Buka email subjek <strong style={{ color: '#fff' }}>"Sign in to Alight Motion"</strong></li>
-                                                        <li>Salin URL tautan magic link lengkap (mengandung <code style={{ color: 'var(--accent-cyan)', fontSize: '11px' }}>oobCode</code>)</li>
-                                                        <li>Tempelkan ke formulir di atas</li>
-                                                    </ol>
-                                                </div>
-                                                <div>
-                                                    <h5 style={{ color: '#fff', marginBottom: '8px', fontSize: '13px' }}>⚠️ Perhatian Penting</h5>
-                                                    <ul style={{ paddingLeft: '16px' }}>
-                                                        <li>Magic link hanya berlaku <strong style={{ color: '#fff' }}>1x pakai</strong> dan akan kadaluarsa</li>
-                                                        <li>Pastikan email sesuai dengan akun yang memiliki magic link</li>
-                                                        <li>Aktivasi berhasil akan langsung tercatat di database</li>
-                                                        <li>Durasi premium: <strong style={{ color: 'var(--accent-cyan)' }}>1 Tahun</strong> sejak aktivasi</li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* ── TAB 4: STATUS ── */}
+                            {/* TAB 4: Status Server */}
                             {activeTab === 'status' && (
                                 <section className="dashboard-view active">
                                     <div className="status-grid">
-                                        {/* Node Status */}
-                                        <div className="content-card glassmorphism-sub">
+                                        <div className="content-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
                                             <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-cyan)', marginBottom: '10px' }}>
-                                                <i className="fa-solid fa-network-wired" style={{ marginRight: '8px' }}></i>Status Node Jaringan
+                                                <i className="fa-solid fa-network-wired" style={{ marginRight: '8px' }}></i>Node Gateway
                                             </h3>
-                                            <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '20px' }}>Seluruh node server terhubung dan beroperasi normal.</p>
+                                            <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '20px' }}>Operasional node cloud terkoneksi penuh.</p>
                                             <div className="node-list">
                                                 {[
                                                     ['Node Autentikasi Utama', 'AKTIF', latency + 'ms'],
-                                                    ['Node Verifikasi Lisensi', 'AKTIF', (latency + 3) + 'ms'],
-                                                    ['Node Database Cloud', 'AKTIF', (latency + 8) + 'ms'],
-                                                    ['Node API Gateway', 'AKTIF', (latency + 1) + 'ms'],
+                                                    ['Node Verifikasi Lisensi', 'AKTIF', (latency + 2) + 'ms'],
+                                                    ['Node Database Cloud', 'AKTIF', (latency + 5) + 'ms'],
                                                 ].map(([name, status, ping]) => (
                                                     <div className="node-item" key={name}>
                                                         <span className="node-status status-online"></span>
@@ -756,19 +769,16 @@ export default function AdminApp() {
                                             </div>
                                         </div>
 
-                                        {/* App Config */}
-                                        <div className="content-card glassmorphism-sub">
+                                        <div className="content-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
                                             <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-cyan)', marginBottom: '10px' }}>
-                                                <i className="fa-solid fa-gears" style={{ marginRight: '8px' }}></i>Konfigurasi Klien
+                                                <i className="fa-solid fa-gears" style={{ marginRight: '8px' }}></i>Konfigurasi
                                             </h3>
-                                            <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '20px' }}>Parameter standar Alight Motion yang telah terverifikasi.</p>
                                             <div className="config-table">
                                                 {[
                                                     ['Jenis Klien', 'CLIENT_TYPE_ANDROID'],
                                                     ['Paket Android', 'com.alightcreative.motion'],
                                                     ['Versi Minimum', '585'],
                                                     ['ID Produk', 'am.full.sub.annual.19q4'],
-                                                    ['Provider Auth', 'Firebase EmailLink'],
                                                     ['Database', 'MongoDB Atlas'],
                                                 ].map(([k, v]) => (
                                                     <div className="config-row" key={k}>
@@ -778,54 +788,43 @@ export default function AdminApp() {
                                                 ))}
                                             </div>
                                         </div>
-
-                                        {/* Live Stats */}
-                                        <div className="content-card glassmorphism-sub" style={{ gridColumn: 'span 2' }}>
-                                            <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--accent-cyan)', marginBottom: '16px' }}>
-                                                <i className="fa-solid fa-chart-bar" style={{ marginRight: '8px' }}></i>Statistik Performa
-                                            </h3>
-                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-                                                {[
-                                                    { label: 'Latensi', val: latency + 'ms', icon: 'fa-gauge-high', color: 'var(--accent-cyan)' },
-                                                    { label: 'Uptime', val: '99.9%', icon: 'fa-circle-check', color: 'var(--accent-green)' },
-                                                    { label: 'Total Request', val: (BASE_ACTIVATED_COUNT + dbTotalCount).toLocaleString('id-ID'), icon: 'fa-arrows-rotate', color: 'var(--accent-magenta)' },
-                                                    { label: 'Error Rate', val: '0.02%', icon: 'fa-shield-check', color: 'var(--accent-green)' },
-                                                ].map(stat => (
-                                                    <div key={stat.label} style={{ textAlign: 'center', padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.06)' }}>
-                                                        <i className={`fa-solid ${stat.icon}`} style={{ fontSize: '22px', color: stat.color, marginBottom: '8px', display: 'block', textShadow: `0 0 10px ${stat.color}` }}></i>
-                                                        <div style={{ fontSize: '20px', fontWeight: '700', color: '#fff' }}>{stat.val}</div>
-                                                        <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px' }}>{stat.label}</div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
                                     </div>
                                 </section>
                             )}
                         </main>
 
-                        {/* Console Log Footer */}
-                        <footer className="app-console">
+                        {/* Bottom Log Activities Console */}
+                        <footer className="app-console" style={{ position: 'fixed', bottom: 0, right: 0, left: sidebarOpen ? '268px' : 0, transition: 'left 0.3s ease', zIndex: 95 }}>
                             <div className="console-header">
                                 <div className="console-dots">
                                     <span className="console-dot dot-red"></span>
                                     <span className="console-dot dot-yellow"></span>
                                     <span className="console-dot dot-green"></span>
                                 </div>
-                                <span className="console-title"><i className="fa-solid fa-terminal"></i> Log Aktivitas Sistem</span>
+                                <span className="console-title">
+                                    <i className="fa-solid fa-terminal" style={{ color: 'var(--accent-green)', marginRight: '6px' }}></i>
+                                    LOG AKTIVASI SISTEM
+                                </span>
                                 <div className="console-actions">
                                     <button className="btn-console-action" onClick={handleCopyLog} title="Salin Log">
                                         <i className="fa-regular fa-copy"></i>
                                     </button>
-                                    <button className="btn-console-action" onClick={() => setLogs([{ time: new Date().toTimeString().split(' ')[0], text: 'Log dibersihkan.', type: 'muted' }])} title="Bersihkan Log">
+                                    <button className="btn-console-action" onClick={() => setLogs([])} title="Bersihkan Log">
                                         <i className="fa-regular fa-trash-can"></i>
                                     </button>
                                 </div>
                             </div>
-                            <div className="console-body">
+                            <div className="console-body" style={{ height: '115px' }}>
                                 {logs.map((log, idx) => (
-                                    <div key={idx} className={`log-line ${log.type === 'muted' ? 'text-muted' : log.type === 'success' ? 'text-success' : log.type === 'error' ? 'text-error' : log.type === 'info' ? 'text-info' : ''}`}>
-                                        <span className="text-muted">[{log.time}]</span> {log.text}
+                                    <div key={idx} className="log-line" style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
+                                        <span className="text-muted" style={{ minWidth: '70px' }}>[{log.time}]</span>
+                                        <span style={{
+                                            color: log.text.includes('🟢') || log.text.includes('berhasil') ? 'var(--accent-green)' :
+                                                   log.text.includes('⚠️') ? 'var(--accent-gold)' :
+                                                   log.text.includes('❌') ? 'var(--accent-red)' : '#ffffff'
+                                        }}>
+                                            {log.text}
+                                        </span>
                                     </div>
                                 ))}
                                 <div ref={consoleEndRef}></div>
