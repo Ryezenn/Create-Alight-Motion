@@ -61,10 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnRestart = document.getElementById('btn-restart');
     
     // Step indicators
-    const indicatorStep1 = document.getElementById('indicator-step-1');
-    const indicatorStep2 = document.getElementById('indicator-step-2');
-    const indicatorStep3 = document.getElementById('indicator-step-3');
-    const indicatorStep4 = document.getElementById('indicator-step-4');
+    const stepProgressText = document.getElementById('step-progress-text');
+    const stepProgressPercent = document.getElementById('step-progress-percent');
     const stepLineProgress = document.getElementById('step-line-progress');
     
     // Views
@@ -360,35 +358,28 @@ document.addEventListener('DOMContentLoaded', () => {
             adInterval = null;
         }
 
-        indicatorStep1.className = 'step-dot';
-        indicatorStep2.className = 'step-dot';
-        indicatorStep3.className = 'step-dot';
-        if (indicatorStep4) indicatorStep4.className = 'step-dot';
-
         if (step === 1) {
             viewStep1.classList.add('active');
-            indicatorStep1.classList.add('active');
-            if (stepLineProgress) stepLineProgress.style.width = '0%';
+            if (stepProgressText) stepProgressText.textContent = 'Langkah 1 dari 4: Kirim Tautan';
+            if (stepProgressPercent) stepProgressPercent.textContent = '25%';
+            if (stepLineProgress) stepLineProgress.style.width = '25%';
         } else if (step === 2) {
             if (viewStepAds) viewStepAds.classList.add('active');
-            indicatorStep1.classList.add('completed');
-            indicatorStep2.classList.add('active');
-            if (stepLineProgress) stepLineProgress.style.width = '33.3%';
+            if (stepProgressText) stepProgressText.textContent = 'Langkah 2 dari 4: Sponsor Iklan';
+            if (stepProgressPercent) stepProgressPercent.textContent = '50%';
+            if (stepLineProgress) stepLineProgress.style.width = '50%';
             
             // Start automatic ad viewing
             startAutoAdVerification();
         } else if (step === 3) {
             viewStep2.classList.add('active');
-            indicatorStep1.classList.add('completed');
-            indicatorStep2.classList.add('completed');
-            indicatorStep3.classList.add('active');
-            if (stepLineProgress) stepLineProgress.style.width = '66.6%';
+            if (stepProgressText) stepProgressText.textContent = 'Langkah 3 dari 4: Verifikasi Akun';
+            if (stepProgressPercent) stepProgressPercent.textContent = '75%';
+            if (stepLineProgress) stepLineProgress.style.width = '75%';
         } else if (step === 4) {
             viewStep3.classList.add('active');
-            indicatorStep1.classList.add('completed');
-            indicatorStep2.classList.add('completed');
-            indicatorStep3.classList.add('completed');
-            if (indicatorStep4) indicatorStep4.classList.add('active');
+            if (stepProgressText) stepProgressText.textContent = 'Langkah 4 dari 4: Selesai';
+            if (stepProgressPercent) stepProgressPercent.textContent = '100%';
             if (stepLineProgress) stepLineProgress.style.width = '100%';
         }
     }

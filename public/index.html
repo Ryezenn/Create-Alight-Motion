@@ -250,23 +250,13 @@
                 <section class="dashboard-view" id="view-activator">
                     <div class="app-card glassmorphism-sub">
                         <!-- Step Indicators -->
-                        <div class="steps-indicator">
-                            <div class="step-line-overlay" id="step-line-progress"></div>
-                            <div class="step-dot active" id="indicator-step-1" data-step="1">
-                                <span class="step-num">1</span>
-                                <span class="step-text">Kirim Tautan</span>
+                        <div class="steps-progress-wrapper" style="margin-bottom: 28px;">
+                            <div class="step-progress-text-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span class="step-progress-label" id="step-progress-text" style="font-family: var(--font-heading); font-size: 15px; font-weight: 600; color: #fff; letter-spacing: 0.2px;">Langkah 1 dari 4: Kirim Tautan</span>
+                                <span class="step-progress-percent" id="step-progress-percent" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--color-text-muted);">25%</span>
                             </div>
-                            <div class="step-dot" id="indicator-step-2" data-step="2">
-                                <span class="step-num">2</span>
-                                <span class="step-text">Sponsor Iklan</span>
-                            </div>
-                            <div class="step-dot" id="indicator-step-3" data-step="3">
-                                <span class="step-num">3</span>
-                                <span class="step-text">Verifikasi Akun</span>
-                            </div>
-                            <div class="step-dot" id="indicator-step-4" data-step="4">
-                                <span class="step-num"><i class="fa-solid fa-check"></i></span>
-                                <span class="step-text">Proses Selesai</span>
+                            <div class="step-progress-bar-container" style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; height: 6px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.04); padding: 1px;">
+                                <div id="step-line-progress" style="background: linear-gradient(90deg, #7c3aed, #06b6d4); width: 25%; height: 100%; border-radius: 20px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(124, 58, 237, 0.2);"></div>
                             </div>
                         </div>
 
