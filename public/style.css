@@ -5,45 +5,45 @@
 
 /* ---------- Design Tokens ---------- */
 :root {
-    --bg-primary: #020204;
-    --bg-secondary: #0a0a10;
-    --bg-elevated: #101018;
-    --card-bg: rgba(14, 14, 22, 0.72);
-    --card-bg-sub: rgba(18, 18, 30, 0.55);
-    --card-bg-hover: rgba(24, 24, 40, 0.65);
-    --border-color: rgba(255, 255, 255, 0.06);
-    --border-subtle: rgba(255, 255, 255, 0.04);
-    --border-glow: rgba(124, 58, 237, 0.18);
+    --bg-primary: #08090d;          /* Clean solid neutral dark grey */
+    --bg-secondary: #0c0d12;        /* Solid sidebar grey */
+    --bg-elevated: #111218;
+    --card-bg: #111218;             /* Solid card backgrounds */
+    --card-bg-sub: #151620;         /* Solid sub card backgrounds */
+    --card-bg-hover: #1b1c28;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.05);
+    --border-glow: transparent;     /* Disable border glow */
 
-    --color-text: #eeeef2;
-    --color-text-muted: #7c7c96;
-    --color-text-dim: #4e4e6a;
+    --color-text: #f3f4f6;          /* Clean white text */
+    --color-text-muted: #9ca3af;    /* Sleek grey text */
+    --color-text-dim: #6b7280;
 
-    /* Astra Spectrum */
-    --accent-green: #8b5cf6;       /* Vivid Violet */
-    --accent-green-glow: rgba(139, 92, 246, 0.35);
-    --accent-cyan: #22d3ee;        /* Luminous Cyan */
-    --accent-cyan-glow: rgba(34, 211, 238, 0.3);
-    --accent-purple: #ec4899;      /* Neon Rose */
-    --accent-purple-glow: rgba(236, 72, 153, 0.25);
-    --accent-red: #f43f5e;
-    --accent-gold: #fbbf24;
+    /* Astra Spectrum - Sleek & solid, no neon aura */
+    --accent-green: #10b981;        /* Solid emerald green */
+    --accent-green-glow: rgba(16, 185, 129, 0.1);
+    --accent-cyan: #06b6d4;         /* Clean cyan */
+    --accent-cyan-glow: rgba(6, 182, 212, 0.1);
+    --accent-purple: #7c3aed;       /* Clean royal purple */
+    --accent-purple-glow: rgba(124, 58, 237, 0.1);
+    --accent-red: #ef4444;
+    --accent-gold: #f59e0b;
 
-    --gradient-primary: linear-gradient(135deg, #8b5cf6 0%, #06b6d4 50%, #22d3ee 100%);
-    --gradient-card: linear-gradient(160deg, rgba(139, 92, 246, 0.06) 0%, rgba(34, 211, 238, 0.03) 100%);
-    --gradient-shine: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 60%);
+    --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); /* Clean purple/blue gradient */
+    --gradient-card: none;          /* Solid cards, no gradient backgrounds */
+    --gradient-shine: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 60%);
 
-    --font-heading: 'Space Grotesk', system-ui, sans-serif;
-    --font-body: 'Outfit', system-ui, sans-serif;
+    --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
     --font-mono: 'Fira Code', 'Cascadia Code', monospace;
-    --transition-speed: 0.3s;
+    --transition-speed: 0.25s;
     --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 
-    --radius-sm: 8px;
-    --radius-md: 14px;
-    --radius-lg: 20px;
-    --radius-xl: 24px;
+    --radius-sm: 6px;               /* Refined smaller radii for cleaner look */
+    --radius-md: 10px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
 }
 
 /* ---------- Reset & Base ---------- */
@@ -79,91 +79,32 @@ body::after {
     content: '';
     position: fixed;
     inset: 0;
-    background:
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 60% 40% at 80% 110%, rgba(34, 211, 238, 0.08) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 35% at 10% 90%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+    background: radial-gradient(ellipse 60% 40% at 50% -20%, rgba(124, 58, 237, 0.04) 0%, transparent 80%);
     z-index: -2;
     pointer-events: none;
-    animation: auroraShift 25s infinite alternate ease-in-out;
-}
-
-@keyframes auroraShift {
-    0% { opacity: 0.8; }
-    50% { opacity: 1; }
-    100% { opacity: 0.7; }
 }
 
 .bg-glow {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(160px);
-    z-index: -1;
-    opacity: 0.18;
-    pointer-events: none;
-    will-change: transform;
+    display: none;
 }
 
-.bg-glow-1 {
-    width: 500px;
-    height: 500px;
-    background: var(--accent-green);
-    top: -120px;
-    right: -80px;
-    animation: floatGlow 18s infinite alternate ease-in-out;
-}
-
-.bg-glow-2 {
-    width: 550px;
-    height: 550px;
-    background: var(--accent-cyan);
-    bottom: -180px;
-    left: -120px;
-    animation: floatGlow 22s infinite alternate-reverse ease-in-out;
-}
-
-.bg-glow-3 {
-    width: 300px;
-    height: 300px;
-    background: var(--accent-purple);
-    top: 45%;
-    left: 45%;
-    transform: translate(-50%, -50%);
-    animation: floatGlow 16s infinite alternate ease-in-out;
-    animation-delay: 3s;
-}
-
-@keyframes floatGlow {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(30px, -40px) scale(1.08); }
-    100% { transform: translate(-20px, 60px) scale(1.12); }
-}
-
-/* ---------- Glassmorphism ---------- */
+/* ---------- Solid Flat Cards ---------- */
 .glassmorphism {
     background: var(--card-bg);
-    backdrop-filter: blur(20px) saturate(1.3);
-    -webkit-backdrop-filter: blur(20px) saturate(1.3);
     border: 1px solid var(--border-color);
-    box-shadow:
-        0 12px 40px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
 .glassmorphism-sub {
     background: var(--card-bg-sub);
     border: 1px solid var(--border-subtle);
-    backdrop-filter: blur(12px) saturate(1.2);
-    -webkit-backdrop-filter: blur(12px) saturate(1.2);
-    box-shadow:
-        0 4px 16px rgba(0, 0, 0, 0.2),
-        inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .glassmorphism-sub:hover {
     background: var(--card-bg-hover);
-    border-color: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* ---------- Layout System ---------- */
@@ -181,13 +122,10 @@ body::after {
     z-index: 100;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid var(--border-color);
     padding: 28px 20px;
     transition: left var(--transition-speed) var(--ease-smooth);
-    background: rgba(3, 3, 5, 0.6);
-    backdrop-filter: blur(25px) saturate(1.5);
-    -webkit-backdrop-filter: blur(25px) saturate(1.5);
-    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    background: var(--bg-secondary);
 }
 
 .sidebar-brand {
@@ -324,18 +262,14 @@ body::after {
 
 /* Active State */
 .menu-item.active {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12) 0%, rgba(6, 182, 212, 0.04) 100%);
+    background: rgba(255, 255, 255, 0.05);
     color: #ffffff;
-    border-color: rgba(124, 58, 237, 0.2);
-    box-shadow: 
-        0 4px 20px rgba(0, 0, 0, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.08);
 }
 
 .menu-item.active .menu-icon-wrap {
-    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    background: var(--accent-purple);
     border-color: transparent;
-    box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
 }
 
 .menu-item.active .menu-icon {
@@ -589,28 +523,9 @@ body::after {
 }
 
 .kpi-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
-}
-
-.kpi-card:nth-child(1):hover {
-    border-color: rgba(139, 92, 246, 0.35);
-    box-shadow: 0 16px 40px rgba(139, 92, 246, 0.1);
-}
-
-.kpi-card:nth-child(2):hover {
-    border-color: rgba(236, 72, 153, 0.35);
-    box-shadow: 0 16px 40px rgba(236, 72, 153, 0.1);
-}
-
-.kpi-card:nth-child(3):hover {
-    border-color: rgba(34, 211, 238, 0.35);
-    box-shadow: 0 16px 40px rgba(34, 211, 238, 0.1);
-}
-
-.kpi-card:nth-child(4):hover {
-    border-color: rgba(251, 191, 36, 0.3);
-    box-shadow: 0 16px 40px rgba(251, 191, 36, 0.08);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
 }
 
 .kpi-details span {
@@ -689,7 +604,7 @@ body::after {
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.15), rgba(34, 211, 238, 0.1), transparent);
+    background: var(--border-subtle);
 }
 
 .ticker-header h4 {
@@ -716,17 +631,17 @@ body::after {
 
 /* --- Shortcut Launcher --- */
 .shortcut-launcher {
-    background: linear-gradient(145deg, rgba(139, 92, 246, 0.1), rgba(34, 211, 238, 0.03));
-    border: 1px solid rgba(139, 92, 246, 0.18);
+    background: var(--card-bg-sub);
+    border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    transition: all 0.35s var(--ease-smooth);
+    transition: all 0.25s var(--ease-smooth);
 }
 
 .shortcut-launcher:hover {
-    transform: translateY(-4px);
-    border-color: rgba(139, 92, 246, 0.35);
-    box-shadow: 0 12px 30px rgba(139, 92, 246, 0.12);
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 .shortcut-launcher .card-details h3 {
@@ -963,18 +878,18 @@ body::after {
 .btn-primary {
     background: var(--gradient-primary);
     color: #ffffff;
-    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
-    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+    filter: brightness(1.15);
 }
 
 .btn-primary:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-secondary {
