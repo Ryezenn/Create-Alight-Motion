@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-adsense-account" content="ca-pub-2199063141174258">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2199063141174258" crossorigin="anonymous"></script>
-    <title>Alight Motion Premium - Developer Dashboard</title>
-    <meta name="description" content="Dashboard aktivasi Alight Motion Premium 1 tahun dengan panel analitik, live logs, dan riwayat aktivasi lisensi.">
+    <title>Alight Motion Premium - Aktivasi Lisensi</title>
+    <meta name="description" content="Portal aktivasi Alight Motion Premium 1 tahun resmi dan aman.">
     <!-- Google Fonts: Jost & Overpass Mono (Contemporary Theme) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,545 +33,214 @@
             <div class="loader-status" id="loader-status-text">Menghubungkan ke server...</div>
         </div>
     </div>
+
     <!-- Background Animated Glows -->
     <div class="bg-glow bg-glow-1"></div>
     <div class="bg-glow bg-glow-2"></div>
     <div class="bg-glow bg-glow-3"></div>
 
-    <!-- Auth Overlay Screen -->
-    <div id="auth-container" class="auth-wrapper">
-        <div class="auth-card glassmorphism animate-scale-up">
-            <!-- Pulsing Agentic Sphere -->
-            <div class="auth-agentic-sphere">
-                <div class="sphere-outer-pulse"></div>
-                <div class="sphere-inner-ring"></div>
-                <div class="sphere-core">
-                    <i class="fa-solid fa-brain sphere-brain-icon"></i>
-                </div>
-            </div>
-            
-            <div class="auth-brand">
-                <h2>AM Premium</h2>
-                <span>Portal Otomasi Pengembang</span>
-            </div>
-
-            <!-- Switch Tabs -->
-            <div class="auth-tabs">
-                <button type="button" class="auth-tab active" id="tab-login-btn">Masuk</button>
-                <button type="button" class="auth-tab" id="tab-register-btn">Daftar</button>
-            </div>
-            
-            <div class="auth-error-box" id="auth-error-msg"></div>
-            
-            <!-- Login Form -->
-            <form id="form-login" class="auth-form active">
-                <div class="input-group">
-                    <i class="fa-regular fa-user input-icon"></i>
-                    <input type="text" id="login-username" placeholder="Nama Pengguna" required autocomplete="username">
-                </div>
-                <div class="input-group">
-                    <i class="fa-solid fa-lock input-icon"></i>
-                    <input type="password" id="login-password" placeholder="Kata Sandi" required autocomplete="current-password">
-                </div>
-                <!-- Turnstile Widget -->
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" style="margin-bottom: 16px; display: flex; justify-content: center;"></div>
-                <button type="submit" class="btn btn-primary btn-glow w-full">
-                    <span>Masuk ke Panel</span>
-                    <i class="fa-solid fa-right-to-bracket"></i>
-                </button>
-            </form>
-            
-            <!-- Register Form -->
-            <form id="form-register" class="auth-form">
-                <div class="input-group">
-                    <i class="fa-regular fa-user input-icon"></i>
-                    <input type="text" id="register-username" placeholder="Nama Pengguna Baru" required autocomplete="username">
-                </div>
-                <div class="input-group">
-                    <i class="fa-solid fa-lock input-icon"></i>
-                    <input type="password" id="register-password" placeholder="Kata Sandi Baru" required autocomplete="new-password">
-                </div>
-                <!-- Turnstile Widget -->
-                <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" style="margin-bottom: 16px; display: flex; justify-content: center;"></div>
-                <button type="submit" class="btn btn-primary btn-glow w-full">
-                    <span>Daftar Akun Baru</span>
-                    <i class="fa-solid fa-user-plus"></i>
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <div class="dashboard-layout dashboard-hidden" id="dashboard-wrapper">
-        <!-- Sidebar Navigation -->
-        <aside class="sidebar" id="sidebar">
+    <!-- Centered Public Activator Layout -->
+    <div class="auth-wrapper">
+        <div class="auth-card glassmorphism animate-scale-up" style="max-width: 480px; width: 90%; padding: 28px;">
             <!-- Brand Header -->
-            <div class="sidebar-brand">
-                <div class="brand-logo">
-                    <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+            <div class="auth-brand" style="margin-bottom: 24px;">
+                <div class="auth-agentic-sphere" style="margin: 0 auto 16px auto;">
+                    <div class="sphere-outer-pulse"></div>
+                    <div class="sphere-inner-ring"></div>
+                    <div class="sphere-core" style="background: var(--gradient-primary);">
+                        <i class="fa-solid fa-crown sphere-brain-icon" style="color: #fff;"></i>
+                    </div>
                 </div>
-                <div class="brand-text">
-                    <h2>AM Premium</h2>
-                    <span>Panel Pengembang</span>
-                </div>
-                <button class="btn-close-sidebar" id="btn-close-sidebar">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <h2>AM Premium</h2>
+                <span>Portal Aktivasi Lisensi Mandiri</span>
             </div>
 
-            <!-- Menu Section -->
-            <div class="sidebar-section-label">NAVIGASI</div>
-            <nav class="sidebar-menu">
-                <a href="#" class="menu-item active" data-tab="dashboard">
-                    <div class="menu-icon-wrap"><i class="fa-solid fa-chart-pie menu-icon"></i></div>
-                    <span>Ikhtisar Utama</span>
-                </a>
-                <a href="#" class="menu-item" data-tab="activator">
-                    <div class="menu-icon-wrap"><i class="fa-solid fa-bolt menu-icon"></i></div>
-                    <span>Alat Aktivasi</span>
-                </a>
-                <a href="#" class="menu-item" data-tab="history">
-                    <div class="menu-icon-wrap"><i class="fa-solid fa-clock-rotate-left menu-icon"></i></div>
-                    <span>Riwayat Aktivasi</span>
-                </a>
-                <a href="#" class="menu-item" data-tab="status">
-                    <div class="menu-icon-wrap"><i class="fa-solid fa-server menu-icon"></i></div>
-                    <span>Status Server</span>
-                </a>
-            </nav>
+            <!-- Step Indicators -->
+            <div class="steps-progress-wrapper" style="margin-bottom: 24px;">
+                <div class="step-progress-text-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span class="step-progress-label" id="step-progress-text" style="font-family: var(--font-heading); font-size: 14px; font-weight: 600; color: #fff; letter-spacing: 0.2px;">Langkah 1 dari 4: Kirim Tautan</span>
+                    <span class="step-progress-percent" id="step-progress-percent" style="font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--color-text-muted);">25%</span>
+                </div>
+                <div class="step-progress-bar-container" style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; height: 6px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.04); padding: 1px;">
+                    <div id="step-line-progress" style="background: var(--gradient-primary); width: 25%; height: 100%; border-radius: 20px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(200, 0, 223, 0.2);"></div>
+                </div>
+            </div>
 
-            <!-- Sidebar Footer -->
-            <div class="sidebar-footer">
-                <div class="sidebar-section-label">AKUN</div>
-                <div class="dev-profile">
-                    <img id="sidebar-profile-img" src="https://ui-avatars.com/api/?name=Admin&background=7c3aed&color=fff&bold=true&rounded=true" alt="Profile" class="profile-img">
-                    <div class="profile-info">
-                        <h4 id="sidebar-username">Admin</h4>
-                        <span><i class="fa-solid fa-circle sidebar-online-dot"></i> Daring</span>
+            <!-- Card Views Wrapper -->
+            <div class="card-views">
+                <!-- STEP 1: Input Email -->
+                <div class="card-view active" id="view-step-1">
+                    <div class="view-header" style="margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px;">Kirim Tautan Verifikasi</h3>
+                        <p style="font-size: 13px; color: var(--color-text-muted); line-height: 1.5;">Masukkan alamat email yang telah atau ingin didaftarkan pada akun Alight Motion.</p>
                     </div>
-                    <button type="button" class="btn-logout" id="btn-logout" title="Keluar">
-                        <i class="fa-solid fa-right-from-bracket"></i>
+                    <form id="form-step-1" class="interactive-form">
+                        <div class="input-group" style="margin-bottom: 16px;">
+                            <i class="fa-regular fa-envelope input-icon"></i>
+                            <input type="email" id="input-email" placeholder="contoh@gmail.com" required autocomplete="email">
+                        </div>
+                        <!-- Turnstile Widget -->
+                        <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" style="margin-bottom: 16px; display: flex; justify-content: center;"></div>
+                        <button type="submit" class="btn btn-primary btn-glow w-full" id="btn-send-link">
+                            <span>Kirim Tautan Masuk</span>
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                    <div class="info-alert" style="margin-top: 16px;">
+                        <i class="fa-solid fa-circle-info info-icon"></i>
+                        <p>Sistem akan mengirimkan email tautan verifikasi resmi ke alamat email yang Anda masukkan.</p>
+                    </div>
+
+                    <!-- Premium Features Header -->
+                    <div class="premium-features-header" style="margin: 24px 0 12px 0;">
+                        <h4 style="font-size: 12px; font-weight: 700; color: var(--color-text-dim); letter-spacing: 1px; text-transform: uppercase;">FITUR PREMIUM YANG DIAKTIFKAN</h4>
+                    </div>
+                    <div class="premium-features-grid" style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+                        <div class="feature-item glassmorphism-sub" style="display: flex; gap: 12px; padding: 10px 14px; border-radius: 10px;">
+                            <i class="fa-solid fa-watermark feature-icon" style="font-size: 18px; color: var(--accent-purple);"></i>
+                            <div class="feature-desc">
+                                <h5 style="font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px;">Ekspor Tanpa Watermark</h5>
+                                <p style="font-size: 11px; color: var(--color-text-muted);">Simpan dan ekspor video bersih tanpa logo watermark.</p>
+                            </div>
+                        </div>
+                        <div class="feature-item glassmorphism-sub" style="display: flex; gap: 12px; padding: 10px 14px; border-radius: 10px;">
+                            <i class="fa-solid fa-wand-magic-sparkles feature-icon" style="font-size: 18px; color: var(--accent-purple);"></i>
+                            <div class="feature-desc">
+                                <h5 style="font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px;">Akses Seluruh Efek Pro</h5>
+                                <p style="font-size: 11px; color: var(--color-text-muted);">Membuka seluruh efek, filter, dan transisi premium.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP ADS: Watch 5 Ads (Langkah 2) -->
+                <div class="card-view" id="view-step-ads">
+                    <div class="view-header" style="margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px;">Verifikasi Sponsor Iklan</h3>
+                        <p style="font-size: 13px; color: var(--color-text-muted); line-height: 1.5;">Untuk melanjutkan ke proses verifikasi lisensi, Anda wajib menonton 5x sponsor iklan di bawah ini.</p>
+                    </div>
+                    <div class="ads-validation-container text-center py-4">
+                        <div class="ads-counter-badge mb-4" style="font-size: 14px; color: #fff;">
+                            <i class="fa-solid fa-rectangle-ad text-gradient mr-2"></i>
+                            Iklan Ditonton: <span id="ad-view-count" class="accent-text" style="font-weight: 700; font-size: 20px; color: var(--accent-purple);">0</span> / 5
+                        </div>
+                        
+                        <!-- Ad Progress Bar -->
+                        <div class="ads-progress-container mb-6" style="max-width: 320px; margin: 0 auto 16px auto;">
+                            <div class="ads-progress-bar" style="background: rgba(255,255,255,0.06); border-radius: 20px; height: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); padding: 2px;">
+                                <div id="ads-progress-fill" style="background: var(--gradient-primary); width: 0%; height: 100%; border-radius: 20px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                            </div>
+                        </div>
+
+                        <!-- Google AdSense Container -->
+                        <div class="adsense-placeholder-box glassmorphism-sub" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 12px; margin: 0 auto 20px auto; max-width: 100%; padding: 10px; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.02);">
+                            <ins class="adsbygoogle"
+                                 style="display:block; width: 100%; min-height: 250px;"
+                                 data-ad-client="ca-pub-2199063141174258"
+                                 data-ad-slot="1234567890"
+                                 data-ad-format="auto"
+                                 data-full-width-responsive="true"></ins>
+                            <script>
+                                 (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
+                        </div>
+
+                        <!-- Navigation Action Buttons -->
+                        <div class="button-row justify-center" style="display: flex; flex-direction: column; gap: 10px; max-width: 320px; margin: 0 auto;">
+                            <button type="button" class="btn btn-primary btn-glow w-full" id="btn-watch-ad">
+                                <span>Buka Iklan Sponsor</span>
+                                <i class="fa-solid fa-square-arrow-up-right"></i>
+                            </button>
+                            <div class="button-row" style="display: flex; width: 100%; gap: 10px;">
+                                <button type="button" class="btn btn-secondary" id="btn-back-to-step1" style="flex: 1;">
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                    <span>Kembali</span>
+                                </button>
+                                <button type="button" class="btn btn-primary disabled" id="btn-next-to-step2" style="flex: 1.2;" disabled>
+                                    <span>Lanjutkan</span>
+                                    <i class="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Paste Magic Link -->
+                <div class="card-view" id="view-step-2">
+                    <div class="view-header" style="margin-bottom: 20px;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 6px;">Verifikasi & Penerapan Lisensi</h3>
+                        <p style="font-size: 13px; color: var(--color-text-muted); line-height: 1.5;">Buka kotak masuk email Anda, salin tautan login Alight Motion, kemudian tempelkan pada kolom di bawah ini.</p>
+                    </div>
+                    <form id="form-step-2" class="interactive-form">
+                        <div class="input-group" style="margin-bottom: 16px;">
+                            <i class="fa-solid fa-link input-icon"></i>
+                            <textarea id="input-magic-link" placeholder="Tempelkan URL tautan verifikasi di sini..." required style="min-height: 80px;"></textarea>
+                        </div>
+                        <div class="button-row" style="display: flex; gap: 10px; margin-bottom: 16px;">
+                            <button type="button" class="btn btn-secondary" id="btn-back-step-1" style="flex: 1;">
+                                <i class="fa-solid fa-arrow-left"></i>
+                                <span>Kembali</span>
+                            </button>
+                            <button type="submit" class="btn btn-primary btn-glow" id="btn-activate" style="flex: 1.8;">
+                                <span>Aktifkan Lisensi</span>
+                                <i class="fa-solid fa-bolt"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Instruction Card -->
+                    <div class="help-accordion glassmorphism-sub" style="border-radius: 10px;">
+                        <div class="help-header" style="padding: 12px; font-size: 13px;">
+                            <i class="fa-regular fa-lightbulb"></i>
+                            <span>Panduan Menyalin Tautan dari Email</span>
+                            <i class="fa-solid fa-chevron-down toggle-arrow"></i>
+                        </div>
+                        <div class="help-body" style="padding: 0 12px 12px 12px; font-size: 12px; line-height: 1.6;">
+                            <ol style="margin-left: 16px;">
+                                <li>Buka email subjek <strong>"Sign in to Alight Motion"</strong>.</li>
+                                <li>Tekan lama tombol <strong>"Sign in to Alight Motion"</strong>, lalu pilih <strong>"Salin Tautan"</strong>.</li>
+                                <li>Pastikan tautan disalin sepenuhnya.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 3: Success Result -->
+                <div class="card-view" id="view-step-3">
+                    <div class="success-checkmark-wrapper" style="margin-bottom: 16px;">
+                        <div class="success-ring animate-scale-up"></div>
+                        <div class="success-icon animate-pop-in" style="background: var(--gradient-primary);">
+                            <i class="fa-solid fa-crown" style="color: #fff;"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="view-header text-center" style="margin-bottom: 20px;">
+                        <h3 class="text-gradient" style="font-size: 20px; font-weight: 700;">Lisensi Berhasil Aktif!</h3>
+                        <p id="success-message" style="font-size: 13px; color: var(--color-text-muted);">Aktivasi lisensi Alight Motion Premium 1 Tahun selesai diproses.</p>
+                    </div>
+
+                    <!-- Profile Details -->
+                    <div class="profile-details glassmorphism-sub" style="margin-bottom: 20px; border-radius: 12px; padding: 14px;">
+                        <div class="detail-row" style="display: flex; justify-content: space-between; font-size: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle);">
+                            <span class="detail-label" style="color: var(--color-text-muted);">Alamat Email</span>
+                            <span class="detail-val" id="val-email" style="color: #fff; font-weight: 500;">-</span>
+                        </div>
+                        <div class="detail-row" style="display: flex; justify-content: space-between; font-size: 12px; padding: 8px 0; border-bottom: 1px solid var(--border-subtle);">
+                            <span class="detail-label" style="color: var(--color-text-muted);">ID Transaksi</span>
+                            <span class="detail-val accent-text" id="val-order-id" style="color: var(--accent-purple); font-family: var(--font-mono);">-</span>
+                        </div>
+                        <div class="detail-row" style="display: flex; justify-content: space-between; font-size: 12px; padding: 8px 0;">
+                            <span class="detail-label" style="color: var(--color-text-muted);">Status Lisensi</span>
+                            <span class="detail-val active-badge" style="background: rgba(22, 163, 74, 0.15); color: #16a34a; padding: 2px 8px; border-radius: 20px; font-weight: 600;"><i class="fa-solid fa-shield-halved"></i> Terverifikasi Aktif</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary w-full" id="btn-restart">
+                        <span>Aktivasi Akun Baru</span>
+                        <i class="fa-solid fa-rotate-left"></i>
                     </button>
                 </div>
-                <div class="app-version">v1.1.0-annual</div>
             </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <div class="main-content">
-            <!-- Top Header -->
-            <header class="top-header glassmorphism">
-                <button class="btn-hamburger" id="btn-hamburger">
-                    <i class="fa-solid fa-bars-staggered"></i>
-                </button>
-                <div class="header-title">
-                    <h1 id="header-title-text">Ikhtisar Utama</h1>
-                </div>
-                <div class="header-actions">
-                    <div class="server-status-pill">
-                        <span class="status-indicator-dot"></span>
-                        <span>Server: AKTIF</span>
-                    </div>
-                    <div class="profile-badge">
-                        <i class="fa-regular fa-bell header-icon"></i>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Dashboard Dynamic Workspace -->
-            <main class="workspace">
-                <!-- VIEW 1: Overview Dashboard -->
-                <section class="dashboard-view active" id="view-dashboard">
-                    <!-- KPI Cards Grid -->
-                    <div class="kpi-grid">
-                        <div class="kpi-card glassmorphism-sub">
-                            <div class="kpi-details">
-                                <span>TOTAL AKTIVASI LISENSI</span>
-                                <h3 id="stat-total-activated">12,894</h3>
-                                <p class="text-success"><i class="fa-solid fa-circle-arrow-up"></i> +142 Hari Ini</p>
-                            </div>
-                            <div class="kpi-icon-wrapper icon-green">
-                                <i class="fa-solid fa-users-viewfinder"></i>
-                            </div>
-                        </div>
-                        <div class="kpi-card glassmorphism-sub">
-                            <div class="kpi-details">
-                                <span>AKTIVASI DATABASE CLOUD</span>
-                                <h3 id="stat-db-count">0</h3>
-                                <p class="text-success"><i class="fa-solid fa-cloud-arrow-up"></i> Sinkronisasi Cloud</p>
-                            </div>
-                            <div class="kpi-icon-wrapper icon-purple">
-                                <i class="fa-solid fa-database"></i>
-                            </div>
-                        </div>
-                        <div class="kpi-card glassmorphism-sub">
-                            <div class="kpi-details">
-                                <span>LATENSI RESPON NODE</span>
-                                <h3 id="stat-latency">42ms</h3>
-                                <p class="text-success"><i class="fa-solid fa-shield-check"></i> Koneksi Server Stabil</p>
-                            </div>
-                            <div class="kpi-icon-wrapper icon-cyan">
-                                <i class="fa-solid fa-gauge-high"></i>
-                            </div>
-                        </div>
-                        <div class="kpi-card glassmorphism-sub">
-                            <div class="kpi-details">
-                                <span>TINGKAT KEBERHASILAN</span>
-                                <h3>99.8%</h3>
-                                <p class="text-muted">Validasi Berhasil Dilewati</p>
-                            </div>
-                            <div class="kpi-icon-wrapper icon-green">
-                                <i class="fa-solid fa-circle-check"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dashboard Main Section -->
-                    <div class="dashboard-content-layout">
-                        <!-- Ticker & Banner -->
-                        <div class="content-card glassmorphism-sub col-span-2">
-                            <div class="ticker-header">
-                                <h4><i class="fa-solid fa-newspaper text-gradient"></i> PEMBERITAHUAN UTAMA</h4>
-                            </div>
-                            <div class="ticker-body">
-                                <p>Selamat datang di Panel Administrasi Aktivasi Alight Motion Premium. Pastikan koneksi server utama terhubung dengan stabil saat memproses pembaruan akun. Hubungi administrator jika terjadi kegagalan sistem.</p>
-                            </div>
-                        </div>
-
-                        <!-- Shortcut Launcher Card -->
-                        <div class="content-card glassmorphism-sub shortcut-launcher">
-                            <div class="card-details">
-                                <h3>Aktivasi Lisensi Baru</h3>
-                                <p>Lakukan aktivasi langganan premium 1 tahun secara langsung ke alamat email yang dituju.</p>
-                                <button type="button" class="btn btn-primary" id="btn-shortcut-activator">
-                                    <span>Proses Aktivasi</span>
-                                    <i class="fa-solid fa-circle-arrow-right"></i>
-                                </button>
-                            </div>
-                            <i class="fa-solid fa-key shortcut-bg-icon"></i>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- VIEW 2: Activator Tool -->
-                <section class="dashboard-view" id="view-activator">
-                    <div class="app-card glassmorphism-sub">
-                        <!-- Step Indicators -->
-                        <div class="steps-progress-wrapper" style="margin-bottom: 28px;">
-                            <div class="step-progress-text-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                                <span class="step-progress-label" id="step-progress-text" style="font-family: var(--font-heading); font-size: 15px; font-weight: 600; color: #fff; letter-spacing: 0.2px;">Langkah 1 dari 4: Kirim Tautan</span>
-                                <span class="step-progress-percent" id="step-progress-percent" style="font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--color-text-muted);">25%</span>
-                            </div>
-                            <div class="step-progress-bar-container" style="background: rgba(255, 255, 255, 0.05); border-radius: 20px; height: 6px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.04); padding: 1px;">
-                                <div id="step-line-progress" style="background: linear-gradient(90deg, #7c3aed, #06b6d4); width: 25%; height: 100%; border-radius: 20px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(124, 58, 237, 0.2);"></div>
-                            </div>
-                        </div>
-
-                        <!-- Card Views Wrapper -->
-                        <div class="card-views">
-                            <!-- STEP 1: Input Email -->
-                            <div class="card-view active" id="view-step-1">
-                                <div class="view-header">
-                                    <h2>Langkah 1: Kirim Tautan Verifikasi</h2>
-                                    <p>Masukkan alamat email yang telah atau ingin didaftarkan pada akun Alight Motion.</p>
-                                </div>
-                                <form id="form-step-1" class="interactive-form">
-                                    <div class="input-group">
-                                        <i class="fa-regular fa-envelope input-icon"></i>
-                                        <input type="email" id="input-email" placeholder="contoh@gmail.com" required autocomplete="email">
-                                    </div>
-                                    <!-- Turnstile Widget -->
-                                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" style="margin-bottom: 16px; display: flex; justify-content: center;"></div>
-                                    <button type="submit" class="btn btn-primary btn-glow" id="btn-send-link">
-                                        <span>Kirim Tautan Masuk</span>
-                                        <i class="fa-solid fa-paper-plane"></i>
-                                    </button>
-                                </form>
-                                <div class="info-alert">
-                                    <i class="fa-solid fa-circle-info info-icon"></i>
-                                    <p>Sistem akan mengirimkan email tautan verifikasi resmi ke alamat email yang Anda masukkan.</p>
-                                </div>
-
-                                <!-- Premium Features Grid -->
-                                <div class="premium-features-header">
-                                    <h3>FITUR PREMIUM YANG DIAKTIFKAN</h3>
-                                </div>
-                                <div class="premium-features-grid">
-                                    <div class="feature-item glassmorphism-sub">
-                                        <i class="fa-solid fa-watermark feature-icon"></i>
-                                        <div class="feature-desc">
-                                            <h4>Ekspor Tanpa Watermark</h4>
-                                            <p>Simpan dan ekspor video bersih tanpa logo watermark.</p>
-                                        </div>
-                                    </div>
-                                    <div class="feature-item glassmorphism-sub">
-                                        <i class="fa-solid fa-wand-magic-sparkles feature-icon"></i>
-                                        <div class="feature-desc">
-                                            <h4>Akses Seluruh Efek Pro</h4>
-                                            <p>Membuka seluruh efek, filter, dan transisi premium.</p>
-                                        </div>
-                                    </div>
-                                    <div class="feature-item glassmorphism-sub">
-                                        <i class="fa-solid fa-bolt feature-icon"></i>
-                                        <div class="feature-desc">
-                                            <h4>Ekspor Kualitas UHD 4K</h4>
-                                            <p>Rendering video dengan resolusi tinggi hingga 4K pada 60 FPS.</p>
-                                        </div>
-                                    </div>
-                                    <div class="feature-item glassmorphism-sub">
-                                        <i class="fa-solid fa-cloud-arrow-down feature-icon"></i>
-                                        <div class="feature-desc">
-                                            <h4>Dukungan Preset Cloud & XML</h4>
-                                            <p>Unduh preset proyek berkapasitas besar dari server cloud.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- STEP ADS: Watch 5 Ads (Langkah 2) -->
-                            <div class="card-view" id="view-step-ads">
-                                <div class="view-header">
-                                    <h2>Langkah 2: Verifikasi Sponsor Iklan</h2>
-                                    <p>Untuk melanjutkan ke proses verifikasi lisensi, Anda wajib menonton 5x sponsor iklan di bawah ini.</p>
-                                </div>
-                                <div class="ads-validation-container text-center py-4">
-                                    <!-- Ad Counter Display -->
-                                    <div class="ads-counter-badge mb-4">
-                                        <i class="fa-solid fa-rectangle-ad text-gradient mr-2"></i>
-                                        Iklan Ditonton: <span id="ad-view-count" class="accent-text" style="font-weight: 700; font-size: 22px;">0</span> / 5
-                                    </div>
-                                    
-                                    <!-- Ad Progress Bar -->
-                                    <div class="ads-progress-container mb-6" style="max-width: 320px; margin: 0 auto 24px auto;">
-                                        <div class="ads-progress-bar" style="background: rgba(255,255,255,0.06); border-radius: 20px; height: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); padding: 2px;">
-                                            <div id="ads-progress-fill" style="background: linear-gradient(90deg, #7c3aed, #06b6d4); width: 0%; height: 100%; border-radius: 20px; transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Google AdSense Container -->
-                                    <div class="adsense-placeholder-box glassmorphism-sub" style="min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 16px; margin: 0 auto 26px auto; max-width: 400px; padding: 20px; position: relative; overflow: hidden; background: rgba(255, 255, 255, 0.02);">
-                                        <!-- Script untuk memicu Adsense Ad Slot -->
-                                        <ins class="adsbygoogle"
-                                             style="display:block; width: 100%; min-height: 250px;"
-                                             data-ad-client="ca-pub-2199063141174258"
-                                             data-ad-slot="1234567890"
-                                             data-ad-format="auto"
-                                             data-full-width-responsive="true"></ins>
-                                        <script>
-                                             (adsbygoogle = window.adsbygoogle || []).push({});
-                                        </script>
-                                    </div>
-
-                                    <!-- Navigation Action Buttons -->
-                                    <div class="button-row justify-center" style="flex-direction: column; gap: 12px; max-width: 320px; margin: 0 auto;">
-                                        <button type="button" class="btn btn-primary btn-glow" id="btn-watch-ad" style="width: 100%;">
-                                            <span>Buka Iklan Sponsor</span>
-                                            <i class="fa-solid fa-square-arrow-up-right"></i>
-                                        </button>
-                                        <div class="button-row" style="width: 100%; gap: 12px;">
-                                            <button type="button" class="btn btn-secondary" id="btn-back-to-step1" style="flex: 1;">
-                                                <i class="fa-solid fa-arrow-left"></i>
-                                                <span>Kembali</span>
-                                            </button>
-                                            <button type="button" class="btn btn-primary disabled" id="btn-next-to-step2" style="flex: 1.2;" disabled>
-                                                <span>Lanjutkan</span>
-                                                <i class="fa-solid fa-arrow-right"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- STEP 2: Paste Magic Link -->
-                            <div class="card-view" id="view-step-2">
-                                <div class="view-header">
-                                    <h2>Langkah 2: Verifikasi & Penerapan Lisensi</h2>
-                                    <p>Buka kotak masuk email Anda, salin tautan login Alight Motion, kemudian tempelkan pada kolom di bawah ini.</p>
-                                </div>
-                                <form id="form-step-2" class="interactive-form">
-                                    <div class="input-group">
-                                        <i class="fa-solid fa-link input-icon"></i>
-                                        <textarea id="input-magic-link" placeholder="Tempelkan URL tautan verifikasi di sini..." required></textarea>
-                                    </div>
-                                    <div class="button-row">
-                                        <button type="button" class="btn btn-secondary" id="btn-back-step-1">
-                                            <i class="fa-solid fa-arrow-left"></i>
-                                            <span>Kembali</span>
-                                        </button>
-                                        <button type="submit" class="btn btn-primary btn-glow" id="btn-activate">
-                                            <span>Aktifkan Lisensi Tahunan</span>
-                                            <i class="fa-solid fa-bolt"></i>
-                                        </button>
-                                    </div>
-                                </form>
-
-                                <!-- Instruction Card -->
-                                <div class="help-accordion glassmorphism-sub">
-                                    <div class="help-header">
-                                        <i class="fa-regular fa-lightbulb"></i>
-                                        <span>Panduan Menyalin Tautan dari Email</span>
-                                        <i class="fa-solid fa-chevron-down toggle-arrow"></i>
-                                    </div>
-                                    <div class="help-body">
-                                        <ol>
-                                            <li>Buka pesan email dengan subjek <strong>"Sign in to Alight Motion"</strong>.</li>
-                                            <li><strong>Pada Perangkat Seluler:</strong> Tekan lama tombol <strong>"Sign in to Alight Motion"</strong>, kemudian pilih opsi <strong>"Salin Tautan"</strong>.</li>
-                                            <li><strong>Pada Komputer/Laptop:</strong> Klik kanan tombol tersebut, lalu pilih opsi <strong>"Salin Alamat Tautan"</strong>.</li>
-                                            <li>Pastikan seluruh bagian tautan telah tersalin (memiliki parameter <code>oobCode</code>).</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- STEP 3: Success Result -->
-                            <div class="card-view" id="view-step-3">
-                                <div class="success-checkmark-wrapper">
-                                    <div class="success-ring animate-scale-up"></div>
-                                    <div class="success-icon animate-pop-in">
-                                        <i class="fa-solid fa-crown"></i>
-                                    </div>
-                                </div>
-                                
-                                <div class="view-header text-center">
-                                    <h2 class="text-gradient">Lisensi Berhasil Diaktifkan!</h2>
-                                    <p id="success-message">Aktivasi lisensi Alight Motion Premium 1 Tahun telah berhasil diproses.</p>
-                                </div>
-
-                                <!-- Profile Details -->
-                                <div class="profile-details glassmorphism-sub">
-                                    <div class="detail-row">
-                                        <span class="detail-label">Alamat Email</span>
-                                        <span class="detail-val" id="val-email">-</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span class="detail-label">ID Transaksi (Order ID)</span>
-                                        <span class="detail-val accent-text" id="val-order-id">-</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span class="detail-label">Masa Berlaku Lisensi</span>
-                                        <span class="detail-val status-badge" id="val-duration">1 Tahun (Tahunan)</span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span class="detail-label">Status Lisensi</span>
-                                        <span class="detail-val active-badge"><i class="fa-solid fa-shield-halved"></i> Terverifikasi Aktif</span>
-                                    </div>
-                                </div>
-
-                                <button type="button" class="btn btn-primary w-full" id="btn-restart">
-                                    <span>Aktivasi Akun Baru</span>
-                                    <i class="fa-solid fa-rotate-left"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- VIEW 3: Activation History -->
-                <section class="dashboard-view" id="view-history">
-                    <div class="content-card glassmorphism-sub">
-                        <div class="history-header">
-                            <h2>Riwayat Aktivasi Lisensi</h2>
-                            <p>Daftar akun Alight Motion yang telah berhasil diperbarui dengan lisensi tahunan.</p>
-                        </div>
-                        <div class="table-container">
-                            <table class="history-table" id="table-history">
-                                <thead>
-                                    <tr>
-                                        <th>Alamat Email</th>
-                                        <th>ID Transaksi</th>
-                                        <th>Tanggal Aktivasi</th>
-                                        <th>Durasi Kontrak</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="history-tbody">
-                                    <!-- Dynamic rows loaded here -->
-                                    <tr class="empty-state-row">
-                                        <td colspan="5" class="text-center text-muted py-8">
-                                            <i class="fa-regular fa-folder-open empty-icon"></i>
-                                            <p>Belum ada data riwayat aktivasi. Silakan lakukan aktivasi akun pertama Anda.</p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- VIEW 4: Server & API Status -->
-                <section class="dashboard-view" id="view-status">
-                    <div class="status-grid">
-                        <div class="content-card glassmorphism-sub">
-                            <h3>Status Node Jaringan</h3>
-                            <p class="mb-4">Seluruh node server terhubung dan beroperasi dengan normal.</p>
-                            <div class="node-list">
-                                <div class="node-item">
-                                    <span class="node-status status-online"></span>
-                                    <div class="node-info">
-                                        <h4>Node Autentikasi Utama</h4>
-                                    </div>
-                                    <span class="badge badge-success">Aktif</span>
-                                </div>
-                                <div class="node-item">
-                                    <span class="node-status status-online"></span>
-                                    <div class="node-info">
-                                        <h4>Node Verifikasi Lisensi</h4>
-                                    </div>
-                                    <span class="badge badge-success">Aktif</span>
-                                </div>
-                                <div class="node-item">
-                                    <span class="node-status status-online"></span>
-                                    <div class="node-info">
-                                        <h4>Node Server Lokal</h4>
-                                    </div>
-                                    <span class="badge badge-success">Aktif</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="content-card glassmorphism-sub">
-                            <h3>Metadata Token & Kunci</h3>
-                            <p>Konfigurasi parameter standar klien Alight Motion yang telah terverifikasi.</p>
-                            <div class="config-table">
-                                <div class="config-row">
-                                    <span>Jenis Klien</span>
-                                    <strong>CLIENT_TYPE_ANDROID</strong>
-                                </div>
-                                <div class="config-row">
-                                    <span>Paket Android</span>
-                                    <strong>com.alightcreative.motion</strong>
-                                </div>
-                                <div class="config-row">
-                                    <span>Versi Minimum</span>
-                                    <strong>585</strong>
-                                </div>
-                                <div class="config-row">
-                                    <span>ID Produk</span>
-                                    <strong>am.full.sub.annual.19q4</strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-
-            <!-- Activity Log Console Panel -->
-            <footer class="app-console glassmorphism animate-slide-up delay-1">
-                <div class="console-header">
-                    <div class="console-dots">
-                        <span class="console-dot dot-red"></span>
-                        <span class="console-dot dot-yellow"></span>
-                        <span class="console-dot dot-green"></span>
-                    </div>
-                    <span class="console-title"><i class="fa-solid fa-terminal"></i> Log Aktivitas Sistem</span>
-                    <div class="console-actions">
-                        <button type="button" class="btn-console-action" id="btn-copy-log" title="Salin Log"><i class="fa-regular fa-copy"></i></button>
-                        <button type="button" class="btn-console-action" id="btn-clear-log" title="Bersihkan Log"><i class="fa-regular fa-trash-can"></i></button>
-                    </div>
-                </div>
-                <div class="console-body" id="console-log">
-                    <div class="log-line text-muted">[Sistem] Panel administrasi siap digunakan.</div>
-                </div>
-            </footer>
         </div>
     </div>
 <script src="app.js"></script>

@@ -314,6 +314,11 @@ app.get('/api/history', async (req, res) => {
     }
 });
 
+// Serve admin.html for the admin route
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 // Fallback to index.html for spa
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
