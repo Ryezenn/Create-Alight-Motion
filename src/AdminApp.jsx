@@ -29,11 +29,18 @@ export default function AdminApp() {
     const [searchQuery, setSearchQuery] = useState('');
     const BASE_ACTIVATED_COUNT = 12894;
 
-    // Manual activation
-    const [manualEmail, setManualEmail] = useState('');
-    const [manualLink, setManualLink] = useState('');
-    const [manualLoading, setManualLoading] = useState(false);
-    const [manualResult, setManualResult] = useState(null);
+    // Alat Aktivasi (Manual Activation Wizard) States
+    const [actStep, setActStep] = useState(1); // 1 = Email, 2 = Ads, 3 = Magic Link, 4 = Success
+    const [actEmail, setActEmail] = useState('');
+    const [actMagicLink, setActMagicLink] = useState('');
+    const [actTurnstileToken, setActTurnstileToken] = useState('');
+    const [actAdViewCount, setActAdViewCount] = useState(0);
+    const [actAdsProgressPercent, setActAdsProgressPercent] = useState(0);
+    const [actAdCountdown, setActAdCountdown] = useState(8);
+    const [isActCounting, setIsActCounting] = useState(false);
+    const [actBtnLoading, setActBtnLoading] = useState(false);
+    const [actResult, setActResult] = useState(null);
+    const [isActAdSenseLoaded, setIsActAdSenseLoaded] = useState(false);
 
     // Console log states (Prefilled with exact log lines from the screenshot)
     const [logs, setLogs] = useState([
@@ -45,7 +52,9 @@ export default function AdminApp() {
 
     const turnstileLoginRef = useRef(null);
     const turnstileRegisterRef = useRef(null);
+    const turnstileActivateRef = useRef(null);
     const consoleEndRef = useRef(null);
+    const actAdIntervalRef = useRef(null);
     
     const [loginTurnstileToken, setLoginTurnstileToken] = useState('');
     const [registerTurnstileToken, setRegisterTurnstileToken] = useState('');
@@ -102,6 +111,90 @@ export default function AdminApp() {
             }
         }
     }, [loading, isLoggedIn, authTab]);
+
+    // Render Turnstile for Manual Activation Tool (Step 1)
+    useEffect(() => {
+        if (!loading && isLoggedIn && activeTab === 'activate' && actStep === 1 && window.turnstile && turnstileActivateRef.current) {
+            turnstileActivateRef.current.innerHTML = '';
+            window.turnstile.render(turnstileActivateRef.current, {
+                sitekey: '0x4AAAAAAD7RpjTPThhr5v1Q',
+                theme: 'dark',
+                callback: (token) => {
+                    setActTurnstileToken(token);
+                }
+            });
+        }
+    }, [loading, isLoggedIn, activeTab, actStep]);
+
+    // Automatic ad verification countdown for admin activation wizard
+    const startActAutoAdVerification = () => {
+        if (actAdIntervalRef.current) {
+            clearInterval(actAdIntervalRef.current);
+        }
+        
+        setIsActCounting(true);
+        setActAdCountdown(8);
+
+        actAdIntervalRef.current = setInterval(() => {
+            setActAdCountdown((prev) => {
+                if (prev > 1) {
+                    return prev - 1;
+                } else {
+                    clearInterval(actAdIntervalRef.current);
+                    
+                    setActAdViewCount((prevCount) => {
+                        const newCount = prevCount + 1;
+                        const percent = (newCount / 5) * 100;
+                        setActAdsProgressPercent(percent);
+
+                        if (newCount < 5) {
+                            setTimeout(() => {
+                                startActAutoAdVerification();
+                            }, 500);
+                        } else {
+                            setIsActCounting(false);
+                            addLog('🟢 Verifikasi iklan sponsor selesai.', 'success');
+                        }
+                        return newCount;
+                    });
+                    
+                    return 0;
+                }
+            });
+        }, 1000);
+    };
+
+    // Auto-start ads when step 2 opens
+    useEffect(() => {
+        if (activeTab === 'activate' && actStep === 2) {
+            startActAutoAdVerification();
+        }
+        return () => {
+            if (actAdIntervalRef.current) {
+                clearInterval(actAdIntervalRef.current);
+            }
+        };
+    }, [activeTab, actStep]);
+
+    // Check if AdSense is loaded for admin activation
+    useEffect(() => {
+        if (activeTab === 'activate' && actStep === 2) {
+            const checkAdSense = () => {
+                const insTag = document.querySelector('.adsbygoogle');
+                if (insTag && (insTag.getElementsByTagName('iframe').length > 0 || insTag.getAttribute('data-ad-status') === 'filled')) {
+                    setIsActAdSenseLoaded(true);
+                    return true;
+                }
+                return false;
+            };
+
+            const active = checkAdSense();
+            if (!active) {
+                const timer = setTimeout(checkAdSense, 1500);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [activeTab, actStep]);
 
     // Anti-DevTools Protection
     useEffect(() => {
@@ -215,34 +308,92 @@ export default function AdminApp() {
         }
     };
 
-    const handleManualActivate = async (e) => {
+    // Admin Activation Wizard Step 1: Send Link
+    const handleActSendLink = async (e) => {
         e.preventDefault();
-        if (!manualEmail || !manualLink) return;
-        setManualLoading(true);
-        setManualResult(null);
-        addLog(`⚡ Memproses aktivasi manual untuk: ${manualEmail}`, 'info');
+        if (!actEmail) return;
+
+        setActBtnLoading(true);
+        addLog(`⚡ Mengirimkan tautan masuk ke: ${actEmail}`, 'info');
+
+        try {
+            const response = await fetch('/api/send-link', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: actEmail, token: actTurnstileToken })
+            });
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                addLog(`🟢 Tautan masuk sukses dikirim ke: ${actEmail}`, 'success');
+                
+                setTimeout(() => {
+                    const insTag = document.querySelector('.adsbygoogle');
+                    const hasAds = insTag && (window.adsbygoogle || insTag.getElementsByTagName('iframe').length > 0);
+                    
+                    if (hasAds) {
+                        setActStep(2);
+                    } else {
+                        // Skip ads if not active/loaded
+                        setActStep(3);
+                        addLog('⚠️ Langkah iklan sponsor dilewati otomatis karena iklan belum aktif/diblokir.', 'warning');
+                    }
+                }, 1000);
+            } else {
+                addLog(`❌ Gagal mengirim tautan: ${data.error}`, 'error');
+                alert(data.error || 'Gagal mengirim tautan.');
+            }
+        } catch (error) {
+            addLog(`❌ Kegagalan koneksi: ${error.message}`, 'error');
+            alert(`Kegagalan koneksi: ${error.message}`);
+        } finally {
+            setActBtnLoading(false);
+            if (window.turnstile) window.turnstile.reset();
+            setActTurnstileToken('');
+        }
+    };
+
+    // Admin Activation Wizard Step 3: Verify & Apply Premium
+    const handleActVerify = async (e) => {
+        e.preventDefault();
+        if (!actMagicLink) return;
+
+        setActBtnLoading(true);
+        addLog(`⚡ Memproses verifikasi lisensi untuk: ${actEmail}`, 'info');
+
         try {
             const response = await fetch('/api/activate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: manualEmail, link: manualLink })
+                body: JSON.stringify({ email: actEmail, link: actMagicLink })
             });
             const data = await response.json();
+
             if (response.ok && data.success) {
-                setManualResult({ success: true, orderId: data.orderId, email: data.user.email });
+                setActResult({ success: true, orderId: data.orderId, email: data.user.email });
                 addLog(`🟢 Aktivasi manual berhasil! Email: ${data.user.email} | Order ID: ${data.orderId}`, 'success');
                 await loadHistory();
-                setManualEmail(''); setManualLink('');
+                setActStep(4);
             } else {
-                setManualResult({ success: false, error: data.error });
-                addLog('❌ Aktivasi manual gagal.', 'error');
+                addLog(`❌ Aktivasi manual gagal: ${data.error}`, 'error');
+                alert(data.error || 'Gagal memproses verifikasi.');
             }
-        } catch (err) {
-            setManualResult({ success: false, error: err.message });
-            addLog(`❌ Koneksi server error: ${err.message}`, 'error');
+        } catch (error) {
+            addLog(`❌ Kegagalan koneksi saat aktivasi: ${error.message}`, 'error');
+            alert(`Kegagalan koneksi saat aktivasi: ${error.message}`);
         } finally {
-            setManualLoading(false);
+            setActBtnLoading(false);
         }
+    };
+
+    const handleActRestart = () => {
+        setActEmail('');
+        setActMagicLink('');
+        setActTurnstileToken('');
+        setActAdViewCount(0);
+        setActAdsProgressPercent(0);
+        setActResult(null);
+        setActStep(1);
     };
 
     const handleLogout = () => {
@@ -683,7 +834,7 @@ export default function AdminApp() {
                                             </p>
                                             <button
                                                 className="btn btn-primary w-full"
-                                                onClick={() => setActiveTab('activate')}
+                                                onClick={() => { setActiveTab('activate'); handleActRestart(); }}
                                                 style={{
                                                     background: 'var(--gradient-cyan-blue)',
                                                     border: '1px solid rgba(0, 243, 255, 0.4)',
@@ -711,88 +862,265 @@ export default function AdminApp() {
                                 </section>
                             )}
 
-                            {/* TAB 2: Alat Aktivasi */}
+                            {/* TAB 2: Alat Aktivasi (4-Step Wizard) */}
                             {activeTab === 'activate' && (
                                 <section className="dashboard-view active">
-                                    <div className="content-card glassmorphism-sub" style={{ borderRadius: '12px' }}>
-                                        <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>Aktivasi Manual Premium</h3>
-                                        <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '24px' }}>
-                                            Gunakan formulir ini untuk mengaktifkan akun pengguna secara manual menggunakan email dan magic link dari Alight Motion.
-                                        </p>
-
-                                        <form onSubmit={handleManualActivate}>
-                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px', marginBottom: '16px' }}>
-                                                <div>
-                                                    <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-cyan)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-                                                        Alamat Email Pengguna
-                                                    </label>
-                                                    <div className="input-group">
-                                                        <i className="fa-regular fa-envelope input-icon"></i>
-                                                        <input
-                                                            type="email"
-                                                            placeholder="user@example.com"
-                                                            required
-                                                            value={manualEmail}
-                                                            onChange={(e) => setManualEmail(e.target.value)}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '2.2fr 1fr', gap: '20px', alignItems: 'start' }}>
+                                        
+                                        <div className="content-card glassmorphism-sub" style={{ borderRadius: '12px', border: '1px solid rgba(0, 243, 255, 0.15)' }}>
                                             <div style={{ marginBottom: '20px' }}>
-                                                <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-cyan)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
-                                                    Magic Link Alight Motion
-                                                </label>
-                                                <div className="input-group">
-                                                    <i className="fa-solid fa-link input-icon" style={{ top: '16px' }}></i>
-                                                    <textarea
-                                                        placeholder="Tempelkan URL magic link dari email Alight Motion di sini..."
-                                                        required
-                                                        style={{ minHeight: '90px' }}
-                                                        value={manualLink}
-                                                        onChange={(e) => setManualLink(e.target.value)}
-                                                    />
+                                                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', marginBottom: '4px' }}>Alat Aktivasi Lisensi</h3>
+                                                <p style={{ fontSize: '13px', color: 'var(--color-text-muted)' }}>Mekanisme aktivasi multi-langkah aman.</p>
+                                            </div>
+
+                                            {/* Progress bar */}
+                                            <div className="steps-progress-wrapper" style={{ marginBottom: '24px', borderRadius: '8px', padding: '12px 16px', background: 'rgba(5,5,10,0.4)', border: '1px solid rgba(0,243,255,0.1)' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                                    <span style={{ fontSize: '12.5px', fontWeight: '600', color: '#fff' }}>
+                                                        {actStep === 1 && 'Langkah 1 dari 4: Kirim Tautan'}
+                                                        {actStep === 2 && 'Langkah 2 dari 4: Sponsor Iklan'}
+                                                        {actStep === 3 && 'Langkah 3 dari 4: Verifikasi Lisensi'}
+                                                        {actStep === 4 && 'Langkah 4 dari 4: Selesai'}
+                                                    </span>
+                                                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--accent-cyan)' }}>
+                                                        {actStep === 1 && '25%'}
+                                                        {actStep === 2 && '50%'}
+                                                        {actStep === 3 && '75%'}
+                                                        {actStep === 4 && '100%'}
+                                                    </span>
+                                                </div>
+                                                <div style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '20px', height: '6px', overflow: 'hidden', border: '1px solid rgba(255, 255, 255, 0.04)', padding: '1px' }}>
+                                                    <div style={{
+                                                        background: 'var(--gradient-primary)',
+                                                        width: actStep === 1 ? '25%' : actStep === 2 ? '50%' : actStep === 3 ? '75%' : '100%',
+                                                        height: '100%',
+                                                        borderRadius: '20px',
+                                                        transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                        boxShadow: '0 0 8px rgba(255, 0, 160, 0.4)'
+                                                    }}></div>
                                                 </div>
                                             </div>
 
-                                            {manualResult && (
-                                                <div className="auth-error-box active" style={{
-                                                    marginBottom: '16px',
-                                                    color: manualResult.success ? 'var(--accent-green)' : 'var(--accent-red)',
-                                                    background: manualResult.success ? 'rgba(0,255,102,0.08)' : 'rgba(255,0,60,0.08)',
-                                                    borderColor: manualResult.success ? 'rgba(0,255,102,0.2)' : 'rgba(255,0,60,0.2)'
-                                                }}>
-                                                    {manualResult.success ? (
-                                                        <><i className="fa-solid fa-crown" style={{ marginRight: '8px' }}></i>
-                                                            Aktivasi Berhasil! Order ID: <strong style={{ fontFamily: 'var(--font-mono)' }}>{manualResult.orderId}</strong>
-                                                        </>
-                                                    ) : (
-                                                        <><i className="fa-solid fa-triangle-exclamation" style={{ marginRight: '8px' }}></i>{manualResult.error}</>
-                                                    )}
+                                            {/* Step 1: Input Email */}
+                                            {actStep === 1 && (
+                                                <div className="card-view active animate-scale-up">
+                                                    <form onSubmit={handleActSendLink}>
+                                                        <div style={{ marginBottom: '16px' }}>
+                                                            <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-cyan)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                                                                Alamat Email Akun Alight Motion
+                                                            </label>
+                                                            <div className="input-group">
+                                                                <i className="fa-regular fa-envelope input-icon"></i>
+                                                                <input
+                                                                    type="email"
+                                                                    placeholder="contoh@gmail.com"
+                                                                    required
+                                                                    value={actEmail}
+                                                                    onChange={(e) => setActEmail(e.target.value)}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div ref={turnstileActivateRef} className="cf-turnstile" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}></div>
+                                                        <button
+                                                            type="submit"
+                                                            className={`btn btn-primary btn-glow w-full ${actBtnLoading ? 'loading' : ''}`}
+                                                            disabled={actBtnLoading || !actTurnstileToken}
+                                                        >
+                                                            <span>Kirim Tautan Masuk</span>
+                                                            <i className="fa-solid fa-paper-plane"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             )}
 
-                                            <div style={{ display: 'flex', gap: '12px' }}>
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-secondary"
-                                                    onClick={() => { setManualEmail(''); setManualLink(''); setManualResult(null); }}
-                                                >
-                                                    <i className="fa-solid fa-xmark"></i> Batal
-                                                </button>
-                                                <button
-                                                    type="submit"
-                                                    className={`btn btn-primary btn-glow ${manualLoading ? 'loading' : ''}`}
-                                                    disabled={manualLoading}
-                                                    style={{ flex: 1 }}
-                                                >
-                                                    {manualLoading ? (
-                                                        <><i className="fa-solid fa-spinner fa-spin"></i> Memproses...</>
-                                                    ) : (
-                                                        <><span>Aktifkan Premium</span><i className="fa-solid fa-bolt"></i></>
-                                                    )}
-                                                </button>
+                                            {/* Step 2: Sponsor Ads */}
+                                            {actStep === 2 && (
+                                                <div className="card-view active animate-scale-up text-center">
+                                                    <div className="ads-counter-badge mb-4" style={{ display: 'inline-block', marginBottom: '16px' }}>
+                                                        <i className="fa-solid fa-rectangle-ad mr-2" style={{ color: 'var(--accent-magenta)', marginRight: '6px' }}></i>
+                                                        Iklan Ditonton: <span className="accent-text" style={{ fontWeight: '700', fontSize: '20px', color: 'var(--accent-cyan)' }}>{actAdViewCount}</span> / 5
+                                                    </div>
+                                                    
+                                                    <div className="ads-progress-container mb-6" style={{ maxWidth: '320px', margin: '0 auto 20px auto' }}>
+                                                        <div className="ads-progress-bar" style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '20px', height: '10px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.08)', padding: '2px' }}>
+                                                            <div style={{ background: 'var(--gradient-primary)', width: `${actAdsProgressPercent}%`, height: '100%', borderRadius: '20px', transition: 'width 0.4s ease' }}></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="adsense-placeholder-box glassmorphism-sub" style={{ margin: '0 auto 20px auto', padding: '10px', background: 'rgba(5, 5, 10, 0.4)', borderRadius: '10px', minHeight: '260px' }}>
+                                                        <ins className="adsbygoogle"
+                                                             style={{ display: 'block', width: '100%', minHeight: '250px' }}
+                                                             data-ad-client="ca-pub-2199063141174258"
+                                                             data-ad-slot="1234567890"
+                                                             data-ad-format="auto"
+                                                             data-full-width-responsive="true"></ins>
+                                                    </div>
+
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxWidth: '320px', margin: '0 auto' }}>
+                                                        <button 
+                                                            type="button" 
+                                                            className="btn btn-primary btn-glow w-full"
+                                                            onClick={() => window.open('https://ryezenn.blogspot.com', '_blank')}
+                                                        >
+                                                            {isActCounting ? (
+                                                                <span>Menonton Iklan... ({actAdCountdown}s) [{actAdViewCount + 1}/5]</span>
+                                                            ) : (
+                                                                <span>Buka Iklan Sponsor <i className="fa-solid fa-square-arrow-up-right"></i></span>
+                                                            )}
+                                                        </button>
+                                                        <div style={{ display: 'flex', width: '100%', gap: '10px' }}>
+                                                            <button 
+                                                                type="button" 
+                                                                className="btn btn-secondary" 
+                                                                style={{ flex: 1 }}
+                                                                onClick={() => setActStep(1)}
+                                                                disabled={isActCounting}
+                                                            >
+                                                                <i className="fa-solid fa-arrow-left"></i> Kembali
+                                                            </button>
+                                                            <button 
+                                                                type="button" 
+                                                                className={`btn btn-primary ${actAdViewCount < 5 ? 'disabled' : ''}`}
+                                                                style={{ flex: 1.2 }}
+                                                                onClick={() => setActStep(3)}
+                                                                disabled={actAdViewCount < 5}
+                                                            >
+                                                                Lanjutkan <i className="fa-solid fa-arrow-right"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Step 3: Verify & Apply Premium */}
+                                            {actStep === 3 && (
+                                                <div className="card-view active animate-scale-up">
+                                                    <form onSubmit={handleActVerify}>
+                                                        <div style={{ marginBottom: '16px' }}>
+                                                            <label style={{ fontSize: '11px', fontWeight: '600', color: 'var(--accent-cyan)', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                                                                Magic Link Dari Email User
+                                                            </label>
+                                                            <div className="input-group">
+                                                                <i className="fa-solid fa-link input-icon" style={{ top: '16px' }}></i>
+                                                                <textarea
+                                                                    placeholder="Tempelkan URL tautan verifikasi lengkap dari email Alight Motion..."
+                                                                    required
+                                                                    style={{ minHeight: '80px' }}
+                                                                    value={actMagicLink}
+                                                                    onChange={(e) => setActMagicLink(e.target.value)}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                                            <button
+                                                                type="button"
+                                                                className="btn btn-secondary"
+                                                                onClick={() => setActStep(isActAdSenseLoaded ? 2 : 1)}
+                                                            >
+                                                                <i className="fa-solid fa-arrow-left"></i> Kembali
+                                                            </button>
+                                                            <button
+                                                                type="submit"
+                                                                className={`btn btn-primary btn-glow ${actBtnLoading ? 'loading' : ''}`}
+                                                                disabled={actBtnLoading}
+                                                                style={{ flex: 1.8 }}
+                                                            >
+                                                                <span>Aktifkan Premium</span>
+                                                                <i className="fa-solid fa-bolt"></i>
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            )}
+
+                                            {/* Step 4: Success Details */}
+                                            {actStep === 4 && actResult && (
+                                                <div className="card-view active animate-scale-up text-center">
+                                                    <div className="success-checkmark-wrapper" style={{ marginBottom: '16px' }}>
+                                                        <div className="success-ring animate-scale-up"></div>
+                                                        <div className="success-icon" style={{ background: 'var(--gradient-primary)' }}>
+                                                            <i className="fa-solid fa-crown" style={{ color: '#fff' }}></i>
+                                                        </div>
+                                                    </div>
+
+                                                    <h3 className="text-gradient" style={{ fontSize: '20px', fontWeight: '700', marginBottom: '4px' }}>Aktivasi Berhasil!</h3>
+                                                    <p style={{ fontSize: '13px', color: 'var(--color-text-muted)', marginBottom: '20px' }}>Lisensi premium 1 tahun aktif pada database.</p>
+
+                                                    <div className="profile-details glassmorphism-sub" style={{ marginBottom: '20px', borderRadius: '12px', padding: '14px', textAlign: 'left', border: '1px solid rgba(0, 255, 102, 0.2)' }}>
+                                                        <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '8px 0', borderBottom: '1px solid var(--border-subtle)' }}>
+                                                            <span className="detail-label" style={{ color: 'var(--color-text-muted)' }}>Email Akun</span>
+                                                            <span className="detail-val" style={{ color: '#fff', fontWeight: '600' }}>{actResult.email}</span>
+                                                        </div>
+                                                        <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '8px 0', borderBottom: '1px solid var(--border-subtle)' }}>
+                                                            <span className="detail-label" style={{ color: 'var(--color-text-muted)' }}>ID Transaksi</span>
+                                                            <span className="detail-val accent-text" style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--font-mono)' }}>{actResult.orderId}</span>
+                                                        </div>
+                                                        <div className="detail-row" style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', padding: '8px 0' }}>
+                                                            <span className="detail-label" style={{ color: 'var(--color-text-muted)' }}>Durasi Kontrak</span>
+                                                            <span className="detail-val text-success" style={{ fontWeight: '700' }}>
+                                                                <i className="fa-solid fa-shield-halved" style={{ marginRight: '4px' }}></i> 1 Tahun (Aktif)
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-primary w-full"
+                                                        onClick={handleActRestart}
+                                                    >
+                                                        <span>Aktivasi Akun Baru</span>
+                                                        <i className="fa-solid fa-rotate-left"></i>
+                                                    </button>
+                                                </div>
+                                            )}
+
+                                        </div>
+
+                                        {/* Right Side: Improved Guideline HUD Panel */}
+                                        <div className="content-card glassmorphism-sub" style={{ borderRadius: '12px', border: '1px solid rgba(255, 0, 160, 0.2)', padding: '20px' }}>
+                                            <h4 style={{ color: 'var(--accent-cyan)', fontSize: '14px', fontWeight: '700', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <i className="fa-regular fa-lightbulb" style={{ textShadow: '0 0 8px var(--accent-cyan-glow)' }}></i>
+                                                PANDUAN ALAT
+                                            </h4>
+                                            
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                                                <div style={{ background: 'rgba(5, 5, 10, 0.4)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
+                                                    <h5 style={{ color: '#fff', fontSize: '12px', fontWeight: '700', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <span style={{ display: 'inline-flex', width: '18px', height: '18px', borderRadius: '50%', background: 'var(--accent-cyan)', color: '#000', fontSize: '10px', fontWeight: '900', justifyContent: 'center', alignItems: 'center' }}>1</span>
+                                                        Kirim Tautan
+                                                    </h5>
+                                                    <p style={{ margin: 0, fontSize: '11px', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                                                        Masukkan email terdaftar pengguna dan selesaikan CAPTCHA keamanan.
+                                                    </p>
+                                                </div>
+
+                                                <div style={{ background: 'rgba(5, 5, 10, 0.4)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
+                                                    <h5 style={{ color: '#fff', fontSize: '12px', fontWeight: '700', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <span style={{ display: 'inline-flex', width: '18px', height: '18px', borderRadius: '50%', background: 'var(--accent-magenta)', color: '#fff', fontSize: '10px', fontWeight: '900', justifyContent: 'center', alignItems: 'center' }}>2</span>
+                                                        Sponsor Iklan
+                                                    </h5>
+                                                    <p style={{ margin: 0, fontSize: '11px', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                                                        Wajib tonton 5x sponsor. Skip otomatis terjadi bila AdBlock aktif/iklan diblokir.
+                                                    </p>
+                                                </div>
+
+                                                <div style={{ background: 'rgba(5, 5, 10, 0.4)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '8px', padding: '10px 12px' }}>
+                                                    <h5 style={{ color: '#fff', fontSize: '12px', fontWeight: '700', margin: '0 0 6px 0', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                                        <span style={{ display: 'inline-flex', width: '18px', height: '18px', borderRadius: '50%', background: 'var(--accent-purple)', color: '#fff', fontSize: '10px', fontWeight: '900', justifyContent: 'center', alignItems: 'center' }}>3</span>
+                                                        Verifikasi Link
+                                                    </h5>
+                                                    <p style={{ margin: 0, fontSize: '11px', color: 'var(--color-text-muted)', lineHeight: '1.4' }}>
+                                                        Salin tautan login lengkap (mengandung parameter <code style={{ color: 'var(--accent-cyan)' }}>oobCode</code>) dari kotak masuk email.
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </form>
+
+                                            <div style={{ marginTop: '16px', fontSize: '10.5px', color: 'var(--accent-gold)', background: 'rgba(255, 230, 0, 0.05)', border: '1px solid rgba(255, 230, 0, 0.15)', borderRadius: '8px', padding: '10px 12px', lineHeight: '1.5' }}>
+                                                <i className="fa-solid fa-circle-exclamation" style={{ marginRight: '6px' }}></i>
+                                                <strong>Perhatian:</strong> Tautan login email Alight Motion bersifat unik dan hanya berlaku untuk 1x penggunaan autentikasi.
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </section>
                             )}
