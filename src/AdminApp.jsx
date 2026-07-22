@@ -346,99 +346,97 @@ export default function AdminApp() {
                             </div>
                         )}
 
-                        {authTab === 'login' ? (
-                            <form onSubmit={handleLogin} className="auth-form active">
-                                <div className="input-group">
-                                    <i className="fa-regular fa-user input-icon"></i>
-                                    <input
-                                        type="text"
-                                        placeholder="Nama Administrator"
-                                        required
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        autoComplete="username"
-                                    />
-                                </div>
-                                <div className="input-group" style={{ position: 'relative' }}>
-                                    <i className="fa-solid fa-lock input-icon"></i>
-                                    <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        placeholder="Kata Sandi"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        autoComplete="current-password"
-                                        style={{ paddingRight: '44px' }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        style={{
-                                            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                                            background: 'transparent', border: 'none', color: 'var(--color-text-muted)',
-                                            cursor: 'pointer', fontSize: '14px', padding: '4px'
-                                        }}
-                                    >
-                                        <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-                                    </button>
-                                </div>
-                                <div ref={turnstileLoginRef} className="cf-turnstile" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}></div>
+                        <form onSubmit={handleLogin} className={`auth-form ${authTab === 'login' ? 'active' : ''}`}>
+                            <div className="input-group">
+                                <i className="fa-regular fa-user input-icon"></i>
+                                <input
+                                    type="text"
+                                    placeholder="Nama Administrator"
+                                    required
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    autoComplete="username"
+                                />
+                            </div>
+                            <div className="input-group" style={{ position: 'relative' }}>
+                                <i className="fa-solid fa-lock input-icon"></i>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="Kata Sandi"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    autoComplete="current-password"
+                                    style={{ paddingRight: '44px' }}
+                                />
                                 <button
-                                    type="submit"
-                                    className="btn btn-primary btn-glow w-full"
-                                    disabled={!loginTurnstileToken}
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{
+                                        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                                        background: 'transparent', border: 'none', color: 'var(--color-text-muted)',
+                                        cursor: 'pointer', fontSize: '14px', padding: '4px'
+                                    }}
                                 >
-                                    <span>Masuk ke Panel</span>
-                                    <i className="fa-solid fa-right-to-bracket"></i>
+                                    <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
                                 </button>
-                            </form>
-                        ) : (
-                            <form onSubmit={handleRegister} className="auth-form active">
-                                <div className="input-group">
-                                    <i className="fa-regular fa-user input-icon"></i>
-                                    <input
-                                        type="text"
-                                        placeholder="Nama Administrator Baru"
-                                        required
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        autoComplete="username"
-                                    />
-                                </div>
-                                <div className="input-group" style={{ position: 'relative' }}>
-                                    <i className="fa-solid fa-lock input-icon"></i>
-                                    <input
-                                        type={showPassword ? 'text' : 'password'}
-                                        placeholder="Kata Sandi Baru"
-                                        required
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                        autoComplete="new-password"
-                                        style={{ paddingRight: '44px' }}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPassword(!showPassword)}
-                                        style={{
-                                            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                                            background: 'transparent', border: 'none', color: 'var(--color-text-muted)',
-                                            cursor: 'pointer', fontSize: '14px', padding: '4px'
-                                        }}
-                                    >
-                                        <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-                                    </button>
-                                </div>
-                                <div ref={turnstileRegisterRef} className="cf-turnstile" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}></div>
+                            </div>
+                            <div ref={turnstileLoginRef} className="cf-turnstile" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}></div>
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-glow w-full"
+                                disabled={!loginTurnstileToken}
+                            >
+                                <span>Masuk ke Panel</span>
+                                <i className="fa-solid fa-right-to-bracket"></i>
+                            </button>
+                        </form>
+
+                        <form onSubmit={handleRegister} className={`auth-form ${authTab === 'register' ? 'active' : ''}`}>
+                            <div className="input-group">
+                                <i className="fa-regular fa-user input-icon"></i>
+                                <input
+                                    type="text"
+                                    placeholder="Nama Administrator Baru"
+                                    required
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    autoComplete="username"
+                                />
+                            </div>
+                            <div className="input-group" style={{ position: 'relative' }}>
+                                <i className="fa-solid fa-lock input-icon"></i>
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="Kata Sandi Baru"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    autoComplete="new-password"
+                                    style={{ paddingRight: '44px' }}
+                                />
                                 <button
-                                    type="submit"
-                                    className="btn btn-primary btn-glow w-full"
-                                    disabled={!registerTurnstileToken}
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{
+                                        position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                                        background: 'transparent', border: 'none', color: 'var(--color-text-muted)',
+                                        cursor: 'pointer', fontSize: '14px', padding: '4px'
+                                    }}
                                 >
-                                    <span>Daftar Akun Baru</span>
-                                    <i className="fa-solid fa-user-plus"></i>
+                                    <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
                                 </button>
-                            </form>
-                        )}
+                            </div>
+                            <div ref={turnstileRegisterRef} className="cf-turnstile" style={{ marginBottom: '16px', display: 'flex', justifyContent: 'center' }}></div>
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-glow w-full"
+                                disabled={!registerTurnstileToken}
+                            >
+                                <span>Daftar Akun Baru</span>
+                                <i className="fa-solid fa-user-plus"></i>
+                            </button>
+                        </form>
 
                         <p style={{ textAlign: 'center', fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '16px' }}>
                             <i className="fa-solid fa-circle-info" style={{ marginRight: '5px' }}></i>
