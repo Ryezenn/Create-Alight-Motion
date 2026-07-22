@@ -388,6 +388,8 @@ document.addEventListener('DOMContentLoaded', () => {
     formStep1.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = inputEmail.value.trim();
+        const turnstileInput = formStep1.querySelector('[name="cf-turnstile-response"]');
+        const turnstileToken = turnstileInput ? turnstileInput.value : '';
         
         if (!email) {
             addLog('Alamat email tidak boleh kosong.', 'error');
@@ -407,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ email })
+                body: JSON.stringify({ email, token: turnstileToken })
             });
             
             const data = await response.json();
@@ -437,6 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             btnSendLink.classList.remove('loading');
             btnSendLink.disabled = false;
+            if (window.turnstile) turnstile.reset();
         }
     });
 
@@ -698,6 +701,8 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const username = document.getElementById('login-username').value.trim();
         const password = document.getElementById('login-password').value;
+        const turnstileInput = formLogin.querySelector('[name="cf-turnstile-response"]');
+        const turnstileToken = turnstileInput ? turnstileInput.value : '';
 
         authErrorMsg.classList.remove('active');
 
@@ -705,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password, token: turnstileToken })
             });
             const data = await response.json();
 
@@ -728,6 +733,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             authErrorMsg.textContent = 'Gagal menghubungi server auth.';
             authErrorMsg.classList.add('active');
+        } finally {
+            if (window.turnstile) turnstile.reset();
         }
     });
 
@@ -736,6 +743,8 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const username = document.getElementById('register-username').value.trim();
         const password = document.getElementById('register-password').value;
+        const turnstileInput = formRegister.querySelector('[name="cf-turnstile-response"]');
+        const turnstileToken = turnstileInput ? turnstileInput.value : '';
 
         authErrorMsg.classList.remove('active');
 
@@ -743,7 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
+                body: JSON.stringify({ username, password, token: turnstileToken })
             });
             const data = await response.json();
 
@@ -772,6 +781,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             authErrorMsg.textContent = 'Gagal menghubungi server auth.';
             authErrorMsg.classList.add('active');
+        } finally {
+            if (window.turnstile) turnstile.reset();
         }
     });
 

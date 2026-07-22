@@ -4,6 +4,23 @@ const path = require('path');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const amAuth = require('./am');
+const axios = require('axios');
+
+const TURNSTILE_SECRET_KEY = "0x4AAAAAAD7RpkI6EfNTZ6m_nDvfrqxR7Xg";
+
+async function verifyTurnstile(token) {
+    if (!token) return false;
+    try {
+        const response = await axios.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            secret: TURNSTILE_SECRET_KEY,
+            response: token
+        });
+        return response.data.success === true;
+    } catch (e) {
+        console.error('[Turnstile] Verification request failed:', e.message);
+        return false;
+    }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -93,9 +110,14 @@ function generateOrderCode() {
 
 // Endpoint: Auth Register
 app.post('/api/auth/register', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, token } = req.body;
     if (!username || !password) {
         return res.status(400).json({ success: false, error: 'Username dan password wajib diisi.' });
+    }
+
+    const isCAPTCHAValid = await verifyTurnstile(token);
+    if (!isCAPTCHAValid) {
+        return res.status(400).json({ success: false, error: 'Verifikasi Keamanan (CAPTCHA) gagal. Silakan coba lagi.' });
     }
 
     try {
@@ -140,9 +162,14 @@ app.post('/api/auth/register', async (req, res) => {
 
 // Endpoint: Auth Login
 app.post('/api/auth/login', async (req, res) => {
-    const { username, password } = req.body;
+    const { username, password, token } = req.body;
     if (!username || !password) {
         return res.status(400).json({ success: false, error: 'Username dan password wajib diisi.' });
+    }
+
+    const isCAPTCHAValid = await verifyTurnstile(token);
+    if (!isCAPTCHAValid) {
+        return res.status(400).json({ success: false, error: 'Verifikasi Keamanan (CAPTCHA) gagal. Silakan coba lagi.' });
     }
 
     try {
@@ -174,9 +201,14 @@ app.post('/api/auth/login', async (req, res) => {
 
 // Endpoint: Send Magic Link
 app.post('/api/send-link', async (req, res) => {
-    const { email } = req.body;
+    const { email, token } = req.body;
     if (!email) {
         return res.status(400).json({ success: false, error: 'Email tidak boleh kosong.' });
+    }
+
+    const isCAPTCHAValid = await verifyTurnstile(token);
+    if (!isCAPTCHAValid) {
+        return res.status(400).json({ success: false, error: 'Verifikasi Keamanan (CAPTCHA) gagal. Silakan coba lagi.' });
     }
     
     console.log(`[Server] Request kirim magic link ke: ${email}`);

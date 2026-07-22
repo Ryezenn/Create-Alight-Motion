@@ -13,6 +13,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Cloudflare Turnstile CAPTCHA -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -71,6 +73,8 @@
                     <i class="fa-solid fa-lock input-icon"></i>
                     <input type="password" id="login-password" placeholder="Kata Sandi" required autocomplete="current-password">
                 </div>
+                <!-- Turnstile Widget -->
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" style="margin-bottom: 16px; display: flex; justify-content: center;"></div>
                 <button type="submit" class="btn btn-primary btn-glow w-full">
                     <span>Masuk ke Panel</span>
                     <i class="fa-solid fa-right-to-bracket"></i>
@@ -87,6 +91,8 @@
                     <i class="fa-solid fa-lock input-icon"></i>
                     <input type="password" id="register-password" placeholder="Kata Sandi Baru" required autocomplete="new-password">
                 </div>
+                <!-- Turnstile Widget -->
+                <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" style="margin-bottom: 16px; display: flex; justify-content: center;"></div>
                 <button type="submit" class="btn btn-primary btn-glow w-full">
                     <span>Daftar Akun Baru</span>
                     <i class="fa-solid fa-user-plus"></i>
@@ -273,6 +279,8 @@
                                         <i class="fa-regular fa-envelope input-icon"></i>
                                         <input type="email" id="input-email" placeholder="contoh@gmail.com" required autocomplete="email">
                                     </div>
+                                    <!-- Turnstile Widget -->
+                                    <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" style="margin-bottom: 16px; display: flex; justify-content: center;"></div>
                                     <button type="submit" class="btn btn-primary btn-glow" id="btn-send-link">
                                         <span>Kirim Tautan Masuk</span>
                                         <i class="fa-solid fa-paper-plane"></i>
