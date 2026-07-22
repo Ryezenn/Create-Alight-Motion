@@ -5,45 +5,45 @@
 
 /* ---------- Design Tokens ---------- */
 :root {
-    --bg-primary: #08090d;          /* Clean solid neutral dark grey */
-    --bg-secondary: #0c0d12;        /* Solid sidebar grey */
-    --bg-elevated: #111218;
-    --card-bg: #111218;             /* Solid card backgrounds */
-    --card-bg-sub: #151620;         /* Solid sub card backgrounds */
-    --card-bg-hover: #1b1c28;
+    --bg-primary: #090a0f;          /* Contemporary neutral dark */
+    --bg-secondary: #0f111a;        /* Contemporary slate sidebar */
+    --bg-elevated: #151824;
+    --card-bg: #111827;             /* Surface dark */
+    --card-bg-sub: #1f2937;         /* Surface elevated */
+    --card-bg-hover: #374151;
     --border-color: rgba(255, 255, 255, 0.08);
     --border-subtle: rgba(255, 255, 255, 0.05);
-    --border-glow: transparent;     /* Disable border glow */
+    --border-glow: transparent;
 
-    --color-text: #f3f4f6;          /* Clean white text */
-    --color-text-muted: #9ca3af;    /* Sleek grey text */
+    --color-text: #f9fafb;          /* Crisp light text */
+    --color-text-muted: #9ca3af;    /* Balanced gray text */
     --color-text-dim: #6b7280;
 
-    /* Astra Spectrum - Sleek & solid, no neon aura */
-    --accent-green: #10b981;        /* Solid emerald green */
-    --accent-green-glow: rgba(16, 185, 129, 0.1);
-    --accent-cyan: #06b6d4;         /* Clean cyan */
+    /* Contemporary Spectrum */
+    --accent-green: #16a34a;        /* Success green */
+    --accent-green-glow: rgba(22, 163, 74, 0.1);
+    --accent-cyan: #06b6d4;
     --accent-cyan-glow: rgba(6, 182, 212, 0.1);
-    --accent-purple: #7c3aed;       /* Clean royal purple */
-    --accent-purple-glow: rgba(124, 58, 237, 0.1);
-    --accent-red: #ef4444;
-    --accent-gold: #f59e0b;
+    --accent-purple: #c800df;       /* Primary deep magenta */
+    --accent-purple-glow: rgba(200, 0, 223, 0.1);
+    --accent-red: #dc2626;          /* Danger red */
+    --accent-gold: #d97706;         /* Warning amber */
 
-    --gradient-primary: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%); /* Clean purple/blue gradient */
-    --gradient-card: none;          /* Solid cards, no gradient backgrounds */
+    --gradient-primary: linear-gradient(135deg, #c800df 0%, #e60076 100%); /* Contemporary purple-pink gradient */
+    --gradient-card: none;
     --gradient-shine: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 60%);
 
-    --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
-    --font-body: 'Inter', system-ui, sans-serif;
-    --font-mono: 'Fira Code', 'Cascadia Code', monospace;
+    --font-heading: 'Jost', system-ui, sans-serif;
+    --font-body: 'Jost', system-ui, sans-serif;
+    --font-mono: 'Overpass Mono', monospace;
     --transition-speed: 0.25s;
     --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
 
-    --radius-sm: 6px;               /* Refined smaller radii for cleaner look */
+    --radius-sm: 6px;
     --radius-md: 10px;
-    --radius-lg: 12px;
-    --radius-xl: 16px;
+    --radius-lg: 14px;
+    --radius-xl: 20px;
 }
 
 /* ---------- Reset & Base ---------- */
