@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-const amAuth = require('./am');
+const amAuth = require('../am');
 const axios = require('axios');
 
 const TURNSTILE_SECRET_KEY = "0x4AAAAAAD7RpkI6EfNTZ6m_nDvfrqxR7Xg";
@@ -34,8 +34,8 @@ let fallbackUsers = [];
 let fallbackActivations = [];
 
 const fs = require('fs');
-const FALLBACK_USERS_FILE = path.join(__dirname, 'fallback_users.json');
-const FALLBACK_ACTIVATIONS_FILE = path.join(__dirname, 'fallback_activations.json');
+const FALLBACK_USERS_FILE = path.join(__dirname, '../fallback_users.json');
+const FALLBACK_ACTIVATIONS_FILE = path.join(__dirname, '../fallback_activations.json');
 
 function loadFallbackData() {
     try {
@@ -101,7 +101,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve static assets from public folder
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 // Helper to generate a random order code suffix
 function generateOrderCode() {
@@ -316,12 +316,12 @@ app.get('/api/history', async (req, res) => {
 
 // Serve admin.html for the admin route
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    res.sendFile(path.join(__dirname, '../public', 'admin.html'));
 });
 
 // Fallback to index.html for spa
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../public', 'index.html'));
 });
 
 // Export app for serverless environment, only listen if run directly or not on Vercel

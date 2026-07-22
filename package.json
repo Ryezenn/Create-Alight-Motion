@@ -2,9 +2,9 @@
   "name": "alight-motion-activator",
   "version": "1.0.0",
   "description": "Alight Motion 1-Year Premium Activator",
-  "main": "server.js",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node api/index.js",
     "build": "vite build"
   },
   "dependencies": {
