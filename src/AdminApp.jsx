@@ -457,13 +457,20 @@ export default function AdminApp() {
             {!isLoggedIn && !loading && (
                 <div className="auth-wrapper">
                     <div className="auth-card glassmorphism animate-scale-up" style={{ maxWidth: '420px' }}>
-                        <div className="auth-agentic-sphere">
-                            <div className="sphere-outer-pulse"></div>
-                            <div className="sphere-inner-ring"></div>
-                            <div className="sphere-core">
-                                <i className="fa-solid fa-shield-halved sphere-brain-icon"></i>
-                            </div>
-                        </div>
+                        <img 
+                            src="/logo.jpg" 
+                            alt="Ryezenstore Logo" 
+                            style={{ 
+                                width: '100px', 
+                                height: '100px', 
+                                borderRadius: '50%', 
+                                border: '2px solid var(--accent-cyan)', 
+                                boxShadow: '0 0 15px var(--accent-cyan-glow)', 
+                                margin: '0 auto 20px auto', 
+                                display: 'block',
+                                objectFit: 'cover'
+                            }} 
+                        />
 
                         <div className="auth-brand">
                             <h2 className="text-gradient">Admin Panel</h2>
@@ -602,10 +609,19 @@ export default function AdminApp() {
                 <div className="dashboard-layout">
                     {/* Left Sidebar */}
                     <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
-                        <div className="sidebar-brand">
-                            <div className="brand-logo">
-                                <i className="fa-solid fa-wand-magic-sparkles logo-icon"></i>
-                            </div>
+                        <div className="sidebar-brand" style={{ gap: '10px' }}>
+                            <img 
+                                src="/logo.jpg" 
+                                alt="Ryezenstore Logo" 
+                                style={{ 
+                                    width: '38px', 
+                                    height: '38px', 
+                                    borderRadius: '50%', 
+                                    border: '1px solid var(--accent-cyan)', 
+                                    boxShadow: '0 0 8px var(--accent-cyan-glow)',
+                                    objectFit: 'cover'
+                                }} 
+                            />
                             <div className="brand-text">
                                 <h2 style={{ textShadow: '0 0 10px rgba(0, 243, 255, 0.4)' }}>AM Premium</h2>
                                 <span>PANEL PENGEMBANG</span>

@@ -310,13 +310,20 @@ export default function App() {
                     
                     {/* Brand Header */}
                     <div className="auth-brand" style={{ marginBottom: '24px' }}>
-                        <div className="auth-agentic-sphere" style={{ margin: '0 auto 16px auto' }}>
-                            <div className="sphere-outer-pulse"></div>
-                            <div className="sphere-inner-ring"></div>
-                            <div className="sphere-core" style={{ background: 'var(--gradient-primary)' }}>
-                                <i className="fa-solid fa-crown sphere-brain-icon" style={{ color: '#fff' }}></i>
-                            </div>
-                        </div>
+                        <img 
+                            src="/logo.jpg" 
+                            alt="Ryezenstore Logo" 
+                            style={{ 
+                                width: '110px', 
+                                height: '110px', 
+                                borderRadius: '50%', 
+                                border: '2px solid var(--accent-cyan)', 
+                                boxShadow: '0 0 15px var(--accent-cyan-glow)', 
+                                margin: '0 auto 16px auto', 
+                                display: 'block',
+                                objectFit: 'cover'
+                            }} 
+                        />
                         <h2 className="text-gradient">AM Premium</h2>
                         <span>Portal Aktivasi Lisensi Mandiri</span>
                     </div>
