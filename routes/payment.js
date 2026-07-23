@@ -61,7 +61,7 @@ router.post('/create', isAuthenticated, async (req, res) => {
         if (!txData) {
             const mockRefNo = 'AM-' + crypto.randomBytes(6).toString('hex').toUpperCase();
             // WhatsApp redirection link
-            const waNumber = '6285817807828';
+            const waNumber = '6289621484600';
             const waText = encodeURIComponent(`Halo Admin, saya ingin membeli API Key ${productName} (Ref: ${mockRefNo}). Silakan kirimkan kode QRIS pembayaran manual.`);
             const paymentLink = `https://wa.me/${waNumber}?text=${waText}`;
             // QR code pointing to WhatsApp redirection
