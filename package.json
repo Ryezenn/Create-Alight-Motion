@@ -1,22 +1,31 @@
 {
-  "name": "alight-motion-activator",
+  "name": "bot-alight-prem-asli---copy",
   "version": "1.0.0",
-  "description": "Alight Motion 1-Year Premium Activator",
-  "main": "api/index.js",
+  "main": "am.js",
   "scripts": {
-    "start": "node api/index.js",
-    "build": "vite build"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ryezenn/Create-Alight-Motion.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Ryezenn/Create-Alight-Motion/issues"
+  },
+  "homepage": "https://github.com/Ryezenn/Create-Alight-Motion#readme",
+  "description": "",
   "dependencies": {
-    "axios": "^1.7.2",
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "mongoose": "^8.5.1",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^6.0.4",
-    "vite": "^8.1.5"
+    "axios": "^1.18.1",
+    "bcryptjs": "^3.0.3",
+    "connect-mongo": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.0",
+    "express-session": "^1.19.0",
+    "helmet": "^8.3.0",
+    "mongoose": "^9.8.0"
   }
 }

@@ -18,7 +18,7 @@ class AlightMotionAuth {
             let cleanUrl = fullUrl.replace(/&amp;/g, '&');
             try { cleanUrl = decodeURIComponent(cleanUrl); } catch(e) {}
             
-            // 1. Coba lewat URL searchParams (termasuk parameter link/q/url)
+            // 1. Try URL searchParams (including parameters link/q/url)
             try {
                 const urlObj = new URL(cleanUrl);
                 let oobCode = urlObj.searchParams.get('oobCode');
@@ -34,7 +34,7 @@ class AlightMotionAuth {
                 if (oobCode) return oobCode.replace(/[^a-zA-Z0-9_-]/g, '');
             } catch (e) {}
 
-            // 2. Fallback regex langsung cari oobCode=...
+            // 2. Fallback regex to find oobCode=... directly
             const match = cleanUrl.match(/[?&]oobCode=([a-zA-Z0-9_-]+)/i) || cleanUrl.match(/oobCode=([a-zA-Z0-9_-]+)/i);
             if (match && match[1]) {
                 return match[1];

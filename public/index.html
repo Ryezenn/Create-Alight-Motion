@@ -1,21 +1,328 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-adsense-account" content="ca-pub-2199063141174258">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2199063141174258" crossorigin="anonymous"></script>
-    <title>Alight Motion Premium - Aktivasi Lisensi</title>
-    <meta name="description" content="Portal aktivasi Alight Motion Premium 1 tahun resmi dan aman.">
-    <!-- FontAwesome Icons -->
+    <title>AM Premium Creator</title>
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Cloudflare Turnstile CAPTCHA -->
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css">
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="/style.css">
+    <!-- Cloudflare Turnstile Captcha API -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-  <script type="module" crossorigin src="/assets/main-Dz3PQUBP.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/style-Dg_HIYDU.js">
-  <link rel="stylesheet" crossorigin href="/assets/style-CCfJpDN9.css">
 </head>
 <body>
-    <div id="root"></div>
+    <!-- Monochromatic Particle Background -->
+    <div class="space-bg"></div>
+    <div class="glowing-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+    
+    <!-- Animated Grid overlay -->
+    <div class="grid-overlay"></div>
+
+    <!-- Security Alert Overlay for DevTools -->
+    <div id="security-overlay" class="overlay-hidden">
+        <div class="overlay-content">
+            <i class="fa-solid fa-shield-halved warning-icon"></i>
+            <h2>Akses Dibatasi</h2>
+            <p>Developer Tools (F12 / Klik Kanan) dinonaktifkan untuk menjaga keamanan data lisensi.</p>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Navigation Header -->
+        <header class="main-header glass-card">
+            <div class="logo">
+                <i class="fa-solid fa-cube logo-icon animate-spin-slow"></i>
+                <span>AM <span class="accent-text">CREATOR</span></span>
+            </div>
+            
+            <!-- Unified Menu -->
+            <nav id="nav-menu" class="hidden">
+                <div class="user-status-card">
+                    <span class="nav-username-container">
+                        <i class="fa-regular fa-circle-user"></i>
+                        <span id="nav-username">Guest</span>
+                    </span>
+                    <span id="nav-role-badge" class="badge badge-normal">User</span>
+                    <span id="nav-credits-badge" class="badge badge-outline">
+                        <i class="fa-solid fa-bolt"></i> <span id="nav-credits">0</span> Credits
+                    </span>
+                </div>
+                <div class="nav-actions">
+                    <button id="btn-admin-view" class="btn btn-secondary hidden"><i class="fa-solid fa-screwdriver-wrench"></i> Admin Panel</button>
+                    <button id="btn-dashboard-view" class="btn btn-secondary hidden"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
+                    <button id="btn-logout" class="btn btn-danger"><i class="fa-solid fa-power-off"></i> Logout</button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- AUTH SCREEN (Login / Register) -->
+        <section id="screen-auth" class="screen">
+            <div class="auth-box glass-card animate-fade-in">
+                <!-- Login View -->
+                <div id="auth-login-view">
+                    <h2 class="section-title">Sign In</h2>
+                    <p class="section-subtitle">Akses Generator Alight Motion Premium</p>
+                    <form id="form-login">
+                        <div class="input-group">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input type="text" id="login-username" placeholder="Username" required autocomplete="username">
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-key input-icon"></i>
+                            <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+                        </div>
+                        <div class="input-group" style="display: flex; justify-content: center; margin-bottom: 20px;">
+                            <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" id="login-turnstile"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-glow">
+                            <span>Login <i class="fa-solid fa-chevron-right"></i></span>
+                        </button>
+                    </form>
+                    <p class="auth-toggle-text">Belum punya akun? <a href="#" id="link-to-register" class="link-accent">Daftar Akun</a></p>
+                </div>
+
+                <!-- Register View -->
+                <div id="auth-register-view" class="hidden">
+                    <h2 class="section-title">Sign Up</h2>
+                    <p class="section-subtitle">Buat akun untuk mulai membuat lisensi premium</p>
+                    <form id="form-register">
+                        <div class="input-group">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input type="text" id="register-username" placeholder="Username (Min 3 Karakter)" required autocomplete="username">
+                        </div>
+                        <div class="input-group">
+                            <i class="fa-solid fa-key input-icon"></i>
+                            <input type="password" id="register-password" placeholder="Password (Min 6 Karakter)" required autocomplete="new-password">
+                        </div>
+                        <div class="input-group" style="display: flex; justify-content: center; margin-bottom: 20px;">
+                            <div class="cf-turnstile" data-sitekey="0x4AAAAAAD7RpjTPThhr5v1Q" data-theme="dark" id="register-turnstile"></div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block btn-glow">
+                            <span>Daftar <i class="fa-solid fa-circle-check"></i></span>
+                        </button>
+                    </form>
+                    <p class="auth-toggle-text">Sudah punya akun? <a href="#" id="link-to-login" class="link-accent">Login disini</a></p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD SCREEN -->
+        <section id="screen-dashboard" class="screen hidden">
+            <!-- System Status Widget -->
+            <div class="status-strip glass-card animate-fade-in">
+                <div class="status-item">
+                    <span class="status-indicator online"></span>
+                    <span>System: <b>Online</b></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-indicator online" id="db-status-dot"></span>
+                    <span>Database: <b id="db-status-text">Connected</b></span>
+                </div>
+                <div class="status-item">
+                    <span class="status-indicator online"></span>
+                    <span>AM API: <b>Ready</b></span>
+                </div>
+            </div>
+
+            <!-- Grid Layout -->
+            <div class="dashboard-grid">
+                <!-- Activation Panel -->
+                <div class="glass-card main-panel animate-fade-in">
+                    <div class="panel-header-desc">
+                        <h2 class="card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Alight Motion Premium License</h2>
+                        <span id="badge-admin-control" class="badge badge-admin hidden"><i class="fa-solid fa-circle-check"></i> Admin Mode Enabled</span>
+                    </div>
+
+                    <div class="step-container">
+                        <!-- Step 1: Request Link -->
+                        <div class="step-box">
+                            <div class="step-badge">01</div>
+                            <div class="step-content">
+                                <h3>Kirim Link Verifikasi</h3>
+                                <p class="step-desc">Masukkan alamat email Alight Motion target. Google Firebase akan mengirimkan tautan masuk instan (magic link) ke email tersebut.</p>
+                                <form id="form-send-link">
+                                    <div class="input-group">
+                                        <i class="fa-solid fa-at input-icon"></i>
+                                        <input type="email" id="send-email" placeholder="nama@email.com" required>
+                                    </div>
+                                    <button type="submit" id="btn-send-link" class="btn btn-primary btn-glow">
+                                        <span class="btn-text">Kirim Magic Link <i class="fa-solid fa-paper-plane"></i></span>
+                                        <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i> Mengirim...</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Divider -->
+                        <div class="step-divider"></div>
+
+                        <!-- Step 2: Input Link -->
+                        <div class="step-box">
+                            <div class="step-badge">02</div>
+                            <div class="step-content">
+                                <h3>Tempel Link & Aktivasi Lisensi</h3>
+                                <p class="step-desc">Buka pesan masuk di email target (cek folder spam jika perlu), salin link tombol login, dan tempelkan di formulir di bawah ini.</p>
+                                <form id="form-activate">
+                                    <div class="input-group">
+                                        <i class="fa-solid fa-at input-icon"></i>
+                                        <input type="email" id="activate-email" placeholder="Ulangi email target" required>
+                                    </div>
+                                    <div class="input-group">
+                                        <i class="fa-solid fa-link input-icon"></i>
+                                        <input type="url" id="activate-link" placeholder="https://alightcreative.com?link=..." required>
+                                    </div>
+                                    <button type="submit" id="btn-activate" class="btn btn-accent btn-glow">
+                                        <span class="btn-text">Terapkan Premium Lisensi <i class="fa-solid fa-circle-notch"></i></span>
+                                        <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info and Stats Panel -->
+                <div class="side-panel">
+                    <!-- Guide Card -->
+                    <div class="glass-card info-card animate-fade-in">
+                        <h3 class="panel-subtitle"><i class="fa-solid fa-circle-info"></i> Petunjuk Lisensi</h3>
+                        <ul class="guide-list">
+                            <li>Memotong 1 kredit untuk setiap aktivasi sukses (Standard User).</li>
+                            <li>Tautan verifikasi (oobCode) hanya berlaku 1 kali penggunaan.</li>
+                            <li>Salin tautan dari browser yang menerima email atau klik kanan tombol login.</li>
+                            <li>Pastikan aplikasi Alight Motion di HP target login menggunakan email yang sama setelah proses aktivasi ini selesai.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activation History Table -->
+            <div class="glass-card table-card mt-4 animate-fade-in">
+                <h3 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Aktivasi Akun</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tanggal & Waktu</th>
+                                <th>Target Email</th>
+                                <th>Order ID</th>
+                                <th>Status Lisensi</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-table-body">
+                            <tr>
+                                <td colspan="5" class="text-center">Memuat riwayat aktivasi...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADMIN PANEL SCREEN -->
+        <section id="screen-admin" class="screen hidden">
+            <h2 class="card-title"><i class="fa-solid fa-screwdriver-wrench"></i> Dashboard Administrator</h2>
+            
+            <!-- Stats Grid -->
+            <div class="admin-stats-grid">
+                <div class="glass-card stat-card">
+                    <i class="fa-solid fa-users stat-icon text-white"></i>
+                    <div>
+                        <div class="stat-value" id="stat-total-users">0</div>
+                        <div class="stat-label">Total Anggota</div>
+                    </div>
+                </div>
+                <div class="glass-card stat-card">
+                    <i class="fa-solid fa-chart-line stat-icon text-white"></i>
+                    <div>
+                        <div class="stat-value" id="stat-total-activations">0</div>
+                        <div class="stat-label">Total Request</div>
+                    </div>
+                </div>
+                <div class="glass-card stat-card">
+                    <i class="fa-solid fa-circle-check stat-icon text-white"></i>
+                    <div>
+                        <div class="stat-value" id="stat-success-activations">0</div>
+                        <div class="stat-label">Berhasil</div>
+                    </div>
+                </div>
+                <div class="glass-card stat-card">
+                    <i class="fa-solid fa-circle-xmark stat-icon text-white"></i>
+                    <div>
+                        <div class="stat-value" id="stat-failed-activations">0</div>
+                        <div class="stat-label">Gagal</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Split Grid -->
+            <div class="admin-grid mt-4">
+                <!-- User management table -->
+                <div class="glass-card table-card">
+                    <h3 class="card-title"><i class="fa-solid fa-users-gear"></i> Daftar Anggota Website</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Level</th>
+                                    <th>Kredit</th>
+                                    <th>Status</th>
+                                    <th>Tindakan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-users-table-body">
+                                <tr>
+                                    <td colspan="5" class="text-center">Memuat pengguna...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Global activation logs -->
+                <div class="glass-card table-card">
+                    <h3 class="card-title"><i class="fa-solid fa-list-check"></i> Log Aktivasi Global</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Waktu</th>
+                                    <th>Operator</th>
+                                    <th>Target Email</th>
+                                    <th>Status</th>
+                                    <th>Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-logs-table-body">
+                                <tr>
+                                    <td colspan="5" class="text-center">Memuat data log global...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            <p>&copy; 2026 AM Premium Creator. Monochromatic UI & Protected by Antigravity.</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/security.js"></script>
+    <script src="/app.js"></script>
 </body>
 </html>
