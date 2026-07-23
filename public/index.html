@@ -273,27 +273,46 @@
             <section id="screen-profile" class="screen hidden">
                 <div class="dashboard-header animate-fade-in">
                     <h2 class="section-title">Profil Pengguna</h2>
-                    <p class="section-subtitle">Kelola akun dan API Key Anda.</p>
+                    <p class="section-subtitle">Kelola akun dan status lisensi API Key Anda.</p>
                 </div>
                 
-                <div class="glass-card animate-fade-in" style="padding: 30px;">
+                <div class="glass-card animate-fade-in profile-container" style="padding: 30px;">
                     <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
-                        <div style="font-size: 4rem; color: white;"><i class="fa-regular fa-circle-user"></i></div>
+                        <div style="font-size: 4rem; color: var(--accent-light, #818cf8);"><i class="fa-regular fa-circle-user"></i></div>
                         <div>
-                            <h2 style="margin-bottom: 5px;" id="profile-username">User</h2>
+                            <h2 style="margin-bottom: 5px; font-weight: 700;" id="profile-username">User</h2>
                             <span id="profile-role" class="badge badge-normal">User</span>
                         </div>
                     </div>
+
+                    <div class="profile-info-grid mb-4">
+                        <div class="profile-info-row">
+                            <span class="profile-info-label"><i class="fa-solid fa-calendar-days"></i> Tanggal Bergabung</span>
+                            <span class="profile-info-value" id="profile-join-date">-</span>
+                        </div>
+                        <div class="profile-info-row">
+                            <span class="profile-info-label"><i class="fa-solid fa-bolt"></i> Sisa Kredit</span>
+                            <span class="profile-info-value" id="profile-credits">- Credits</span>
+                        </div>
+                        <div class="profile-info-row">
+                            <span class="profile-info-label"><i class="fa-solid fa-cube"></i> Paket API</span>
+                            <span class="profile-info-value badge badge-outline" id="profile-api-plan">None</span>
+                        </div>
+                        <div class="profile-info-row" id="profile-api-expiry-row" style="display: none;">
+                            <span class="profile-info-label"><i class="fa-solid fa-hourglass-half"></i> Masa Berlaku</span>
+                            <span class="profile-info-value" id="profile-api-expiry">-</span>
+                        </div>
+                    </div>
                     
-                    <hr style="border-color: var(--border-color); margin: 20px 0;">
+                    <hr style="border-color: var(--border-color); margin: 25px 0;">
                     
-                    <h3>API Key Anda</h3>
-                    <p style="color: var(--text-secondary); margin-bottom: 15px;">Gunakan API Key ini untuk melakukan request dari bot NodeJS atau Python Anda.</p>
+                    <h3 style="font-size: 1rem; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">API Key Anda</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 15px; font-size: 0.8rem; line-height: 1.4;">Gunakan API Key ini untuk melakukan request dari bot NodeJS atau Python Anda.</p>
                     
-                    <div class="input-group">
+                    <div class="input-group" style="margin-bottom: 0;">
                         <i class="fa-solid fa-key input-icon"></i>
-                        <input type="text" id="profile-apikey" readonly value="Belum ada API Key. Silahkan beli di menu Beli API Key." style="background: rgba(0,0,0,0.5); cursor: text;">
-                        <button class="btn btn-secondary" id="btn-copy-apikey" style="position: absolute; right: 5px; top: 5px; padding: 8px 12px; border-radius: 8px;"><i class="fa-regular fa-copy"></i> Copy</button>
+                        <input type="text" id="api-key-input" readonly value="Belum ada API Key. Silahkan beli di menu Beli API Key." style="background: rgba(0,0,0,0.5); cursor: text; padding-right: 90px;">
+                        <button class="btn btn-secondary" id="btn-copy-api" style="position: absolute; right: 5px; top: 5px; padding: 8px 12px; border-radius: 8px;"><i class="fa-regular fa-copy"></i> Copy</button>
                     </div>
                 </div>
             </section>

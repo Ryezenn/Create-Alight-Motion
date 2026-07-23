@@ -756,6 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 const data = await res.json();
                 currentUser = data.user;
+                updateNavbar();
 
                 const profileUsername = document.getElementById('profile-username');
                 if (profileUsername) profileUsername.textContent = currentUser.username;
@@ -815,9 +816,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
 
-                const profileApikey = document.getElementById('profile-apikey');
-                if (profileApikey) {
-                    profileApikey.value = currentUser.apiKey || 'Belum ada API Key. Silahkan beli di menu Beli API Key.';
+                const apiKeyInput = document.getElementById('api-key-input');
+                if (apiKeyInput) {
+                    apiKeyInput.value = currentUser.apiKey || 'Belum ada API Key. Silahkan beli di menu Beli API Key.';
                 }
             }
         } catch (error) {
@@ -874,29 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    async function loadProfile() {
-        try {
-            const res = await fetch('/api/auth/profile');
-            if (res.ok) {
-                const data = await res.json();
-                currentUser = data.user;
-                updateNavbar();
-                const profileUsername = document.getElementById('profile-username');
-                const profileRole = document.getElementById('profile-role');
-                const profileApikey = document.getElementById('profile-apikey');
-                if (profileUsername) profileUsername.textContent = currentUser.username;
-                if (profileRole) {
-                    profileRole.textContent = currentUser.role === 'admin' ? 'Admin' : 'User';
-                    profileRole.className = currentUser.role === 'admin' ? 'badge badge-admin' : 'badge badge-normal';
-                }
-                if (profileApikey) {
-                    profileApikey.value = currentUser.apiKey || 'Belum ada API Key. Silahkan beli di menu Beli API Key.';
-                }
-            }
-        } catch (error) {
-            console.error('Failed to load profile:', error);
-        }
-    }
+
 
     async function loadAPIPanel() {
         try {
