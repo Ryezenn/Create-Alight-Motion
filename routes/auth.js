@@ -173,6 +173,15 @@ router.get('/profile', isAuthenticated, async (req, res) => {
             req.session.destroy();
             return res.status(403).json({ error: 'Akun Anda telah dinonaktifkan.' });
         }
+        
+        // Auto-generate API Key for Admin users if they don't have one
+        if (user.role === 'admin' && !user.apiKey) {
+            const crypto = require('crypto');
+            user.apiKey = 'ak_am_' + crypto.randomBytes(16).toString('hex');
+            user.apiPlan = 'lifetime';
+            await user.save();
+        }
+        
         return res.json({ user });
     } catch (error) {
         console.error('Get profile error:', error);

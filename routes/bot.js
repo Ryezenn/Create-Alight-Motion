@@ -21,12 +21,14 @@ const authenticateAPIKey = async (req, res, next) => {
             return res.status(403).json({ error: 'Akun Anda dinonaktifkan (banned).' });
         }
 
-        if (user.apiPlan === 'none') {
-            return res.status(403).json({ error: 'Rencana API tidak aktif. Silakan lakukan pembayaran terlebih dahulu.' });
-        }
+        if (user.role !== 'admin') {
+            if (user.apiPlan === 'none') {
+                return res.status(403).json({ error: 'Rencana API tidak aktif. Silakan lakukan pembayaran terlebih dahulu.' });
+            }
 
-        if (user.apiPlan === 'monthly' && user.apiExpiresAt && user.apiExpiresAt < new Date()) {
-            return res.status(403).json({ error: 'Rencana API bulanan Anda telah kedaluwarsa.' });
+            if (user.apiPlan === 'monthly' && user.apiExpiresAt && user.apiExpiresAt < new Date()) {
+                return res.status(403).json({ error: 'Rencana API bulanan Anda telah kedaluwarsa.' });
+            }
         }
 
         // Attach user to request

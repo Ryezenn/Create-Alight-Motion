@@ -49,6 +49,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminLogsTableBody = document.getElementById('admin-logs-table-body');
 
     // Initialize application
+    window.onTurnstileLoad = function() {
+        if (!currentUser && (screenAuth && !screenAuth.classList.contains('hidden'))) {
+            initTurnstile();
+        }
+    };
     checkSession();
     loadPublicStats();
 
@@ -144,25 +149,33 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // View switching
-    btnAdminView.addEventListener('click', () => {
-        showScreen('admin');
-        loadAdminPanel();
-    });
+    if (btnAdminView) {
+        btnAdminView.addEventListener('click', () => {
+            showScreen('admin');
+            loadAdminPanel();
+        });
+    }
 
-    btnPurchaseView.addEventListener('click', () => {
-        showScreen('purchase');
-        loadAPIPanel();
-    });
+    if (btnPurchaseView) {
+        btnPurchaseView.addEventListener('click', () => {
+            showScreen('purchase');
+            loadAPIPanel();
+        });
+    }
 
-    btnProfileView.addEventListener('click', () => {
-        showScreen('profile');
-        loadProfile();
-    });
+    if (btnProfileView) {
+        btnProfileView.addEventListener('click', () => {
+            showScreen('profile');
+            loadProfile();
+        });
+    }
 
-    btnDashboardView.addEventListener('click', () => {
-        showScreen('dashboard');
-        loadDashboard();
-    });
+    if (btnDashboardView) {
+        btnDashboardView.addEventListener('click', () => {
+            showScreen('dashboard');
+            loadDashboard();
+        });
+    }
 
     // --- Authentication ---
     
@@ -710,15 +723,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (screenName === 'dashboard') {
                 screenDashboard.classList.remove('hidden');
                 if (btnDashboardView) btnDashboardView.classList.add('active');
-            } else if (screenName === 'admin') {
-                screenAdmin.classList.remove('hidden');
-                if (btnAdminView) btnAdminView.classList.add('active');
             } else if (screenName === 'purchase') {
                 screenPurchase.classList.remove('hidden');
                 if (btnPurchaseView) btnPurchaseView.classList.add('active');
             } else if (screenName === 'profile') {
                 screenProfile.classList.remove('hidden');
                 if (btnProfileView) btnProfileView.classList.add('active');
+            } else if (screenName === 'admin' && currentUser.role === 'admin') {
+                screenAdmin.classList.remove('hidden');
+                if (btnAdminView) btnAdminView.classList.add('active');
             }
         }
     }
@@ -797,25 +810,26 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnProfileView) btnProfileView.classList.remove('hidden');
         if (btnDashboardView) btnDashboardView.classList.remove('hidden');
         
+        const navRoleBadge = document.getElementById('nav-role-badge');
         const badgeAdminControl = document.getElementById('badge-admin-control');
 
         // Show Admin controls if role is admin
         if (currentUser.role === 'admin') {
-            navCredits.textContent = 'Unlimited';
+            if (navCredits) navCredits.textContent = 'Unlimited';
             if (navRoleBadge) {
                 navRoleBadge.textContent = 'Admin';
                 navRoleBadge.className = 'badge badge-admin';
             }
             if (badgeAdminControl) badgeAdminControl.classList.remove('hidden');
-            btnAdminView.classList.remove('hidden');
+            if (btnAdminView) btnAdminView.classList.remove('hidden');
         } else {
-            navCredits.textContent = currentUser.credits;
+            if (navCredits) navCredits.textContent = currentUser.credits;
             if (navRoleBadge) {
                 navRoleBadge.textContent = 'User';
                 navRoleBadge.className = 'badge badge-normal';
             }
             if (badgeAdminControl) badgeAdminControl.classList.add('hidden');
-            btnAdminView.classList.add('hidden');
+            if (btnAdminView) btnAdminView.classList.add('hidden');
         }
     }
 
@@ -824,50 +838,44 @@ document.addEventListener('DOMContentLoaded', () => {
         updateNavbar();
         loadUserHistory();
         loadAPIPanel();
-        btnDashboardView.classList.add('hidden');
         if (currentUser && currentUser.role === 'admin') {
-            btnAdminView.classList.remove('hidden');
+            if (btnAdminView) btnAdminView.classList.remove('hidden');
         }
     }
-
-    async function loadAPIPanel() {
+    
+    async function loadProfile() {
         try {
             const res = await fetch('/api/auth/profile');
             if (res.ok) {
                 const data = await res.json();
                 currentUser = data.user;
-                
-                const apiNoPlan = document.getElementById('api-no-plan');
-                const apiActivePlan = document.getElementById('api-active-plan');
-                
-                if (currentUser.apiPlan && currentUser.apiPlan !== 'none') {
-                    apiNoPlan.classList.add('hidden');
-                    apiActivePlan.classList.remove('hidden');
-                    
-                    const planBadge = document.getElementById('api-plan-badge');
-                    const planExpiry = document.getElementById('api-plan-expiry');
-                    const keyInput = document.getElementById('api-key-input');
-                    
-                    planBadge.textContent = `Plan: ${currentUser.apiPlan === 'lifetime' ? 'Lifetime' : 'Bulanan'}`;
-                    
-                    if (currentUser.apiPlan === 'lifetime') {
-                        planExpiry.textContent = 'Expired: Selamanya';
-                    } else if (currentUser.apiExpiresAt) {
-                        const expiryDate = new Date(currentUser.apiExpiresAt).toLocaleDateString('id-ID', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        });
-                        planExpiry.textContent = `Expired: ${expiryDate}`;
-                    } else {
-                        planExpiry.textContent = 'Expired: -';
-                    }
-                    
-                    keyInput.value = currentUser.apiKey || '';
-                } else {
-                    apiNoPlan.classList.remove('hidden');
-                    apiActivePlan.classList.add('hidden');
+                updateNavbar();
+                const profileUsername = document.getElementById('profile-username');
+                const profileRole = document.getElementById('profile-role');
+                const profileApikey = document.getElementById('profile-apikey');
+                if (profileUsername) profileUsername.textContent = currentUser.username;
+                if (profileRole) {
+                    profileRole.textContent = currentUser.role === 'admin' ? 'Admin' : 'User';
+                    profileRole.className = currentUser.role === 'admin' ? 'badge badge-admin' : 'badge badge-normal';
                 }
+                if (profileApikey) {
+                    profileApikey.value = currentUser.apiKey || 'Belum ada API Key. Silahkan beli di menu Beli API Key.';
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load profile:', error);
+        }
+    }
+
+    async function loadAPIPanel() {
+        try {
+            // Check if user has an active plan (You can add custom plan logic here if needed for the purchase UI)
+            const res = await fetch('/api/auth/profile');
+            if (res.ok) {
+                const data = await res.json();
+                currentUser = data.user;
+                // Currently, Purchase UI is static (just clicking Beli plans).
+                // Later you could disable the buttons if they already have Lifetime.
             }
         } catch (error) {
             console.error('Failed to load API Panel:', error);
@@ -879,10 +887,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch('/api/public/stats');
             if (res.ok) {
                 const data = await res.json();
-                const authStatUsers = document.getElementById('auth-stat-users');
-                const authStatSuccess = document.getElementById('auth-stat-success');
-                if (authStatUsers) authStatUsers.textContent = data.totalUsers.toLocaleString('id-ID');
-                if (authStatSuccess) authStatSuccess.textContent = data.totalSuccess.toLocaleString('id-ID');
+                const statTotalUsers = document.getElementById('stat-total-users');
+                if (statTotalUsers) statTotalUsers.textContent = data.totalUsers.toLocaleString('id-ID');
+                
+                if (currentUser) {
+                    const statYourCredits = document.getElementById('stat-your-credits');
+                    if (statYourCredits) statYourCredits.textContent = currentUser.credits.toLocaleString('id-ID');
+                }
             }
         } catch (error) {
             console.error('Failed to load public stats:', error);
@@ -935,7 +946,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let paymentPollInterval = null;
 
     document.addEventListener('click', async (e) => {
-        const buyBtn = e.target.closest('.buy-api-btn');
+        const buyBtn = e.target.closest('.btn-purchase-plan');
         if (buyBtn) {
             const planType = buyBtn.getAttribute('data-plan');
             const planName = planType === 'monthly' ? 'Bulanan (25k)' : 'Lifetime (50k)';
