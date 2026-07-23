@@ -6,7 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let loginWidgetId = null;
     let registerWidgetId = null;
 
-    // View Elements
+    // Layout & View Elements
+    const appLayout = document.getElementById('app-layout');
+    const appSidebar = document.getElementById('app-sidebar');
+    const mobileTopBar = document.getElementById('mobile-top-bar');
+    const btnSidebarToggle = document.getElementById('btn-sidebar-toggle');
+
     const screenAuth = document.getElementById('screen-auth');
     const screenDashboard = document.getElementById('screen-dashboard');
     const screenAdmin = document.getElementById('screen-admin');
@@ -46,6 +51,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize application
     checkSession();
     loadPublicStats();
+
+    // Mobile Sidebar Toggle
+    if (btnSidebarToggle && appSidebar) {
+        btnSidebarToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            appSidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking main content area
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.addEventListener('click', () => {
+                appSidebar.classList.remove('active');
+            });
+        }
+    }
 
     let turnstileSiteKey = '';
 
@@ -665,25 +686,40 @@ document.addEventListener('DOMContentLoaded', () => {
         screenPurchase.classList.add('hidden');
         screenProfile.classList.add('hidden');
 
-        // Toggle nav buttons depending on state
-        if (currentUser) {
-            btnDashboardView.classList.toggle('hidden', screenName === 'dashboard');
-            btnPurchaseView.classList.toggle('hidden', screenName === 'purchase');
-            btnProfileView.classList.toggle('hidden', screenName === 'profile');
-            btnAdminView.classList.toggle('hidden', currentUser.role !== 'admin' || screenName === 'admin');
-        }
+        // Close sidebar drawer on mobile after nav link click
+        if (appSidebar) appSidebar.classList.remove('active');
 
+        // Set Active Nav Link Class
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.classList.remove('active');
+        });
+
+        // Toggle layout classes based on auth state
         if (screenName === 'auth') {
+            if (appLayout) appLayout.classList.remove('sidebar-active');
+            if (appSidebar) appSidebar.classList.add('hidden');
+            if (mobileTopBar) mobileTopBar.classList.add('hidden');
+            
             screenAuth.classList.remove('hidden');
             initTurnstile();
-        } else if (screenName === 'dashboard') {
-            screenDashboard.classList.remove('hidden');
-        } else if (screenName === 'admin') {
-            screenAdmin.classList.remove('hidden');
-        } else if (screenName === 'purchase') {
-            screenPurchase.classList.remove('hidden');
-        } else if (screenName === 'profile') {
-            screenProfile.classList.remove('hidden');
+        } else {
+            if (appLayout) appLayout.classList.add('sidebar-active');
+            if (appSidebar) appSidebar.classList.remove('hidden');
+            if (mobileTopBar) mobileTopBar.classList.remove('hidden');
+
+            if (screenName === 'dashboard') {
+                screenDashboard.classList.remove('hidden');
+                if (btnDashboardView) btnDashboardView.classList.add('active');
+            } else if (screenName === 'admin') {
+                screenAdmin.classList.remove('hidden');
+                if (btnAdminView) btnAdminView.classList.add('active');
+            } else if (screenName === 'purchase') {
+                screenPurchase.classList.remove('hidden');
+                if (btnPurchaseView) btnPurchaseView.classList.add('active');
+            } else if (screenName === 'profile') {
+                screenProfile.classList.remove('hidden');
+                if (btnProfileView) btnProfileView.classList.add('active');
+            }
         }
     }
 
@@ -748,16 +784,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update Nav bar details based on login state
     function updateNavbar() {
         if (!currentUser) {
-            navMenu.classList.add('hidden');
+            if (navMenu) navMenu.classList.add('hidden');
+            if (appSidebar) appSidebar.classList.add('hidden');
             return;
         }
 
-        navMenu.classList.remove('hidden');
-        navUsername.textContent = currentUser.username;
+        if (navMenu) navMenu.classList.remove('hidden');
+        if (appSidebar) appSidebar.classList.remove('hidden');
+        if (navUsername) navUsername.textContent = currentUser.username;
         
-        btnPurchaseView.classList.remove('hidden');
-        btnProfileView.classList.remove('hidden');
-        btnDashboardView.classList.remove('hidden');
+        if (btnPurchaseView) btnPurchaseView.classList.remove('hidden');
+        if (btnProfileView) btnProfileView.classList.remove('hidden');
+        if (btnDashboardView) btnDashboardView.classList.remove('hidden');
         
         const badgeAdminControl = document.getElementById('badge-admin-control');
 

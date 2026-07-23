@@ -1393,7 +1393,158 @@ code {
     font-size: 0.72rem;
 }
 
+/* Sidebar Layout Styles */
+.app-layout {
+    width: 100%;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.app-layout.sidebar-active {
+    display: flex;
+    flex-direction: row;
+}
+
+.app-sidebar {
+    width: 280px;
+    min-width: 280px;
+    background: rgba(8, 8, 8, 0.6);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    padding: 35px 24px;
+    box-sizing: border-box;
+    height: 100vh;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: white;
+    letter-spacing: 1.5px;
+}
+
+.sidebar-user-card {
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 20px 15px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+
+.sidebar-link {
+    background: transparent;
+    border: 1px solid transparent;
+    text-align: left;
+    padding: 12px 16px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-family: 'Outfit', sans-serif;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.86rem;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-link i {
+    font-size: 1rem;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-link:hover {
+    background: rgba(255, 255, 255, 0.03);
+    color: #ffffff;
+}
+
+.sidebar-link.active {
+    background: #ffffff;
+    color: #000000;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-footer {
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Mobile top bar */
+.mobile-top-bar {
+    display: none;
+    background: rgba(8, 8, 8, 0.6);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 15px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+}
+
 /* Responsive adjustment for API card grid */
+@media (max-width: 768px) {
+    .app-layout.sidebar-active {
+        flex-direction: column;
+    }
+    
+    .mobile-top-bar {
+        display: flex;
+    }
+    
+    .app-sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        height: 100vh;
+        transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.8);
+    }
+    
+    .app-sidebar.active {
+        left: 0;
+    }
+    
+    .main-content {
+        padding: 20px;
+        min-height: calc(100vh - 70px);
+    }
+}
+
 @media (max-width: 600px) {
     .api-pricing-grid {
         grid-template-columns: 1fr;
