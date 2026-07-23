@@ -63,24 +63,6 @@
             </nav>
         </header>
 
-        <!-- FULL-PAGE CLOUDFLARE VERIFICATION GATE SCREEN -->
-        <section id="screen-gate" class="screen">
-            <div class="verification-gate-box glass-card animate-fade-in">
-                <div class="gate-header">
-                    <h1 id="gate-domain-name" class="gate-domain">ryezenstore.vercel.app</h1>
-                    <h2 class="gate-title">Performing security verification</h2>
-                    <p class="gate-desc">This website uses a security service to protect against malicious bots. Please complete the verification below to continue.</p>
-                </div>
-                <div class="gate-widget-container">
-                    <div id="gate-turnstile" class="cf-turnstile-container"></div>
-                </div>
-                <div class="gate-footer">
-                    <p class="gate-ray-id">Ray ID: <span id="gate-ray-id-val">a1fb1ee28e855f3b</span></p>
-                    <p class="gate-copyright">Performance and Security by <b>Cloudflare</b></p>
-                </div>
-            </div>
-        </section>
-
         <!-- AUTH SCREEN (Login / Register) -->
         <section id="screen-auth" class="screen hidden">
             <div class="auth-box glass-card animate-fade-in">
@@ -96,6 +78,9 @@
                         <div class="input-group">
                             <i class="fa-solid fa-key input-icon"></i>
                             <input type="password" id="login-password" placeholder="Password" required autocomplete="current-password">
+                        </div>
+                        <div class="cf-turnstile-container mb-3">
+                            <div id="login-turnstile"></div>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block btn-glow">
                             <span>Login <i class="fa-solid fa-chevron-right"></i></span>
@@ -116,6 +101,9 @@
                         <div class="input-group">
                             <i class="fa-solid fa-key input-icon"></i>
                             <input type="password" id="register-password" placeholder="Password (Min 6 Karakter)" required autocomplete="new-password">
+                        </div>
+                        <div class="cf-turnstile-container mb-3">
+                            <div id="register-turnstile"></div>
                         </div>
                         <button type="submit" class="btn btn-primary btn-block btn-glow">
                             <span>Daftar <i class="fa-solid fa-circle-check"></i></span>

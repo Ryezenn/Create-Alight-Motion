@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let registerWidgetId = null;
 
     // View Elements
-    const screenGate = document.getElementById('screen-gate');
     const screenAuth = document.getElementById('screen-auth');
     const screenDashboard = document.getElementById('screen-dashboard');
     const screenAdmin = document.getElementById('screen-admin');
@@ -40,20 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminUsersTableBody = document.getElementById('admin-users-table-body');
     const adminLogsTableBody = document.getElementById('admin-logs-table-body');
 
-    // Gate State
-    let gateWidgetId = null;
-    let gateToken = '';
-
-    // Set dynamic domain & Ray ID on Full-Page Gate
-    const gateDomainEl = document.getElementById('gate-domain-name');
-    if (gateDomainEl) gateDomainEl.textContent = window.location.hostname || 'ryezenstore.vercel.app';
-    
-    const gateRayIdEl = document.getElementById('gate-ray-id-val');
-    if (gateRayIdEl) {
-        const randomRay = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
-        gateRayIdEl.textContent = randomRay;
-    }
-
     // Initialize application
     checkSession();
 
@@ -66,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 const data = await res.json();
                 turnstileSiteKey = data.turnstileSiteKey;
-                if (screenGate && !screenGate.classList.contains('hidden')) {
+                if (!screenAuth.classList.contains('hidden')) {
                     initTurnstile();
                 }
             }
@@ -76,38 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadConfig();
 
-    // Explicit Turnstile Initialization on Full-Page Gate
+    // Explicit Turnstile Initialization below password
     function initTurnstile() {
-        const container = document.getElementById('gate-turnstile');
-        if (!container) return;
-
         if (window.turnstile && turnstileSiteKey) {
-            // Reset existing widget if active
-            if (gateWidgetId !== null) {
-                try {
-                    turnstile.reset(gateWidgetId);
-                } catch (e) {
-                    container.innerHTML = '';
-                    gateWidgetId = null;
-                }
-            }
-            
-            if (gateWidgetId === null) {
-                container.innerHTML = '';
-                try {
-                    gateWidgetId = turnstile.render('#gate-turnstile', {
-                        sitekey: turnstileSiteKey,
-                        theme: 'dark',
-                        callback: function(token) {
-                            gateToken = token;
-                            setTimeout(() => {
-                                showScreen('auth');
-                            }, 300);
-                        }
-                    });
-                } catch (err) {
-                    console.error('Turnstile render error:', err);
-                }
+            if (loginWidgetId === null && document.getElementById('login-turnstile')) {
+                loginWidgetId = turnstile.render('#login-turnstile', {
+                    sitekey: turnstileSiteKey,
+                    theme: 'dark'
+                });
             }
         } else if (!window.turnstile) {
             setTimeout(initTurnstile, 300);
@@ -119,6 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         authLoginView.classList.add('hidden');
         authRegisterView.classList.remove('hidden');
+        
+        // Render Register Turnstile when it becomes visible
+        if (window.turnstile && registerWidgetId === null && turnstileSiteKey && document.getElementById('register-turnstile')) {
+            registerWidgetId = turnstile.render('#register-turnstile', {
+                sitekey: turnstileSiteKey,
+                theme: 'dark'
+            });
+        }
     });
 
     linkToLogin.addEventListener('click', (e) => {
@@ -174,11 +143,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (dbStatusText) dbStatusText.textContent = 'Connected';
             } else {
-                showScreen('gate');
+                showScreen('auth');
             }
         } catch (error) {
             console.error('Session check failed:', error);
-            showScreen('gate');
+            showScreen('auth');
         }
     }
 
@@ -188,11 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
-        // Get Turnstile token from Full-Page Gate
-        const turnstileToken = gateToken || (window.turnstile && gateWidgetId !== null ? turnstile.getResponse(gateWidgetId) : '');
+        // Get Turnstile token
+        const turnstileToken = window.turnstile && loginWidgetId !== null ? turnstile.getResponse(loginWidgetId) : '';
         if (!turnstileToken) {
-            showError('Selesaikan verifikasi keamanan terlebih dahulu.');
-            showScreen('gate');
+            showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
             return;
         }
 
@@ -241,11 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
 
-        // Get Turnstile token from Full-Page Gate
-        const turnstileToken = gateToken || (window.turnstile && gateWidgetId !== null ? turnstile.getResponse(gateWidgetId) : '');
+        // Get Turnstile token
+        const turnstileToken = window.turnstile && registerWidgetId !== null ? turnstile.getResponse(registerWidgetId) : '';
         if (!turnstileToken) {
-            showError('Selesaikan verifikasi keamanan terlebih dahulu.');
-            showScreen('gate');
+            showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
             return;
         }
 
@@ -656,32 +623,23 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Switch Screen Visibility
     function showScreen(screenName) {
-        const mainHeader = document.querySelector('.main-header');
-        
-        if (screenGate) screenGate.classList.add('hidden');
         screenAuth.classList.add('hidden');
         screenDashboard.classList.add('hidden');
         screenAdmin.classList.add('hidden');
 
-        if (screenName === 'gate') {
-            if (mainHeader) mainHeader.classList.add('hidden');
-            if (screenGate) screenGate.classList.remove('hidden');
+        if (screenName === 'auth') {
+            screenAuth.classList.remove('hidden');
             initTurnstile();
-        } else {
-            if (mainHeader) mainHeader.classList.remove('hidden');
-            if (screenName === 'auth') {
-                screenAuth.classList.remove('hidden');
-            } else if (screenName === 'dashboard') {
-                screenDashboard.classList.remove('hidden');
-                btnDashboardView.classList.add('hidden');
-                if (currentUser && currentUser.role === 'admin') {
-                    btnAdminView.classList.remove('hidden');
-                }
-            } else if (screenName === 'admin') {
-                screenAdmin.classList.remove('hidden');
-                btnAdminView.classList.add('hidden');
-                btnDashboardView.classList.remove('hidden');
+        } else if (screenName === 'dashboard') {
+            screenDashboard.classList.remove('hidden');
+            btnDashboardView.classList.add('hidden');
+            if (currentUser && currentUser.role === 'admin') {
+                btnAdminView.classList.remove('hidden');
             }
+        } else if (screenName === 'admin') {
+            screenAdmin.classList.remove('hidden');
+            btnAdminView.classList.add('hidden');
+            btnDashboardView.classList.remove('hidden');
         }
     }
 
