@@ -744,49 +744,67 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
                 currentUser = data.user;
 
-                document.getElementById('profile-username').textContent = currentUser.username;
+                const profileUsername = document.getElementById('profile-username');
+                if (profileUsername) profileUsername.textContent = currentUser.username;
                 
-                const roleBadge = document.getElementById('profile-role-badge');
-                if (currentUser.role === 'admin') {
-                    roleBadge.textContent = 'Admin';
-                    roleBadge.className = 'badge badge-admin';
-                    roleBadge.style.background = '#ffffff';
-                    roleBadge.style.color = '#000000';
-                    document.getElementById('profile-credits').innerHTML = '<i class="fa-solid fa-bolt"></i> Unlimited Credits';
-                } else {
-                    roleBadge.textContent = 'User';
-                    roleBadge.className = 'badge badge-normal';
-                    roleBadge.style.background = '';
-                    roleBadge.style.color = '';
-                    document.getElementById('profile-credits').innerHTML = `<i class="fa-solid fa-bolt"></i> ${currentUser.credits} Credits`;
+                const roleBadge = document.getElementById('profile-role-badge') || document.getElementById('profile-role');
+                if (roleBadge) {
+                    if (currentUser.role === 'admin') {
+                        roleBadge.textContent = 'Admin';
+                        roleBadge.className = 'badge badge-admin';
+                    } else {
+                        roleBadge.textContent = 'User';
+                        roleBadge.className = 'badge badge-normal';
+                    }
+                }
+
+                const profileCredits = document.getElementById('profile-credits');
+                if (profileCredits) {
+                    if (currentUser.role === 'admin') {
+                        profileCredits.innerHTML = '<i class="fa-solid fa-bolt"></i> Unlimited Credits';
+                    } else {
+                        profileCredits.innerHTML = `<i class="fa-solid fa-bolt"></i> ${currentUser.credits} Credits`;
+                    }
                 }
 
                 const profileApiPlan = document.getElementById('profile-api-plan');
                 const profileApiExpiryRow = document.getElementById('profile-api-expiry-row');
                 const profileApiExpiry = document.getElementById('profile-api-expiry');
 
-                if (currentUser.apiPlan && currentUser.apiPlan !== 'none') {
-                    profileApiPlan.textContent = currentUser.apiPlan === 'lifetime' ? 'Lifetime Plan' : 'Monthly Plan';
-                    if (currentUser.apiPlan === 'lifetime') {
-                        profileApiExpiry.textContent = 'Selamanya';
-                    } else if (currentUser.apiExpiresAt) {
-                        profileApiExpiry.textContent = new Date(currentUser.apiExpiresAt).toLocaleDateString('id-ID', {
-                            year: 'numeric', month: 'long', day: 'numeric'
-                        });
+                if (profileApiPlan) {
+                    if (currentUser.apiPlan && currentUser.apiPlan !== 'none') {
+                        profileApiPlan.textContent = currentUser.apiPlan === 'lifetime' ? 'Lifetime Plan' : 'Monthly Plan';
+                        if (profileApiExpiry) {
+                            if (currentUser.apiPlan === 'lifetime') {
+                                profileApiExpiry.textContent = 'Selamanya';
+                            } else if (currentUser.apiExpiresAt) {
+                                profileApiExpiry.textContent = new Date(currentUser.apiExpiresAt).toLocaleDateString('id-ID', {
+                                    year: 'numeric', month: 'long', day: 'numeric'
+                                });
+                            }
+                        }
+                        if (profileApiExpiryRow) profileApiExpiryRow.style.display = 'flex';
+                    } else {
+                        profileApiPlan.textContent = 'None';
+                        if (profileApiExpiryRow) profileApiExpiryRow.style.display = 'none';
                     }
-                    profileApiExpiryRow.style.display = 'flex';
-                } else {
-                    profileApiPlan.textContent = 'None';
-                    profileApiExpiryRow.style.display = 'none';
                 }
 
-                if (currentUser.createdAt) {
-                    const joinDate = new Date(currentUser.createdAt).toLocaleDateString('id-ID', {
-                        year: 'numeric', month: 'long', day: 'numeric'
-                    });
-                    document.getElementById('profile-join-date').textContent = joinDate;
-                } else {
-                    document.getElementById('profile-join-date').textContent = '-';
+                const profileJoinDate = document.getElementById('profile-join-date');
+                if (profileJoinDate) {
+                    if (currentUser.createdAt) {
+                        const joinDate = new Date(currentUser.createdAt).toLocaleDateString('id-ID', {
+                            year: 'numeric', month: 'long', day: 'numeric'
+                        });
+                        profileJoinDate.textContent = joinDate;
+                    } else {
+                        profileJoinDate.textContent = '-';
+                    }
+                }
+
+                const profileApikey = document.getElementById('profile-apikey');
+                if (profileApikey) {
+                    profileApikey.value = currentUser.apiKey || 'Belum ada API Key. Silahkan beli di menu Beli API Key.';
                 }
             }
         } catch (error) {
