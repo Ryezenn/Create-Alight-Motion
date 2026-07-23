@@ -31,11 +31,16 @@ const connectDB = async () => {
 };
 
 // Middleware to block requests if DB is not connected
-const checkConnection = (req, res, next) => {
+const checkConnection = async (req, res, next) => {
     if (mongoose.connection.readyState !== 1) {
-        return res.status(503).json({ 
-            error: 'Koneksi database gagal. Silakan periksa username, password, atau IP Whitelist di MongoDB Atlas Anda.' 
-        });
+        console.log(`[Database] Database state is ${mongoose.connection.readyState}. Attempting to establish connection...`);
+        await connectDB();
+        
+        if (mongoose.connection.readyState !== 1) {
+            return res.status(503).json({ 
+                error: 'Koneksi database gagal. Silakan periksa username, password, atau IP Whitelist di MongoDB Atlas Anda.' 
+            });
+        }
     }
     next();
 };

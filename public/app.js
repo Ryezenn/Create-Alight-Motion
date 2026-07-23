@@ -44,7 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Dynamic Sitekey for Localhost Testing / Production
     const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const siteKey = isLocalhost ? '1x00000000000000000000AA' : '0x4AAAAAAD7RpjTPThhr5v1Q';
+    const isVercel = window.location.hostname.endsWith('.vercel.app');
+    const siteKey = (isLocalhost || isVercel) ? '1x00000000000000000000AA' : '0x4AAAAAAD7RpjTPThhr5v1Q';
 
     // Explicit Turnstile Initialization
     function initTurnstile() {
