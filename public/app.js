@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const screenAuth = document.getElementById('screen-auth');
     const screenDashboard = document.getElementById('screen-dashboard');
     const screenAdmin = document.getElementById('screen-admin');
+    const screenPurchase = document.getElementById('screen-purchase');
+    const screenProfile = document.getElementById('screen-profile');
     
     // Auth sub-views
     const authLoginView = document.getElementById('auth-login-view');
@@ -21,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const navCredits = document.getElementById('nav-credits');
     const navRoleBadge = document.getElementById('nav-role-badge');
     const btnAdminView = document.getElementById('btn-admin-view');
+    const btnPurchaseView = document.getElementById('btn-purchase-view');
+    const btnProfileView = document.getElementById('btn-profile-view');
     const btnDashboardView = document.getElementById('btn-dashboard-view');
     const btnLogout = document.getElementById('btn-logout');
 
@@ -122,6 +126,16 @@ document.addEventListener('DOMContentLoaded', () => {
     btnAdminView.addEventListener('click', () => {
         showScreen('admin');
         loadAdminPanel();
+    });
+
+    btnPurchaseView.addEventListener('click', () => {
+        showScreen('purchase');
+        loadAPIPanel();
+    });
+
+    btnProfileView.addEventListener('click', () => {
+        showScreen('profile');
+        loadProfile();
     });
 
     btnDashboardView.addEventListener('click', () => {
@@ -648,20 +662,86 @@ document.addEventListener('DOMContentLoaded', () => {
         screenAuth.classList.add('hidden');
         screenDashboard.classList.add('hidden');
         screenAdmin.classList.add('hidden');
+        screenPurchase.classList.add('hidden');
+        screenProfile.classList.add('hidden');
+
+        // Toggle nav buttons depending on state
+        if (currentUser) {
+            btnDashboardView.classList.toggle('hidden', screenName === 'dashboard');
+            btnPurchaseView.classList.toggle('hidden', screenName === 'purchase');
+            btnProfileView.classList.toggle('hidden', screenName === 'profile');
+            btnAdminView.classList.toggle('hidden', currentUser.role !== 'admin' || screenName === 'admin');
+        }
 
         if (screenName === 'auth') {
             screenAuth.classList.remove('hidden');
             initTurnstile();
         } else if (screenName === 'dashboard') {
             screenDashboard.classList.remove('hidden');
-            btnDashboardView.classList.add('hidden');
-            if (currentUser && currentUser.role === 'admin') {
-                btnAdminView.classList.remove('hidden');
-            }
         } else if (screenName === 'admin') {
             screenAdmin.classList.remove('hidden');
-            btnAdminView.classList.add('hidden');
-            btnDashboardView.classList.remove('hidden');
+        } else if (screenName === 'purchase') {
+            screenPurchase.classList.remove('hidden');
+        } else if (screenName === 'profile') {
+            screenProfile.classList.remove('hidden');
+        }
+    }
+
+    // Load Profile Screen details
+    async function loadProfile() {
+        try {
+            const res = await fetch('/api/auth/profile');
+            if (res.ok) {
+                const data = await res.json();
+                currentUser = data.user;
+
+                document.getElementById('profile-username').textContent = currentUser.username;
+                
+                const roleBadge = document.getElementById('profile-role-badge');
+                if (currentUser.role === 'admin') {
+                    roleBadge.textContent = 'Admin';
+                    roleBadge.className = 'badge badge-admin';
+                    roleBadge.style.background = '#ffffff';
+                    roleBadge.style.color = '#000000';
+                    document.getElementById('profile-credits').innerHTML = '<i class="fa-solid fa-bolt"></i> Unlimited Credits';
+                } else {
+                    roleBadge.textContent = 'User';
+                    roleBadge.className = 'badge badge-normal';
+                    roleBadge.style.background = '';
+                    roleBadge.style.color = '';
+                    document.getElementById('profile-credits').innerHTML = `<i class="fa-solid fa-bolt"></i> ${currentUser.credits} Credits`;
+                }
+
+                const profileApiPlan = document.getElementById('profile-api-plan');
+                const profileApiExpiryRow = document.getElementById('profile-api-expiry-row');
+                const profileApiExpiry = document.getElementById('profile-api-expiry');
+
+                if (currentUser.apiPlan && currentUser.apiPlan !== 'none') {
+                    profileApiPlan.textContent = currentUser.apiPlan === 'lifetime' ? 'Lifetime Plan' : 'Monthly Plan';
+                    if (currentUser.apiPlan === 'lifetime') {
+                        profileApiExpiry.textContent = 'Selamanya';
+                    } else if (currentUser.apiExpiresAt) {
+                        profileApiExpiry.textContent = new Date(currentUser.apiExpiresAt).toLocaleDateString('id-ID', {
+                            year: 'numeric', month: 'long', day: 'numeric'
+                        });
+                    }
+                    profileApiExpiryRow.style.display = 'flex';
+                } else {
+                    profileApiPlan.textContent = 'None';
+                    profileApiExpiryRow.style.display = 'none';
+                }
+
+                if (currentUser.createdAt) {
+                    const joinDate = new Date(currentUser.createdAt).toLocaleDateString('id-ID', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    document.getElementById('profile-join-date').textContent = joinDate;
+                } else {
+                    document.getElementById('profile-join-date').textContent = '-';
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load profile:', error);
         }
     }
 
@@ -674,6 +754,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         navMenu.classList.remove('hidden');
         navUsername.textContent = currentUser.username;
+        
+        btnPurchaseView.classList.remove('hidden');
+        btnProfileView.classList.remove('hidden');
+        btnDashboardView.classList.remove('hidden');
         
         const badgeAdminControl = document.getElementById('badge-admin-control');
 
