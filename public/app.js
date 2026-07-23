@@ -42,26 +42,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize application
     checkSession();
 
-    // Dynamic Sitekey for Localhost Testing / Production
-    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const isVercel = window.location.hostname.endsWith('.vercel.app');
-    const siteKey = (isLocalhost || isVercel) ? '1x00000000000000000000AA' : '0x4AAAAAAD7RpjTPThhr5v1Q';
+    let turnstileSiteKey = '';
+
+    // Fetch dynamic sitekey config from server
+    async function loadConfig() {
+        try {
+            const res = await fetch('/api/auth/config');
+            if (res.ok) {
+                const data = await res.json();
+                turnstileSiteKey = data.turnstileSiteKey;
+                initTurnstile();
+            }
+        } catch (err) {
+            console.error('Gagal mengambil konfigurasi publik:', err);
+        }
+    }
+    loadConfig();
 
     // Explicit Turnstile Initialization
     function initTurnstile() {
-        if (window.turnstile) {
+        if (window.turnstile && turnstileSiteKey) {
             if (loginWidgetId === null && document.getElementById('login-turnstile')) {
                 loginWidgetId = turnstile.render('#login-turnstile', {
-                    sitekey: siteKey,
+                    sitekey: turnstileSiteKey,
                     theme: 'dark'
                 });
             }
-        } else {
+        } else if (!window.turnstile) {
             // Recheck after a short delay
             setTimeout(initTurnstile, 300);
         }
     }
-    initTurnstile();
 
     // Toggle between Login & Register views
     linkToRegister.addEventListener('click', (e) => {
@@ -70,9 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
         authRegisterView.classList.remove('hidden');
         
         // Render Register Turnstile when it becomes visible
-        if (window.turnstile && registerWidgetId === null && document.getElementById('register-turnstile')) {
+        if (window.turnstile && registerWidgetId === null && turnstileSiteKey && document.getElementById('register-turnstile')) {
             registerWidgetId = turnstile.render('#register-turnstile', {
-                sitekey: siteKey,
+                sitekey: turnstileSiteKey,
                 theme: 'dark'
             });
         }

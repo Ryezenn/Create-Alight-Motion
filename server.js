@@ -19,16 +19,17 @@ const PORT = process.env.PORT || 3000;
 connectDB();
 
 // Security Headers
-// Customize Content Security Policy to allow external font/style assets
+// Customize Content Security Policy to allow external font/style assets and Cloudflare Turnstile
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://challenges.cloudflare.com"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
             imgSrc: ["'self'", "data:", "https://cdn.jsdelivr.net"],
-            connectSrc: ["'self'"]
+            frameSrc: ["'self'", "https://challenges.cloudflare.com"],
+            connectSrc: ["'self'", "https://challenges.cloudflare.com", "https://api.ipify.org"]
         }
     }
 }));
