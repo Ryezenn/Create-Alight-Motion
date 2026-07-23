@@ -1520,6 +1520,10 @@ code {
     .app-layout.sidebar-active {
         flex-direction: column;
     }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
     
     .mobile-top-bar {
         display: flex;
@@ -1547,7 +1551,7 @@ code {
         overflow-x: hidden;
     }
 
-    .auth-card {
+    .auth-box {
         padding: 24px 16px !important;
         width: 100% !important;
         max-width: 100% !important;

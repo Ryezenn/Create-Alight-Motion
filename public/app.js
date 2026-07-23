@@ -135,18 +135,23 @@ document.addEventListener('DOMContentLoaded', () => {
     loadConfig();
 
     // Toggle between Login & Register views
-    linkToRegister.addEventListener('click', (e) => {
-        e.preventDefault();
-        authLoginView.classList.add('hidden');
-        authRegisterView.classList.remove('hidden');
-        initTurnstile();
-    });
+    if (linkToRegister) {
+        linkToRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (authLoginView) authLoginView.classList.add('hidden');
+            if (authRegisterView) authRegisterView.classList.remove('hidden');
+            initTurnstile();
+        });
+    }
 
-    linkToLogin.addEventListener('click', (e) => {
-        e.preventDefault();
-        authRegisterView.classList.add('hidden');
-        authLoginView.classList.remove('hidden');
-    });
+    if (linkToLogin) {
+        linkToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (authRegisterView) authRegisterView.classList.add('hidden');
+            if (authLoginView) authLoginView.classList.remove('hidden');
+            initTurnstile();
+        });
+    }
 
     // View switching
     if (btnAdminView) {
@@ -222,17 +227,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Login Form Submit
-    formLogin.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
+    if (formLogin) {
+        formLogin.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
 
-        // Get Turnstile token
-        const turnstileToken = window.turnstile && loginWidgetId !== null ? turnstile.getResponse(loginWidgetId) : '';
-        if (!turnstileToken) {
-            showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
-            return;
-        }
+            // Get Turnstile token
+            const turnstileToken = window.turnstile && loginWidgetId !== null ? turnstile.getResponse(loginWidgetId) : '';
+            if (!turnstileToken) {
+                showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
+                return;
+            }
 
         try {
             const res = await fetch('/api/auth/login', {
@@ -270,21 +276,23 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.turnstile && loginWidgetId !== null) {
                 turnstile.reset(loginWidgetId);
             }
-        }
-    });
+            }
+        });
+    }
 
     // Register Form Submit
-    formRegister.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const username = document.getElementById('register-username').value;
-        const password = document.getElementById('register-password').value;
+    if (formRegister) {
+        formRegister.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
 
-        // Get Turnstile token
-        const turnstileToken = window.turnstile && registerWidgetId !== null ? turnstile.getResponse(registerWidgetId) : '';
-        if (!turnstileToken) {
-            showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
-            return;
-        }
+            // Get Turnstile token
+            const turnstileToken = window.turnstile && registerWidgetId !== null ? turnstile.getResponse(registerWidgetId) : '';
+            if (!turnstileToken) {
+                showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
+                return;
+            }
 
         try {
             const res = await fetch('/api/auth/register', {
@@ -322,140 +330,145 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+    }
 
     // Logout Action
-    btnLogout.addEventListener('click', async () => {
-        try {
-            const res = await fetch('/api/auth/logout', { method: 'POST' });
-            if (res.ok) {
-                currentUser = null;
-                navMenu.classList.add('hidden');
-                showScreen('auth');
-                Swal.fire({
-                    icon: 'info',
-                    title: 'LOGGED OUT',
-                    text: 'Anda telah keluar dari sistem.',
-                    background: '#080808',
-                    color: '#ffffff',
-                    confirmButtonColor: '#ffffff'
-                });
-                // Reset widgets
-                if (window.turnstile) {
-                    if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
-                    if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
+    if (btnLogout) {
+        btnLogout.addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/auth/logout', { method: 'POST' });
+                if (res.ok) {
+                    currentUser = null;
+                    navMenu.classList.add('hidden');
+                    showScreen('auth');
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'LOGGED OUT',
+                        text: 'Anda telah keluar dari sistem.',
+                        background: '#080808',
+                        color: '#ffffff',
+                        confirmButtonColor: '#ffffff'
+                    });
+                    // Reset widgets
+                    if (window.turnstile) {
+                        if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
+                        if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
+                    }
                 }
+            } catch (err) {
+                showError('Logout gagal.');
             }
-        } catch (err) {
-            showError('Logout gagal.');
-        }
-    });
+        });
+    }
 
     // --- Dashboard & AM Generator ---
 
     // Send Magic Link
-    formSendLink.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('send-email').value;
-        
-        // UI loading state
-        const btn = document.getElementById('btn-send-link');
-        const text = btn.querySelector('.btn-text');
-        const spinner = btn.querySelector('.btn-spinner');
-        
-        btn.disabled = true;
-        text.classList.add('hidden');
-        spinner.classList.remove('hidden');
+    if (formSendLink) {
+        formSendLink.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('send-email').value;
+            
+            // UI loading state
+            const btn = document.getElementById('btn-send-link');
+            const text = btn.querySelector('.btn-text');
+            const spinner = btn.querySelector('.btn-spinner');
+            
+            btn.disabled = true;
+            text.classList.add('hidden');
+            spinner.classList.remove('hidden');
 
-        try {
-            const res = await fetch('/api/am/send-link', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email })
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'PESAN TERKIRIM!',
-                    text: 'Pesan verifikasi telah dikirim ke email target. Silakan salin tautan verifikasinya dari inbox email Anda lalu tempelkan di bawah.',
-                    background: '#080808',
-                    color: '#ffffff',
-                    confirmButtonColor: '#ffffff'
+            try {
+                const res = await fetch('/api/am/send-link', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
                 });
-                // Unhide stage 2 container and autofill email
-                const stage2 = document.getElementById('stage-activate-container');
-                if (stage2) {
-                    stage2.classList.remove('hidden');
-                    stage2.scrollIntoView({ behavior: 'smooth' });
-                }
-                document.getElementById('activate-email').value = email;
-                document.getElementById('activate-link').focus();
-            } else {
-                showError(data.error || 'Gagal mengirim pesan verifikasi.');
-            }
-        } catch (err) {
-            showError('Terjadi kesalahan jaringan.');
-        } finally {
-            btn.disabled = false;
-            text.classList.remove('hidden');
-            spinner.classList.add('hidden');
-        }
-    });
+                const data = await res.json();
 
+                if (res.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'PESAN TERKIRIM!',
+                        text: 'Pesan verifikasi telah dikirim ke email target. Silakan salin tautan verifikasinya dari inbox email Anda lalu tempelkan di bawah.',
+                        background: '#080808',
+                        color: '#ffffff',
+                        confirmButtonColor: '#ffffff'
+                    });
+                    // Unhide stage 2 container and autofill email
+                    const stage2 = document.getElementById('stage-activate-container');
+                    if (stage2) {
+                        stage2.classList.remove('hidden');
+                        stage2.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    document.getElementById('activate-email').value = email;
+                    document.getElementById('activate-link').focus();
+                } else {
+                    showError(data.error || 'Gagal mengirim pesan verifikasi.');
+                }
+            } catch (err) {
+                showError('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.disabled = false;
+                text.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            }
+        });
+    }
     // Trigger activation
-    formActivate.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('activate-email').value;
-        const magicLink = document.getElementById('activate-link').value;
+    if (formActivate) {
+        formActivate.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('activate-email').value;
+            const magicLink = document.getElementById('activate-link').value;
 
-        // UI loading state
-        const btn = document.getElementById('btn-activate');
-        const text = btn.querySelector('.btn-text');
-        const spinner = btn.querySelector('.btn-spinner');
-        
-        btn.disabled = true;
-        text.classList.add('hidden');
-        spinner.classList.remove('hidden');
+            // UI loading state
+            const btn = document.getElementById('btn-activate');
+            const text = btn.querySelector('.btn-text');
+            const spinner = btn.querySelector('.btn-spinner');
+            
+            btn.disabled = true;
+            text.classList.add('hidden');
+            spinner.classList.remove('hidden');
 
-        try {
-            const res = await fetch('/api/am/activate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, magicLink })
-            });
-            const data = await res.json();
-
-            if (res.ok) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'PREMIUM LISENSI AKTIF!',
-                    text: data.message,
-                    background: '#080808',
-                    color: '#ffffff',
-                    confirmButtonColor: '#ffffff'
+            try {
+                const res = await fetch('/api/am/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, magicLink })
                 });
-                
-                // Refresh credits
-                if (currentUser.role !== 'admin') {
-                    currentUser.credits = data.creditsRemaining;
-                    navCredits.textContent = currentUser.credits;
-                }
-                
-                formActivate.reset();
-                loadUserHistory();
-            } else {
-                showError(data.error || 'Aktivasi premium gagal.');
-            }
-        } catch (err) {
-            showError('Terjadi kesalahan jaringan.');
-        } finally {
-            btn.disabled = false;
-            text.classList.remove('hidden');
-            spinner.classList.add('hidden');
-        }
-    });
+                const data = await res.json();
 
+                if (res.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'PREMIUM LISENSI AKTIF!',
+                        text: data.message,
+                        background: '#080808',
+                        color: '#ffffff',
+                        confirmButtonColor: '#ffffff'
+                    });
+                    
+                    // Refresh credits
+                    if (currentUser.role !== 'admin') {
+                        currentUser.credits = data.creditsRemaining;
+                        if (navCredits) navCredits.textContent = currentUser.credits;
+                    }
+                    
+                    formActivate.reset();
+                    loadUserHistory();
+                } else {
+                    showError(data.error || 'Aktivasi premium gagal.');
+                }
+            } catch (err) {
+                showError('Terjadi kesalahan jaringan.');
+            } finally {
+                btn.disabled = false;
+                text.classList.remove('hidden');
+                spinner.classList.add('hidden');
+            }
+        });
+    }
     // Load User History
     async function loadUserHistory() {
         try {
