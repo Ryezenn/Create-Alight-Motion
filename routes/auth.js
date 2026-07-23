@@ -6,10 +6,14 @@ const axios = require('axios');
 // Helper to verify Cloudflare Turnstile Token
 const verifyTurnstile = async (token, ip) => {
     if (!token) return false;
+    // Check if it is a testing token (starts with 1x00000)
+    const isTestToken = token.startsWith('1x00000000000000000000');
+    const secretKey = isTestToken ? '1x0000000000000000000000000000000UN' : process.env.TURNSTILE_SECRET_KEY;
+    
     try {
         const response = await axios.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', null, {
             params: {
-                secret: process.env.TURNSTILE_SECRET_KEY,
+                secret: secretKey,
                 response: token,
                 remoteip: ip
             }

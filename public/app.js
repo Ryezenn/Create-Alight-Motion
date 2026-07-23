@@ -3,6 +3,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Current User State
     let currentUser = null;
+    let loginWidgetId = null;
+    let registerWidgetId = null;
 
     // View Elements
     const screenAuth = document.getElementById('screen-auth');
@@ -40,11 +42,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize application
     checkSession();
 
+    // Dynamic Sitekey for Localhost Testing / Production
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const siteKey = isLocalhost ? '1x00000000000000000000AA' : '0x4AAAAAAD7RpjTPThhr5v1Q';
+
+    // Explicit Turnstile Initialization
+    function initTurnstile() {
+        if (window.turnstile) {
+            if (loginWidgetId === null && document.getElementById('login-turnstile')) {
+                loginWidgetId = turnstile.render('#login-turnstile', {
+                    sitekey: siteKey,
+                    theme: 'dark'
+                });
+            }
+        } else {
+            // Recheck after a short delay
+            setTimeout(initTurnstile, 300);
+        }
+    }
+    initTurnstile();
+
     // Toggle between Login & Register views
     linkToRegister.addEventListener('click', (e) => {
         e.preventDefault();
         authLoginView.classList.add('hidden');
         authRegisterView.classList.remove('hidden');
+        
+        // Render Register Turnstile when it becomes visible
+        if (window.turnstile && registerWidgetId === null && document.getElementById('register-turnstile')) {
+            registerWidgetId = turnstile.render('#register-turnstile', {
+                sitekey: siteKey,
+                theme: 'dark'
+            });
+        }
     });
 
     linkToLogin.addEventListener('click', (e) => {
@@ -114,9 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
-        // Get Turnstile response token
-        const turnstileResponse = formLogin.querySelector('[name="cf-turnstile-response"]');
-        const turnstileToken = turnstileResponse ? turnstileResponse.value : '';
+        // Get Turnstile token
+        const turnstileToken = window.turnstile && loginWidgetId !== null ? turnstile.getResponse(loginWidgetId) : '';
         if (!turnstileToken) {
             showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
             return;
@@ -144,19 +173,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 showScreen('dashboard');
                 loadDashboard();
                 formLogin.reset();
-                if (window.turnstile) {
-                    window.turnstile.reset('#login-turnstile');
+                if (window.turnstile && loginWidgetId !== null) {
+                    turnstile.reset(loginWidgetId);
                 }
             } else {
                 showError(data.error || 'Login gagal.');
-                if (window.turnstile) {
-                    window.turnstile.reset('#login-turnstile');
+                if (window.turnstile && loginWidgetId !== null) {
+                    turnstile.reset(loginWidgetId);
                 }
             }
         } catch (err) {
             showError('Terjadi kesalahan jaringan.');
-            if (window.turnstile) {
-                window.turnstile.reset('#login-turnstile');
+            if (window.turnstile && loginWidgetId !== null) {
+                turnstile.reset(loginWidgetId);
             }
         }
     });
@@ -167,9 +196,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
 
-        // Get Turnstile response token
-        const turnstileResponse = formRegister.querySelector('[name="cf-turnstile-response"]');
-        const turnstileToken = turnstileResponse ? turnstileResponse.value : '';
+        // Get Turnstile token
+        const turnstileToken = window.turnstile && registerWidgetId !== null ? turnstile.getResponse(registerWidgetId) : '';
         if (!turnstileToken) {
             showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
             return;
@@ -195,19 +223,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 authRegisterView.classList.add('hidden');
                 authLoginView.classList.remove('hidden');
                 formRegister.reset();
-                if (window.turnstile) {
-                    window.turnstile.reset('#register-turnstile');
+                if (window.turnstile && registerWidgetId !== null) {
+                    turnstile.reset(registerWidgetId);
                 }
             } else {
                 showError(data.error || 'Registrasi gagal.');
-                if (window.turnstile) {
-                    window.turnstile.reset('#register-turnstile');
+                if (window.turnstile && registerWidgetId !== null) {
+                    turnstile.reset(registerWidgetId);
                 }
             }
         } catch (err) {
             showError('Terjadi kesalahan jaringan.');
-            if (window.turnstile) {
-                window.turnstile.reset('#register-turnstile');
+            if (window.turnstile && registerWidgetId !== null) {
+                turnstile.reset(registerWidgetId);
             }
         }
     });
@@ -228,6 +256,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     color: '#ffffff',
                     confirmButtonColor: '#ffffff'
                 });
+                // Reset widgets
+                if (window.turnstile) {
+                    if (loginWidgetId !== null) turnstile.reset(loginWidgetId);
+                    if (registerWidgetId !== null) turnstile.reset(registerWidgetId);
+                }
             }
         } catch (err) {
             showError('Logout gagal.');
@@ -281,7 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Activate Premium
+    // Trigger activation
     formActivate.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('activate-email').value;
