@@ -1,32 +1,44 @@
 const mongoose = require('mongoose');
 const axios = require('axios');
 
-let isConnected = false;
+let cached = global.mongoose;
+
+if (!cached) {
+    cached = global.mongoose = { conn: null, promise: null };
+}
 
 const connectDB = async () => {
-    try {
+    if (cached.conn) {
+        return cached.conn;
+    }
+
+    if (!process.env.MONGO_URI) {
+        console.error(`[Database] ❌ MONGO_URI is missing from Environment Variables!`);
+        return null;
+    }
+
+    if (!cached.promise) {
         console.log(`[Database] Mencoba menghubungkan ke MongoDB...`);
-        const conn = await mongoose.connect(process.env.MONGO_URI, {
+        const opts = {
             serverSelectionTimeoutMS: 5000
+        };
+
+        cached.promise = mongoose.connect(process.env.MONGO_URI, opts).then((mongoose) => {
+            console.log(`[Database] ✅ MongoDB Terhubung: ${mongoose.connection.host}`);
+            return mongoose.connection;
+        }).catch((error) => {
+            console.error(`[Database] ❌ Gagal terhubung ke MongoDB: ${error.message}`);
+            cached.promise = null; // Reset promise so next request can retry
+            throw error;
         });
-        isConnected = true;
-        console.log(`[Database] ✅ MongoDB Terhubung: ${conn.connection.host}`);
-        return conn;
-    } catch (error) {
-        isConnected = false;
-        console.error(`[Database] ❌ Gagal terhubung ke MongoDB: ${error.message}`);
-        
-        try {
-            // Fetch current public IP to help diagnostic
-            const ipRes = await axios.get('https://api.ipify.org?format=json', { timeout: 3000 });
-            console.error(`[Database] IP Public Anda saat ini: ${ipRes.data.ip}`);
-        } catch (ipErr) {
-            // Fallback if IP service is unreachable
-        }
-        
-        console.error(`[Database] Server tetap berjalan. Silakan:`);
-        console.error(`           1. Pastikan IP di atas sudah masuk "Network Access" Whitelist di MongoDB Atlas Anda (atau atur 0.0.0.0/0).`);
-        console.error(`           2. Pastikan username (ryuzo) dan password (Hanzz7308) sudah benar.`);
+    }
+
+    try {
+        cached.conn = await cached.promise;
+        return cached.conn;
+    } catch (e) {
+        cached.promise = null;
+        return null;
     }
 };
 

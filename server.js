@@ -96,6 +96,17 @@ app.use('/api/am/activate', amLimiter);
 // Serve Static Files
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Public Configuration Route (NO DB REQUIRED)
+app.get('/api/auth/config', (req, res) => {
+    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
+    const isVercel = req.hostname.endsWith('.vercel.app');
+    const siteKey = (isLocalhost || isVercel) ? '1x00000000000000000000AA' : (process.env.TURNSTILE_SITE_KEY || '0x4AAAAAAD7RpjTPThhr5v1Q');
+    
+    return res.json({
+        turnstileSiteKey: siteKey
+    });
+});
+
 // API Routes (Blocked by checkConnection if MongoDB is offline)
 app.use('/api/auth', checkConnection, authRoutes);
 app.use('/api/am', checkConnection, amRoutes);

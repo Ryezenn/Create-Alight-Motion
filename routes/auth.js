@@ -152,15 +152,6 @@ router.get('/profile', isAuthenticated, async (req, res) => {
     }
 });
 
-// Get Public Configuration Route
-router.get('/config', (req, res) => {
-    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
-    const isVercel = req.hostname.endsWith('.vercel.app');
-    const siteKey = (isLocalhost || isVercel) ? '1x00000000000000000000AA' : (process.env.TURNSTILE_SITE_KEY || '0x4AAAAAAD7RpjTPThhr5v1Q');
-    
-    return res.json({
-        turnstileSiteKey: siteKey
-    });
-});
+// Delete the config route from here because it requires DB connection via middleware
 
 module.exports = { router, isAuthenticated };
