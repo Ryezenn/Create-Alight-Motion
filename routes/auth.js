@@ -84,10 +84,9 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'Username sudah digunakan.' });
         }
 
-        // Check if this is the first user in the system. If so, make them admin.
-        const userCount = await User.countDocuments({});
-        const role = userCount === 0 ? 'admin' : 'user';
-        const defaultCredits = role === 'admin' ? 999999 : 5; // Admins get unlimited credits
+        // All public registrations are regular users only
+        const role = 'user';
+        const defaultCredits = 5;
 
         const newUser = new User({
             username: username.toLowerCase().trim(),
