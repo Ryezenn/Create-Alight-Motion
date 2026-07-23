@@ -52,8 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Do not render if the auth screen is hidden (Turnstile fails on display: none)
+        if (screenAuth.classList.contains('hidden')) {
+            setTimeout(initTurnstile, 200);
+            return;
+        }
+
         const loginEl = document.getElementById('login-turnstile');
-        if (loginEl && loginWidgetId === null) {
+        if (loginEl && loginWidgetId === null && !authLoginView.classList.contains('hidden')) {
             try {
                 loginWidgetId = turnstile.render('#login-turnstile', {
                     sitekey: turnstileSiteKey,

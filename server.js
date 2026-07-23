@@ -31,8 +31,29 @@ app.use(helmet({
             frameSrc: ["'self'", "https://challenges.cloudflare.com"],
             connectSrc: ["'self'", "https://challenges.cloudflare.com", "https://api.ipify.org"]
         }
-    }
+    },
+    hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true
+    },
+    frameguard: {
+        action: 'deny' // Prevent Clickjacking completely
+    },
+    referrerPolicy: {
+        policy: 'strict-origin-when-cross-origin'
+    },
+    xssFilter: true,
+    noSniff: true
 }));
+
+// Additional custom security headers
+app.use((req, res, next) => {
+    res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+    res.setHeader('X-Permitted-Cross-Domain-Policies', 'none');
+    res.setHeader('X-Powered-By', 'Ryezen-Core'); // Obfuscate Express
+    next();
+});
 
 // Body Parsers
 app.use(express.json());
