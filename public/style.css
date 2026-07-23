@@ -1040,6 +1040,45 @@ tr:last-child td {
     .stat-label {
         font-size: 0.65rem !important;
     }
+
+    /* SweetAlert2 Mobile Compact Scaling */
+    .swal2-popup {
+        width: 90vw !important;
+        max-width: 340px !important;
+        padding: 1.25em 1em !important;
+        border-radius: 16px !important;
+    }
+
+    .swal2-title {
+        font-size: 1.05rem !important;
+        margin-bottom: 6px !important;
+    }
+
+    .swal2-html-container {
+        font-size: 0.8rem !important;
+        margin: 0.4em 0 !important;
+        line-height: 1.35 !important;
+    }
+
+    .swal2-icon {
+        width: 3.5em !important;
+        height: 3.5em !important;
+        margin: 0.5em auto 0.25em !important;
+    }
+
+    .swal2-icon .swal2-icon-content {
+        font-size: 2.25em !important;
+    }
+
+    .swal2-actions {
+        margin-top: 1em !important;
+        gap: 6px !important;
+    }
+
+    .swal2-confirm, .swal2-cancel {
+        padding: 8px 14px !important;
+        font-size: 0.78rem !important;
+    }
 }
 
 .admin-actions-cell {
