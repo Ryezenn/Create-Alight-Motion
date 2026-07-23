@@ -44,50 +44,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let turnstileSiteKey = '';
 
+    // Robust Turnstile Widget Renderer
+    function initTurnstile() {
+        if (!window.turnstile || !turnstileSiteKey) {
+            // Keep polling every 200ms until Cloudflare script & sitekey are loaded
+            setTimeout(initTurnstile, 200);
+            return;
+        }
+
+        const loginEl = document.getElementById('login-turnstile');
+        if (loginEl && loginWidgetId === null) {
+            try {
+                loginWidgetId = turnstile.render('#login-turnstile', {
+                    sitekey: turnstileSiteKey,
+                    theme: 'dark'
+                });
+            } catch (err) {
+                console.warn('Turnstile login render warning:', err);
+            }
+        }
+
+        const registerEl = document.getElementById('register-turnstile');
+        if (registerEl && registerWidgetId === null && !authRegisterView.classList.contains('hidden')) {
+            try {
+                registerWidgetId = turnstile.render('#register-turnstile', {
+                    sitekey: turnstileSiteKey,
+                    theme: 'dark'
+                });
+            } catch (err) {
+                console.warn('Turnstile register render warning:', err);
+            }
+        }
+    }
+
     // Fetch dynamic sitekey config from server
     async function loadConfig() {
         try {
             const res = await fetch('/api/auth/config');
             if (res.ok) {
                 const data = await res.json();
-                turnstileSiteKey = data.turnstileSiteKey;
-                if (!screenAuth.classList.contains('hidden')) {
-                    initTurnstile();
-                }
+                turnstileSiteKey = data.turnstileSiteKey || '0x4AAAAAAD7RpjTPThhr5v1Q';
+                initTurnstile();
+            } else {
+                turnstileSiteKey = '0x4AAAAAAD7RpjTPThhr5v1Q';
+                initTurnstile();
             }
         } catch (err) {
             console.error('Gagal mengambil konfigurasi publik:', err);
+            turnstileSiteKey = '0x4AAAAAAD7RpjTPThhr5v1Q';
+            initTurnstile();
         }
     }
     loadConfig();
-
-    // Explicit Turnstile Initialization below password
-    function initTurnstile() {
-        if (window.turnstile && turnstileSiteKey) {
-            if (loginWidgetId === null && document.getElementById('login-turnstile')) {
-                loginWidgetId = turnstile.render('#login-turnstile', {
-                    sitekey: turnstileSiteKey,
-                    theme: 'dark'
-                });
-            }
-        } else if (!window.turnstile) {
-            setTimeout(initTurnstile, 300);
-        }
-    }
 
     // Toggle between Login & Register views
     linkToRegister.addEventListener('click', (e) => {
         e.preventDefault();
         authLoginView.classList.add('hidden');
         authRegisterView.classList.remove('hidden');
-        
-        // Render Register Turnstile when it becomes visible
-        if (window.turnstile && registerWidgetId === null && turnstileSiteKey && document.getElementById('register-turnstile')) {
-            registerWidgetId = turnstile.render('#register-turnstile', {
-                sitekey: turnstileSiteKey,
-                theme: 'dark'
-            });
-        }
+        initTurnstile();
     });
 
     linkToLogin.addEventListener('click', (e) => {
