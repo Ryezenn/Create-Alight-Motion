@@ -78,19 +78,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Explicit Turnstile Initialization on Full-Page Gate
     function initTurnstile() {
+        const container = document.getElementById('gate-turnstile');
+        if (!container) return;
+
         if (window.turnstile && turnstileSiteKey) {
-            if (gateWidgetId === null && document.getElementById('gate-turnstile')) {
-                gateWidgetId = turnstile.render('#gate-turnstile', {
-                    sitekey: turnstileSiteKey,
-                    theme: 'dark',
-                    callback: function(token) {
-                        gateToken = token;
-                        // Smooth unlock transition to auth screen
-                        setTimeout(() => {
-                            showScreen('auth');
-                        }, 400);
-                    }
-                });
+            // Reset existing widget if active
+            if (gateWidgetId !== null) {
+                try {
+                    turnstile.reset(gateWidgetId);
+                } catch (e) {
+                    container.innerHTML = '';
+                    gateWidgetId = null;
+                }
+            }
+            
+            if (gateWidgetId === null) {
+                container.innerHTML = '';
+                try {
+                    gateWidgetId = turnstile.render('#gate-turnstile', {
+                        sitekey: turnstileSiteKey,
+                        theme: 'dark',
+                        callback: function(token) {
+                            gateToken = token;
+                            setTimeout(() => {
+                                showScreen('auth');
+                            }, 300);
+                        }
+                    });
+                } catch (err) {
+                    console.error('Turnstile render error:', err);
+                }
             }
         } else if (!window.turnstile) {
             setTimeout(initTurnstile, 300);
@@ -639,26 +656,32 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Switch Screen Visibility
     function showScreen(screenName) {
+        const mainHeader = document.querySelector('.main-header');
+        
         if (screenGate) screenGate.classList.add('hidden');
         screenAuth.classList.add('hidden');
         screenDashboard.classList.add('hidden');
         screenAdmin.classList.add('hidden');
 
         if (screenName === 'gate') {
+            if (mainHeader) mainHeader.classList.add('hidden');
             if (screenGate) screenGate.classList.remove('hidden');
             initTurnstile();
-        } else if (screenName === 'auth') {
-            screenAuth.classList.remove('hidden');
-        } else if (screenName === 'dashboard') {
-            screenDashboard.classList.remove('hidden');
-            btnDashboardView.classList.add('hidden');
-            if (currentUser && currentUser.role === 'admin') {
-                btnAdminView.classList.remove('hidden');
+        } else {
+            if (mainHeader) mainHeader.classList.remove('hidden');
+            if (screenName === 'auth') {
+                screenAuth.classList.remove('hidden');
+            } else if (screenName === 'dashboard') {
+                screenDashboard.classList.remove('hidden');
+                btnDashboardView.classList.add('hidden');
+                if (currentUser && currentUser.role === 'admin') {
+                    btnAdminView.classList.remove('hidden');
+                }
+            } else if (screenName === 'admin') {
+                screenAdmin.classList.remove('hidden');
+                btnAdminView.classList.add('hidden');
+                btnDashboardView.classList.remove('hidden');
             }
-        } else if (screenName === 'admin') {
-            screenAdmin.classList.remove('hidden');
-            btnAdminView.classList.add('hidden');
-            btnDashboardView.classList.remove('hidden');
         }
     }
 
