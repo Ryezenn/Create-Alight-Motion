@@ -51,7 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 const data = await res.json();
                 turnstileSiteKey = data.turnstileSiteKey;
-                initTurnstile();
+                // Only render if auth screen is active/visible
+                if (!screenAuth.classList.contains('hidden')) {
+                    initTurnstile();
+                }
             }
         } catch (err) {
             console.error('Gagal mengambil konfigurasi publik:', err);
@@ -469,12 +472,14 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const isUserAdmin = user.role === 'admin';
             const actionButtons = isUserAdmin ? '-' : `
-                <button class="btn btn-secondary btn-sm edit-credits-btn" data-id="${user._id}" data-username="${user.username}" data-credits="${user.credits}">
-                    <i class="fa-solid fa-pen-to-square"></i> Kredit
-                </button>
-                <button class="btn ${banBtnClass} btn-sm toggle-ban-btn" data-id="${user._id}">
-                    <i class="fa-solid ${isBanned ? 'fa-user-check' : 'fa-user-slash'}"></i> ${banBtnText}
-                </button>
+                <div class="admin-actions-cell">
+                    <button class="btn btn-secondary btn-sm edit-credits-btn" data-id="${user._id}" data-username="${user.username}" data-credits="${user.credits}">
+                        <i class="fa-solid fa-pen-to-square"></i> Kredit
+                    </button>
+                    <button class="btn ${banBtnClass} btn-sm toggle-ban-btn" data-id="${user._id}">
+                        <i class="fa-solid ${isBanned ? 'fa-user-check' : 'fa-user-slash'}"></i> ${banBtnText}
+                    </button>
+                </div>
             `;
 
             return `
@@ -626,6 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (screenName === 'auth') {
             screenAuth.classList.remove('hidden');
+            initTurnstile();
         } else if (screenName === 'dashboard') {
             screenDashboard.classList.remove('hidden');
             btnDashboardView.classList.add('hidden');

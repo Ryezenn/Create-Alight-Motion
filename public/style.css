@@ -1016,4 +1016,40 @@ tr:last-child td {
         padding: 10px 16px;
         font-size: 0.8rem;
     }
+
+    /* Admin Panel Mobile Optimizations */
+    .admin-stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+
+    .stat-card {
+        padding: 12px 10px !important;
+        gap: 10px !important;
+        border-radius: 12px !important;
+    }
+
+    .stat-icon {
+        font-size: 1.3rem !important;
+    }
+
+    .stat-value {
+        font-size: 1.1rem !important;
+    }
+
+    .stat-label {
+        font-size: 0.65rem !important;
+    }
+}
+
+.admin-actions-cell {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.admin-actions-cell .btn {
+    padding: 5px 10px;
+    font-size: 0.72rem;
 }
