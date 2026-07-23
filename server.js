@@ -29,7 +29,7 @@ app.use(helmet({
             scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://challenges.cloudflare.com"],
             styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
             fontSrc: ["'self'", "https://cdnjs.cloudflare.com", "https://fonts.gstatic.com"],
-            imgSrc: ["'self'", "data:", "https://cdn.jsdelivr.net"],
+            imgSrc: ["'self'", "data:", "https://cdn.jsdelivr.net", "https://api.qrserver.com", "https://mustikapayment.com", "https:", "*"],
             frameSrc: ["'self'", "https://challenges.cloudflare.com"],
             connectSrc: ["'self'", "https://challenges.cloudflare.com", "https://api.ipify.org"]
         }

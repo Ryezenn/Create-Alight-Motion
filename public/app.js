@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const screenAuth = document.getElementById('screen-auth');
     const screenDashboard = document.getElementById('screen-dashboard');
+    const screenGenerator = document.getElementById('screen-generator');
     const screenAdmin = document.getElementById('screen-admin');
     const screenPurchase = document.getElementById('screen-purchase');
     const screenProfile = document.getElementById('screen-profile');
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnPurchaseView = document.getElementById('btn-purchase-view');
     const btnProfileView = document.getElementById('btn-profile-view');
     const btnDashboardView = document.getElementById('btn-dashboard-view');
+    const btnGeneratorView = document.getElementById('btn-generator-view');
     const btnLogout = document.getElementById('btn-logout');
 
     // Link Toggles
@@ -179,6 +181,13 @@ document.addEventListener('DOMContentLoaded', () => {
         btnDashboardView.addEventListener('click', () => {
             showScreen('dashboard');
             loadDashboard();
+        });
+    }
+
+    if (btnGeneratorView) {
+        btnGeneratorView.addEventListener('click', () => {
+            showScreen('generator');
+            loadGenerator();
         });
     }
 
@@ -796,6 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showScreen(screenName) {
         screenAuth.classList.add('hidden');
         screenDashboard.classList.add('hidden');
+        if (screenGenerator) screenGenerator.classList.add('hidden');
         screenAdmin.classList.add('hidden');
         screenPurchase.classList.add('hidden');
         screenProfile.classList.add('hidden');
@@ -824,6 +834,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (screenName === 'dashboard') {
                 screenDashboard.classList.remove('hidden');
                 if (btnDashboardView) btnDashboardView.classList.add('active');
+            } else if (screenName === 'generator') {
+                if (screenGenerator) screenGenerator.classList.remove('hidden');
+                if (btnGeneratorView) btnGeneratorView.classList.add('active');
             } else if (screenName === 'purchase') {
                 screenPurchase.classList.remove('hidden');
                 if (btnPurchaseView) btnPurchaseView.classList.add('active');
@@ -929,6 +942,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (btnPurchaseView) btnPurchaseView.classList.remove('hidden');
         if (btnProfileView) btnProfileView.classList.remove('hidden');
         if (btnDashboardView) btnDashboardView.classList.remove('hidden');
+        if (btnGeneratorView) btnGeneratorView.classList.remove('hidden');
         
         const navRoleBadge = document.getElementById('nav-role-badge');
         const badgeAdminControl = document.getElementById('badge-admin-control');
@@ -956,8 +970,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Refresh Dashboard Screen details
     function loadDashboard() {
         updateNavbar();
+        loadPublicStats();
+        if (currentUser && currentUser.role === 'admin') {
+            if (btnAdminView) btnAdminView.classList.remove('hidden');
+        }
+    }
+
+    // Refresh Generator Screen details
+    function loadGenerator() {
+        updateNavbar();
         loadUserHistory();
-        loadAPIPanel();
         if (currentUser && currentUser.role === 'admin') {
             if (btnAdminView) btnAdminView.classList.remove('hidden');
         }

@@ -53,7 +53,8 @@
             </div>
             
             <nav class="sidebar-nav mt-4" id="nav-menu">
-                <button id="btn-dashboard-view" class="sidebar-link active"><i class="fa-solid fa-gauge-high"></i> Dashboard</button>
+                <button id="btn-dashboard-view" class="sidebar-link active"><i class="fa-solid fa-chart-simple"></i> Statistik Live</button>
+                <button id="btn-generator-view" class="sidebar-link"><i class="fa-solid fa-wand-magic-sparkles"></i> Buat Lisensi</button>
                 <button id="btn-purchase-view" class="sidebar-link"><i class="fa-solid fa-qrcode"></i> Beli API Key</button>
                 <button id="btn-profile-view" class="sidebar-link"><i class="fa-solid fa-user"></i> Profil</button>
                 <button id="btn-admin-view" class="sidebar-link hidden"><i class="fa-solid fa-screwdriver-wrench"></i> Admin Panel</button>
@@ -130,26 +131,34 @@
         <section id="screen-dashboard" class="screen hidden">
             <div class="dashboard-header animate-fade-in">
                 <h2 class="section-title">Dashboard & Live Stats</h2>
-                <p class="section-subtitle">Pantau statistik server dan jalankan generator premium.</p>
+                <p class="section-subtitle">Pantau statistik server secara langsung.</p>
             </div>
             
             <!-- Live Stats Grid -->
             <div class="stats-grid mb-4 animate-fade-in" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
                 <div class="glass-card stat-card" style="padding: 20px; text-align: center;">
-                    <i class="fa-solid fa-server" style="font-size: 2rem; color: #8e2de2; margin-bottom: 12px;"></i>
+                    <i class="fa-solid fa-server" style="font-size: 2rem; color: #ffffff; margin-bottom: 12px;"></i>
                     <h3 style="font-size: 1rem; color: var(--text-secondary);">Server Status</h3>
                     <p style="font-size: 1.5rem; font-weight: bold; color: var(--success);">Online</p>
                 </div>
                 <div class="glass-card stat-card" style="padding: 20px; text-align: center;">
-                    <i class="fa-solid fa-users" style="font-size: 2rem; color: #4a00e0; margin-bottom: 12px;"></i>
+                    <i class="fa-solid fa-users" style="font-size: 2rem; color: #ffffff; margin-bottom: 12px;"></i>
                     <h3 style="font-size: 1rem; color: var(--text-secondary);">Total Users</h3>
                     <p style="font-size: 1.5rem; font-weight: bold; color: white;" id="stat-total-users">--</p>
                 </div>
                 <div class="glass-card stat-card" style="padding: 20px; text-align: center;">
-                    <i class="fa-solid fa-bolt" style="font-size: 2rem; color: #f39c12; margin-bottom: 12px;"></i>
+                    <i class="fa-solid fa-bolt" style="font-size: 2rem; color: #ffffff; margin-bottom: 12px;"></i>
                     <h3 style="font-size: 1rem; color: var(--text-secondary);">Your Credits</h3>
                     <p style="font-size: 1.5rem; font-weight: bold; color: white;" id="stat-your-credits">--</p>
                 </div>
+            </div>
+        </section>
+
+        <!-- GENERATOR SCREEN -->
+        <section id="screen-generator" class="screen hidden">
+            <div class="dashboard-header animate-fade-in">
+                <h2 class="section-title">License Generator</h2>
+                <p class="section-subtitle">Buat lisensi premium Alight Motion Anda disini.</p>
             </div>
 
             <div class="generator-box glass-card animate-fade-in">
