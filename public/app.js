@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let registerWidgetId = null;
 
     // View Elements
+    const screenGate = document.getElementById('screen-gate');
     const screenAuth = document.getElementById('screen-auth');
     const screenDashboard = document.getElementById('screen-dashboard');
     const screenAdmin = document.getElementById('screen-admin');
@@ -39,6 +40,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const adminUsersTableBody = document.getElementById('admin-users-table-body');
     const adminLogsTableBody = document.getElementById('admin-logs-table-body');
 
+    // Gate State
+    let gateWidgetId = null;
+    let gateToken = '';
+
+    // Set dynamic domain & Ray ID on Full-Page Gate
+    const gateDomainEl = document.getElementById('gate-domain-name');
+    if (gateDomainEl) gateDomainEl.textContent = window.location.hostname || 'ryezenstore.vercel.app';
+    
+    const gateRayIdEl = document.getElementById('gate-ray-id-val');
+    if (gateRayIdEl) {
+        const randomRay = Math.random().toString(36).substring(2, 10) + Math.random().toString(36).substring(2, 10);
+        gateRayIdEl.textContent = randomRay;
+    }
+
     // Initialize application
     checkSession();
 
@@ -51,8 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 const data = await res.json();
                 turnstileSiteKey = data.turnstileSiteKey;
-                // Only render if auth screen is active/visible
-                if (!screenAuth.classList.contains('hidden')) {
+                if (screenGate && !screenGate.classList.contains('hidden')) {
                     initTurnstile();
                 }
             }
@@ -62,17 +76,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     loadConfig();
 
-    // Explicit Turnstile Initialization
+    // Explicit Turnstile Initialization on Full-Page Gate
     function initTurnstile() {
         if (window.turnstile && turnstileSiteKey) {
-            if (loginWidgetId === null && document.getElementById('login-turnstile')) {
-                loginWidgetId = turnstile.render('#login-turnstile', {
+            if (gateWidgetId === null && document.getElementById('gate-turnstile')) {
+                gateWidgetId = turnstile.render('#gate-turnstile', {
                     sitekey: turnstileSiteKey,
-                    theme: 'dark'
+                    theme: 'dark',
+                    callback: function(token) {
+                        gateToken = token;
+                        // Smooth unlock transition to auth screen
+                        setTimeout(() => {
+                            showScreen('auth');
+                        }, 400);
+                    }
                 });
             }
         } else if (!window.turnstile) {
-            // Recheck after a short delay
             setTimeout(initTurnstile, 300);
         }
     }
@@ -82,14 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         authLoginView.classList.add('hidden');
         authRegisterView.classList.remove('hidden');
-        
-        // Render Register Turnstile when it becomes visible
-        if (window.turnstile && registerWidgetId === null && turnstileSiteKey && document.getElementById('register-turnstile')) {
-            registerWidgetId = turnstile.render('#register-turnstile', {
-                sitekey: turnstileSiteKey,
-                theme: 'dark'
-            });
-        }
     });
 
     linkToLogin.addEventListener('click', (e) => {
@@ -145,11 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (dbStatusText) dbStatusText.textContent = 'Connected';
             } else {
-                showScreen('auth');
+                showScreen('gate');
             }
         } catch (error) {
             console.error('Session check failed:', error);
-            showScreen('auth');
+            showScreen('gate');
         }
     }
 
@@ -159,10 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
-        // Get Turnstile token
-        const turnstileToken = window.turnstile && loginWidgetId !== null ? turnstile.getResponse(loginWidgetId) : '';
+        // Get Turnstile token from Full-Page Gate
+        const turnstileToken = gateToken || (window.turnstile && gateWidgetId !== null ? turnstile.getResponse(gateWidgetId) : '');
         if (!turnstileToken) {
-            showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
+            showError('Selesaikan verifikasi keamanan terlebih dahulu.');
+            showScreen('gate');
             return;
         }
 
@@ -211,10 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
 
-        // Get Turnstile token
-        const turnstileToken = window.turnstile && registerWidgetId !== null ? turnstile.getResponse(registerWidgetId) : '';
+        // Get Turnstile token from Full-Page Gate
+        const turnstileToken = gateToken || (window.turnstile && gateWidgetId !== null ? turnstile.getResponse(gateWidgetId) : '');
         if (!turnstileToken) {
-            showError('Selesaikan verifikasi Turnstile terlebih dahulu.');
+            showError('Selesaikan verifikasi keamanan terlebih dahulu.');
+            showScreen('gate');
             return;
         }
 
@@ -625,13 +639,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Switch Screen Visibility
     function showScreen(screenName) {
+        if (screenGate) screenGate.classList.add('hidden');
         screenAuth.classList.add('hidden');
         screenDashboard.classList.add('hidden');
         screenAdmin.classList.add('hidden');
 
-        if (screenName === 'auth') {
-            screenAuth.classList.remove('hidden');
+        if (screenName === 'gate') {
+            if (screenGate) screenGate.classList.remove('hidden');
             initTurnstile();
+        } else if (screenName === 'auth') {
+            screenAuth.classList.remove('hidden');
         } else if (screenName === 'dashboard') {
             screenDashboard.classList.remove('hidden');
             btnDashboardView.classList.add('hidden');
