@@ -113,4 +113,68 @@ router.get('/logs', isAuthenticated, isAdmin, async (req, res) => {
     }
 });
 
+// View all transactions (payment history)
+router.get('/transactions', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const Transaction = require('../models/Transaction');
+        const transactions = await Transaction.find({})
+            .sort({ createdAt: -1 })
+            .limit(100);
+        return res.json({ transactions });
+    } catch (error) {
+        console.error('Get admin transactions error:', error);
+        return res.status(500).json({ error: 'Terjadi kesalahan server.' });
+    }
+});
+
+// Manually approve a pending transaction
+router.post('/transaction/approve', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+        const { refNo } = req.body;
+        if (!refNo) {
+            return res.status(400).json({ error: 'RefNo wajib diisi.' });
+        }
+
+        const Transaction = require('../models/Transaction');
+        const tx = await Transaction.findOne({ refNo });
+        if (!tx) {
+            return res.status(404).json({ error: 'Transaksi tidak ditemukan.' });
+        }
+
+        if (tx.status === 'success') {
+            return res.status(400).json({ error: 'Transaksi sudah berstatus success.' });
+        }
+
+        // Update transaction status
+        tx.status = 'success';
+        tx.settledAt = new Date();
+        await tx.save();
+
+        // Update/generate API key and plan details for target user
+        const crypto = require('crypto');
+        const user = await User.findById(tx.userId);
+        if (user) {
+            if (!user.apiKey) {
+                user.apiKey = 'ak_am_' + crypto.randomBytes(16).toString('hex');
+            }
+            user.apiPlan = tx.planType;
+
+            if (tx.planType === 'monthly') {
+                const currentExpiry = user.apiExpiresAt && user.apiExpiresAt > new Date() ? user.apiExpiresAt : new Date();
+                user.apiExpiresAt = new Date(currentExpiry.getTime() + 30 * 24 * 60 * 60 * 1000);
+            } else {
+                user.apiExpiresAt = null; // Lifetime
+            }
+
+            await user.save();
+            return res.json({ success: true, message: `Transaksi ${refNo} berhasil disetujui secara manual. API Key user ${user.username} aktif.` });
+        } else {
+            return res.status(404).json({ error: 'Pengguna terkait transaksi tidak ditemukan.' });
+        }
+    } catch (error) {
+        console.error('Approve transaction error:', error);
+        return res.status(500).json({ error: 'Terjadi kesalahan server.' });
+    }
+});
+
 module.exports = router;

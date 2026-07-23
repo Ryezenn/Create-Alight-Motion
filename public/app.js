@@ -533,8 +533,96 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await logsRes.json();
                 renderAdminLogs(data.logs);
             }
+
+            // Load transactions
+            const txsRes = await fetch('/api/admin/transactions');
+            if (txsRes.ok) {
+                const data = await txsRes.json();
+                renderAdminTransactions(data.transactions);
+            }
         } catch (error) {
             console.error('Failed to load admin panel:', error);
+        }
+    }
+
+    function renderAdminTransactions(txs) {
+        const adminTransactionsTableBody = document.getElementById('admin-transactions-table-body');
+        if (!adminTransactionsTableBody) return;
+
+        if (!txs || txs.length === 0) {
+            adminTransactionsTableBody.innerHTML = `<tr><td colspan="7" class="text-center">Tidak ada transaksi pembayaran.</td></tr>`;
+            return;
+        }
+
+        adminTransactionsTableBody.innerHTML = txs.map(tx => {
+            const isPending = tx.status === 'pending';
+            const actionBtn = isPending ? `
+                <button class="btn btn-primary btn-sm approve-tx-btn" data-ref="${tx.refNo}">
+                    <i class="fa-solid fa-circle-check"></i> Setujui
+                </button>
+            ` : '-';
+            const statusClass = tx.status === 'success' ? 'status-success' : (tx.status === 'failed' ? 'status-failed' : 'status-pending');
+            const statusText = tx.status === 'success' ? 'Sukses' : (tx.status === 'failed' ? 'Gagal' : 'Pending');
+            const date = new Date(tx.createdAt).toLocaleString('id-ID');
+            return `
+                <tr>
+                    <td>${date}</td>
+                    <td><b>${escapeHtml(tx.username)}</b></td>
+                    <td><code>${escapeHtml(tx.refNo)}</code></td>
+                    <td>Rp ${tx.amount.toLocaleString('id-ID')}</td>
+                    <td><span class="badge badge-outline">${tx.planType.toUpperCase()}</span></td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>${actionBtn}</td>
+                </tr>
+            `;
+        }).join('');
+
+        // Bind event listeners
+        adminTransactionsTableBody.querySelectorAll('.approve-tx-btn').forEach(btn => {
+            btn.addEventListener('click', handleApproveTransaction);
+        });
+    }
+
+    async function handleApproveTransaction(e) {
+        const btn = e.currentTarget;
+        const refNo = btn.getAttribute('data-ref');
+
+        const confirm = await Swal.fire({
+            title: 'SETUJUI PEMBAYARAN',
+            text: `Apakah Anda yakin ingin menyetujui transaksi ${refNo} secara manual?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#ffffff',
+            cancelButtonColor: 'rgba(255,255,255,0.05)',
+            confirmButtonText: 'Ya, Setujui!',
+            background: '#080808',
+            color: '#ffffff'
+        });
+
+        if (confirm.isConfirmed) {
+            try {
+                const res = await fetch('/api/admin/transaction/approve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ refNo })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'BERHASIL!',
+                        text: data.message,
+                        background: '#080808',
+                        color: '#ffffff',
+                        confirmButtonColor: '#ffffff'
+                    });
+                    loadAdminPanel(); // reload panel
+                } else {
+                    showError(data.error);
+                }
+            } catch (err) {
+                showError('Terjadi kesalahan menyetujui transaksi.');
+            }
         }
     }
 
