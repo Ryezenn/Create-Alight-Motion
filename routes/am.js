@@ -31,13 +31,13 @@ router.post('/send-link', isAuthenticated, async (req, res) => {
 
         const result = await amAuth.sendMagicLink(email.trim());
         if (result.success) {
-            return res.json({ success: true, message: 'Magic link berhasil dikirim! Silakan periksa kotak masuk/spam email Anda.' });
+            return res.json({ success: true, message: 'Pesan verifikasi berhasil dikirim! Silakan periksa kotak masuk/spam email Anda.' });
         } else {
             let readableError = result.error;
             if (typeof readableError === 'string' && readableError.includes('INVALID_EMAIL')) {
-                readableError = 'Email tidak terdaftar atau format salah di server Google.';
+                readableError = 'Email tidak terdaftar atau format email salah.';
             }
-            return res.status(500).json({ error: `Gagal mengirim magic link: ${readableError || 'Unknown error'}` });
+            return res.status(500).json({ error: `Gagal mengirim pesan verifikasi: ${readableError || 'Terjadi kesalahan sistem'}` });
         }
     } catch (error) {
         console.error('Send magic link error:', error);
@@ -50,7 +50,7 @@ router.post('/activate', isAuthenticated, async (req, res) => {
     try {
         const { email, magicLink } = req.body;
         if (!email || !magicLink) {
-            return res.status(400).json({ error: 'Email dan Magic Link wajib diisi.' });
+            return res.status(400).json({ error: 'Email dan Tautan Verifikasi wajib diisi.' });
         }
 
         // Validate email format
@@ -83,19 +83,19 @@ router.post('/activate', isAuthenticated, async (req, res) => {
         await activationLog.save();
 
         // 1. Verify oobCode & Fetch Profile (Get idToken)
-        console.log(`[Activation] Verifying magic link for user: ${user.username}, email: ${email}`);
+        console.log(`[Activation] Verifying link for user: ${user.username}, email: ${email}`);
         const profileResult = await amAuth.verifyAndFetchProfile(email.trim(), magicLink.trim());
         
         if (!profileResult.success) {
             let readableError = profileResult.error;
             if (typeof readableError === 'string' && readableError.includes('EXPIRED_OOB_CODE')) {
-                readableError = 'Link aktivasi (oobCode) sudah kedaluwarsa.';
+                readableError = 'Tautan verifikasi sudah kedaluwarsa.';
             } else if (typeof readableError === 'string' && readableError.includes('INVALID_OOB_CODE')) {
-                readableError = 'Link aktivasi tidak valid / sudah pernah digunakan.';
+                readableError = 'Tautan verifikasi tidak valid atau sudah pernah digunakan.';
             }
             
             activationLog.status = 'failed';
-            activationLog.error = readableError || 'Gagal verifikasi magic link (oobCode tidak valid/kedaluwarsa).';
+            activationLog.error = readableError || 'Gagal memverifikasi tautan (link tidak valid / kedaluwarsa).';
             await activationLog.save();
             return res.status(400).json({ error: activationLog.error });
         }

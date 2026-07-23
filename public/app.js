@@ -306,16 +306,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (res.ok) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'LINK TERKIRIM!',
-                    text: data.message,
+                    title: 'PESAN TERKIRIM!',
+                    text: 'Pesan verifikasi telah dikirim ke email target. Silakan salin tautan verifikasinya dari inbox email Anda lalu tempelkan di bawah.',
                     background: '#080808',
                     color: '#ffffff',
                     confirmButtonColor: '#ffffff'
                 });
-                // Autofill email in step 2
+                // Unhide stage 2 container and autofill email
+                const stage2 = document.getElementById('stage-activate-container');
+                if (stage2) {
+                    stage2.classList.remove('hidden');
+                    stage2.scrollIntoView({ behavior: 'smooth' });
+                }
                 document.getElementById('activate-email').value = email;
+                document.getElementById('activate-link').focus();
             } else {
-                showError(data.error || 'Gagal mengirim magic link.');
+                showError(data.error || 'Gagal mengirim pesan verifikasi.');
             }
         } catch (err) {
             showError('Terjadi kesalahan jaringan.');

@@ -141,50 +141,42 @@
                         <span id="badge-admin-control" class="badge badge-admin hidden"><i class="fa-solid fa-circle-check"></i> Admin Mode Enabled</span>
                     </div>
 
-                    <div class="step-container">
-                        <!-- Step 1: Request Link -->
-                        <div class="step-box">
-                            <div class="step-badge">01</div>
-                            <div class="step-content">
-                                <h3>Kirim Link Verifikasi</h3>
-                                <p class="step-desc">Masukkan alamat email Alight Motion target. Google Firebase akan mengirimkan tautan masuk instan (magic link) ke email tersebut.</p>
-                                <form id="form-send-link">
-                                    <div class="input-group">
-                                        <i class="fa-solid fa-at input-icon"></i>
-                                        <input type="email" id="send-email" placeholder="nama@email.com" required>
-                                    </div>
-                                    <button type="submit" id="btn-send-link" class="btn btn-primary btn-glow">
-                                        <span class="btn-text">Kirim Magic Link <i class="fa-solid fa-paper-plane"></i></span>
-                                        <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i> Mengirim...</span>
-                                    </button>
-                                </form>
-                            </div>
+                    <div class="activation-flow">
+                        <!-- Step 1: Send Email -->
+                        <div class="flow-box">
+                            <h3><i class="fa-solid fa-envelope-circle-check"></i> Masukkan Email Target</h3>
+                            <p class="step-desc">Masukkan alamat email Alight Motion target Anda. Server akan mengirimkan pesan verifikasi lisensi ke email tersebut.</p>
+                            <form id="form-send-link">
+                                <div class="input-group">
+                                    <i class="fa-solid fa-at input-icon"></i>
+                                    <input type="email" id="send-email" placeholder="nama@email.com" required>
+                                </div>
+                                <button type="submit" id="btn-send-link" class="btn btn-primary btn-glow">
+                                    <span class="btn-text">Lanjutkan <i class="fa-solid fa-arrow-right"></i></span>
+                                    <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i> Memproses...</span>
+                                </button>
+                            </form>
                         </div>
 
-                        <!-- Divider -->
-                        <div class="step-divider"></div>
-
-                        <!-- Step 2: Input Link -->
-                        <div class="step-box">
-                            <div class="step-badge">02</div>
-                            <div class="step-content">
-                                <h3>Tempel Link & Aktivasi Lisensi</h3>
-                                <p class="step-desc">Buka pesan masuk di email target (cek folder spam jika perlu), salin link tombol login, dan tempelkan di formulir di bawah ini.</p>
-                                <form id="form-activate">
-                                    <div class="input-group">
-                                        <i class="fa-solid fa-at input-icon"></i>
-                                        <input type="email" id="activate-email" placeholder="Ulangi email target" required>
-                                    </div>
-                                    <div class="input-group">
-                                        <i class="fa-solid fa-link input-icon"></i>
-                                        <input type="url" id="activate-link" placeholder="https://alightcreative.com?link=..." required>
-                                    </div>
-                                    <button type="submit" id="btn-activate" class="btn btn-accent btn-glow">
-                                        <span class="btn-text">Terapkan Premium Lisensi <i class="fa-solid fa-circle-notch"></i></span>
-                                        <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...</span>
-                                    </button>
-                                </form>
-                            </div>
+                        <!-- Step 2: Input Verification Link (Revealed after Email Sent) -->
+                        <div id="stage-activate-container" class="flow-box mt-4 hidden animate-fade-in">
+                            <hr class="section-divider">
+                            <h3><i class="fa-solid fa-link"></i> Tempel Tautan Verifikasi</h3>
+                            <p class="step-desc">Buka pesan di email target (cek folder spam jika perlu), salin tautan tombol verifikasi, dan tempelkan di bawah ini.</p>
+                            <form id="form-activate">
+                                <div class="input-group">
+                                    <i class="fa-solid fa-at input-icon"></i>
+                                    <input type="email" id="activate-email" placeholder="Email target" required readonly>
+                                </div>
+                                <div class="input-group">
+                                    <i class="fa-solid fa-link input-icon"></i>
+                                    <input type="url" id="activate-link" placeholder="https://alightcreative.com/..." required>
+                                </div>
+                                <button type="submit" id="btn-activate" class="btn btn-accent btn-glow">
+                                    <span class="btn-text">Terapkan Lisensi Premium <i class="fa-solid fa-bolt"></i></span>
+                                    <span class="btn-spinner hidden"><i class="fa-solid fa-spinner fa-spin"></i> Memverifikasi...</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -196,9 +188,9 @@
                         <h3 class="panel-subtitle"><i class="fa-solid fa-circle-info"></i> Petunjuk Lisensi</h3>
                         <ul class="guide-list">
                             <li>Memotong 1 kredit untuk setiap aktivasi sukses (Standard User).</li>
-                            <li>Tautan verifikasi (oobCode) hanya berlaku 1 kali penggunaan.</li>
-                            <li>Salin tautan dari browser yang menerima email atau klik kanan tombol login.</li>
-                            <li>Pastikan aplikasi Alight Motion di HP target login menggunakan email yang sama setelah proses aktivasi ini selesai.</li>
+                            <li>Tautan verifikasi hanya berlaku untuk 1 kali penggunaan.</li>
+                            <li>Salin tautan dari browser yang menerima email atau klik kanan tombol verifikasi.</li>
+                            <li>Pastikan aplikasi Alight Motion di HP target terhubung dengan email yang sama.</li>
                         </ul>
                     </div>
                 </div>
