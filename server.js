@@ -112,9 +112,13 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-    console.log(`==================================================`);
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`   Local URL: http://localhost:${PORT}`);
-    console.log(`==================================================`);
-});
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`==================================================`);
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`   Local URL: http://localhost:${PORT}`);
+        console.log(`==================================================`);
+    });
+}
+
+module.exports = app;
