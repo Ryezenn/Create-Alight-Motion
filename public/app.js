@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize application
     checkSession();
+    loadPublicStats();
 
     let turnstileSiteKey = '';
 
@@ -700,11 +701,247 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadDashboard() {
         updateNavbar();
         loadUserHistory();
+        loadAPIPanel();
         btnDashboardView.classList.add('hidden');
         if (currentUser && currentUser.role === 'admin') {
             btnAdminView.classList.remove('hidden');
         }
     }
+
+    async function loadAPIPanel() {
+        try {
+            const res = await fetch('/api/auth/profile');
+            if (res.ok) {
+                const data = await res.json();
+                currentUser = data.user;
+                
+                const apiNoPlan = document.getElementById('api-no-plan');
+                const apiActivePlan = document.getElementById('api-active-plan');
+                
+                if (currentUser.apiPlan && currentUser.apiPlan !== 'none') {
+                    apiNoPlan.classList.add('hidden');
+                    apiActivePlan.classList.remove('hidden');
+                    
+                    const planBadge = document.getElementById('api-plan-badge');
+                    const planExpiry = document.getElementById('api-plan-expiry');
+                    const keyInput = document.getElementById('api-key-input');
+                    
+                    planBadge.textContent = `Plan: ${currentUser.apiPlan === 'lifetime' ? 'Lifetime' : 'Bulanan'}`;
+                    
+                    if (currentUser.apiPlan === 'lifetime') {
+                        planExpiry.textContent = 'Expired: Selamanya';
+                    } else if (currentUser.apiExpiresAt) {
+                        const expiryDate = new Date(currentUser.apiExpiresAt).toLocaleDateString('id-ID', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+                        planExpiry.textContent = `Expired: ${expiryDate}`;
+                    } else {
+                        planExpiry.textContent = 'Expired: -';
+                    }
+                    
+                    keyInput.value = currentUser.apiKey || '';
+                } else {
+                    apiNoPlan.classList.remove('hidden');
+                    apiActivePlan.classList.add('hidden');
+                }
+            }
+        } catch (error) {
+            console.error('Failed to load API Panel:', error);
+        }
+    }
+
+    async function loadPublicStats() {
+        try {
+            const res = await fetch('/api/public/stats');
+            if (res.ok) {
+                const data = await res.json();
+                const authStatUsers = document.getElementById('auth-stat-users');
+                const authStatSuccess = document.getElementById('auth-stat-success');
+                if (authStatUsers) authStatUsers.textContent = data.totalUsers.toLocaleString('id-ID');
+                if (authStatSuccess) authStatSuccess.textContent = data.totalSuccess.toLocaleString('id-ID');
+            }
+        } catch (error) {
+            console.error('Failed to load public stats:', error);
+        }
+    }
+
+    // Tabs switching for API Guide
+    document.addEventListener('click', (e) => {
+        const tabBtn = e.target.closest('.tab-btn');
+        if (tabBtn) {
+            const tabsContainer = tabBtn.parentElement;
+            tabsContainer.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            tabBtn.classList.add('active');
+            
+            const guideSection = tabsContainer.parentElement;
+            guideSection.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const targetId = tabBtn.getAttribute('data-tab');
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) targetContent.classList.add('active');
+        }
+    });
+
+    // Copy API Key
+    document.addEventListener('click', (e) => {
+        const copyBtn = e.target.closest('#btn-copy-api');
+        if (copyBtn) {
+            const keyInput = document.getElementById('api-key-input');
+            if (keyInput && keyInput.value && keyInput.value !== 'ak_am_...') {
+                navigator.clipboard.writeText(keyInput.value).then(() => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'API KEY DISALIN!',
+                        text: 'API Key berhasil disalin ke clipboard.',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        background: '#080808',
+                        color: '#ffffff'
+                    });
+                }).catch(err => {
+                    console.error('Failed to copy API key:', err);
+                });
+            }
+        }
+    });
+
+    // Buy API Key (QRIS Mustika Payment)
+    let paymentPollInterval = null;
+
+    document.addEventListener('click', async (e) => {
+        const buyBtn = e.target.closest('.buy-api-btn');
+        if (buyBtn) {
+            const planType = buyBtn.getAttribute('data-plan');
+            const planName = planType === 'monthly' ? 'Bulanan (25k)' : 'Lifetime (50k)';
+            
+            Swal.fire({
+                title: 'Membuat Invoice...',
+                text: `Menyiapkan QRIS untuk plan ${planName}`,
+                background: '#080808',
+                color: '#ffffff',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                const res = await fetch('/api/payment/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ planType })
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    Swal.fire({
+                        title: `PEMBAYARAN QRIS - ${planName.toUpperCase()}`,
+                        html: `
+                            <p style="font-size:0.82rem;color:#8c8c8c;margin-bottom:15px;line-height:1.4;">Scan kode QRIS di bawah menggunakan GoPay, ShopeePay, DANA, OVO, LinkAja, atau Mobile Banking.</p>
+                            <div style="background: white; padding: 12px; border-radius: 12px; width: 240px; margin: 0 auto 15px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+                                <img src="${data.transaction.qrUrl}" style="width:100%; display:block;">
+                            </div>
+                            <p style="font-size:0.78rem;color:#8c8c8c;margin-bottom:2px;">Nomor Referensi: ${data.transaction.refNo}</p>
+                            <p style="font-size:1.15rem;color:#ffffff;font-weight:700;font-family:'Outfit',sans-serif;">Total Bayar: Rp ${data.transaction.amount.toLocaleString('id-ID')}</p>
+                            <p style="font-size:0.75rem;color:#d9534f;margin-top:10px;font-weight:bold;"><i class="fa-solid fa-spinner fa-spin"></i> Menunggu Pembayaran Terdeteksi...</p>
+                        `,
+                        background: '#080808',
+                        color: '#ffffff',
+                        showCancelButton: true,
+                        confirmButtonText: 'Cek Status Pembayaran <i class="fa-solid fa-sync"></i>',
+                        cancelButtonText: 'Batal',
+                        confirmButtonColor: '#ffffff',
+                        cancelButtonColor: '#222222',
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            if (paymentPollInterval) clearInterval(paymentPollInterval);
+                            paymentPollInterval = setInterval(async () => {
+                                try {
+                                    const statusRes = await fetch(`/api/payment/status/${data.transaction.refNo}`);
+                                    if (statusRes.ok) {
+                                        const statusData = await statusRes.json();
+                                        if (statusData.status === 'success') {
+                                            clearInterval(paymentPollInterval);
+                                            paymentPollInterval = null;
+                                            Swal.close();
+                                            Swal.fire({
+                                                icon: 'success',
+                                                title: 'PEMBAYARAN SUKSES!',
+                                                text: 'API Key Anda telah aktif! Silakan salin API Key di panel dashboard Anda.',
+                                                background: '#080808',
+                                                color: '#ffffff',
+                                                confirmButtonColor: '#ffffff'
+                                            });
+                                            loadAPIPanel();
+                                        }
+                                    }
+                                } catch (pollErr) {
+                                    console.error('Polling error:', pollErr);
+                                }
+                            }, 7000);
+                        },
+                        willClose: () => {
+                            if (paymentPollInterval) {
+                                clearInterval(paymentPollInterval);
+                                paymentPollInterval = null;
+                            }
+                        }
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                title: 'Mengecek Pembayaran...',
+                                background: '#080808',
+                                color: '#ffffff',
+                                allowOutsideClick: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
+                            
+                            try {
+                                const statusRes = await fetch(`/api/payment/status/${data.transaction.refNo}`);
+                                if (statusRes.ok) {
+                                    const statusData = await statusRes.json();
+                                    if (statusData.status === 'success') {
+                                        Swal.fire({
+                                            icon: 'success',
+                                            title: 'PEMBAYARAN SUKSES!',
+                                            text: 'API Key Anda telah aktif!',
+                                            background: '#080808',
+                                            color: '#ffffff',
+                                            confirmButtonColor: '#ffffff'
+                                        });
+                                        loadAPIPanel();
+                                    } else {
+                                        Swal.fire({
+                                            icon: 'warning',
+                                            title: 'BELUM TERDETEKSI',
+                                            text: 'Pembayaran belum terdeteksi. Silakan tunggu beberapa saat lalu coba cek kembali.',
+                                            background: '#080808',
+                                            color: '#ffffff',
+                                            confirmButtonColor: '#ffffff'
+                                        });
+                                    }
+                                } else {
+                                    showError('Gagal memverifikasi status pembayaran.');
+                                }
+                            } catch (err) {
+                                showError('Terjadi kesalahan koneksi.');
+                            }
+                        }
+                    });
+                } else {
+                    showError(data.error || 'Gagal membuat invoice pembayaran.');
+                }
+            } catch (err) {
+                showError('Terjadi kesalahan jaringan.');
+            }
+        }
+    });
 
     // Show error popup alert
     function showError(message) {

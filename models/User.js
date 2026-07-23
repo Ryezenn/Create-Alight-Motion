@@ -28,6 +28,19 @@ const UserSchema = new mongoose.Schema({
         enum: ['active', 'banned'],
         default: 'active'
     },
+    apiKey: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
+    apiPlan: {
+        type: String,
+        enum: ['none', 'monthly', 'lifetime'],
+        default: 'none'
+    },
+    apiExpiresAt: {
+        type: Date
+    },
     createdAt: {
         type: Date,
         default: Date.now

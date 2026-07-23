@@ -111,6 +111,18 @@
                     </form>
                     <p class="auth-toggle-text">Sudah punya akun? <a href="#" id="link-to-login" class="link-accent">Login disini</a></p>
                 </div>
+
+                <!-- Live Stats Strip (Publicly visible) -->
+                <div class="auth-stats-grid mt-4">
+                    <div class="auth-stat-item">
+                        <span class="auth-stat-val" id="auth-stat-users">...</span>
+                        <span class="auth-stat-lbl">Anggota Aktif</span>
+                    </div>
+                    <div class="auth-stat-item">
+                        <span class="auth-stat-val" id="auth-stat-success">...</span>
+                        <span class="auth-stat-lbl">Lisensi Aktif</span>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -192,6 +204,110 @@
                             <li>Salin tautan dari browser yang menerima email atau klik kanan tombol verifikasi.</li>
                             <li>Pastikan aplikasi Alight Motion di HP target terhubung dengan email yang sama.</li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Key & Bot Integration Panel -->
+            <div class="glass-card api-panel mt-4 animate-fade-in">
+                <div class="panel-header-desc">
+                    <h3 class="card-title"><i class="fa-solid fa-code"></i> API Integration for Bot Creators</h3>
+                    <p class="panel-desc">Gunakan apikey untuk membuat generator lewat Bot Node.js atau Python Anda. Dapatkan akses instant bebas Turnstile captcha.</p>
+                </div>
+
+                <div id="api-no-plan" class="api-status-container">
+                    <div class="api-pricing-grid">
+                        <div class="api-price-card">
+                            <h3>Plan Bulanan</h3>
+                            <div class="price">25k<span>/bulan</span></div>
+                            <ul class="features">
+                                <li>Akses API Bebas Captcha</li>
+                                <li>Bot Node.js / Python Ready</li>
+                                <li>Potong Kredit Per Aktivasi</li>
+                                <li>Integrasi QRIS Otomatis</li>
+                            </ul>
+                            <button class="btn btn-primary btn-glow buy-api-btn" data-plan="monthly">Beli Bulanan (25k) <i class="fa-solid fa-qrcode"></i></button>
+                        </div>
+                        <div class="api-price-card featured">
+                            <div class="badge-featured">REKOMENDASI</div>
+                            <h3>Plan Lifetime</h3>
+                            <div class="price">50k<span>/selamanya</span></div>
+                            <ul class="features">
+                                <li>Akses API Bebas Captcha</li>
+                                <li>Bot Node.js / Python Ready</li>
+                                <li>Potong Kredit Per Aktivasi</li>
+                                <li>Tanpa Biaya Perpanjangan</li>
+                                <li>Integrasi QRIS Otomatis</li>
+                            </ul>
+                            <button class="btn btn-accent btn-glow buy-api-btn" data-plan="lifetime">Beli Lifetime (50k) <i class="fa-solid fa-qrcode"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="api-active-plan" class="api-status-container hidden">
+                    <div class="api-details-card">
+                        <div class="api-meta">
+                            <span class="badge" id="api-plan-badge" style="background:#ffffff; color:#000000; padding:4px 8px; border-radius:4px; font-weight:700; font-size:0.75rem;">Plan: Lifetime</span>
+                            <span class="api-expiry" id="api-plan-expiry">Expired: -</span>
+                        </div>
+                        <div class="input-group mt-3" style="margin-bottom:0px; display:flex; gap:10px;">
+                            <div style="position:relative; flex-grow:1;">
+                                <i class="fa-solid fa-key input-icon"></i>
+                                <input type="text" id="api-key-input" readonly value="ak_am_..." style="padding-right:15px;">
+                            </div>
+                            <button class="btn btn-secondary copy-api-btn" id="btn-copy-api" style="width:100px; padding:12px;"><i class="fa-solid fa-copy"></i> Salin</button>
+                        </div>
+                    </div>
+
+                    <!-- Integration Guide -->
+                    <div class="api-guide-section mt-4">
+                        <div class="tabs">
+                            <button class="tab-btn active" data-tab="tab-node">Node.js Template</button>
+                            <button class="tab-btn" data-tab="tab-python">Python Template</button>
+                        </div>
+                        <div class="tab-contents mt-3">
+                            <div class="tab-content active" id="tab-node">
+                                <pre><code class="language-javascript">// 1. Kirim Link Verifikasi
+const axios = require('axios');
+const API_URL = window.location.origin;
+
+axios.post(`${API_URL}/api/v1/bot/send-link`, {
+    email: 'target@email.com'
+}, {
+    headers: { 'X-API-Key': 'YOUR_API_KEY' }
+}).then(res => console.log(res.data))
+  .catch(err => console.error(err.response?.data || err.message));
+
+// 2. Terapkan Lisensi Premium
+axios.post(`${API_URL}/api/v1/bot/activate`, {
+    email: 'target@email.com',
+    magicLink: 'https://alightcreative.com/...'
+}, {
+    headers: { 'X-API-Key': 'YOUR_API_KEY' }
+}).then(res => console.log(res.data))
+  .catch(err => console.error(err.response?.data || err.message));</code></pre>
+                            </div>
+                            <div class="tab-content" id="tab-python">
+                                <pre><code class="language-python"># Template Python Bot Integration
+import requests
+API_URL = "MASUKKAN_URL_WEBSITE_DI_SINI" # Contoh: https://site.com
+
+headers = { 'X-API-Key': 'YOUR_API_KEY' }
+
+# 1. Kirim Link Verifikasi
+r1 = requests.post(f"{API_URL}/api/v1/bot/send-link", json={
+    "email": "target@email.com"
+}, headers=headers)
+print(r1.json())
+
+# 2. Terapkan Lisensi Premium
+r2 = requests.post(f"{API_URL}/api/v1/bot/activate", json={
+    "email": "target@email.com",
+    "magicLink": "https://alightcreative.com/..."
+}, headers=headers)
+print(r2.json())</code></pre>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
